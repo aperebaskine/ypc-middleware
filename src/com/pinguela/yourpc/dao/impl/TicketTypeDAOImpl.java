@@ -57,13 +57,13 @@ implements TicketTypeDAO {
 	}
 
 	private ItemType<Ticket> loadNext(ResultSet rs) throws SQLException {
-		ItemType<Ticket> state = new ItemType<>();
+		ItemType<Ticket> type = new ItemType<>();
 
 		int i = 1;
-		state.setId(rs.getString(i++));
-		state.setName(rs.getString(i++));
+		type.setId(rs.getString(i++));
+		type.setName(rs.getString(i++));
 
-		return state;
+		return type;
 	}
 
 }
