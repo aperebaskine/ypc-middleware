@@ -19,6 +19,7 @@ import com.pinguela.yourpc.dao.CustomerOrderDAO;
 import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
+import com.pinguela.yourpc.model.CustomerOrderRanges;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -27,10 +28,18 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 
 	private static Logger logger = LogManager.getLogger(CustomerOrderDAOImpl.class);
 	private OrderLineDAO orderLineDAO = null;
+	
+	private static final String SELECT_COLUMNS =
+			" SELECT co.ID, co.ORDER_STATE_ID, co.CUSTOMER_ID, co.ORDER_DATE, co.TRACKING_NUMBER, co.BILLING_ADDRESS_ID, co.SHIPPING_ADDRESS_ID, co.INVOICE_TOTAL";
 
-	public CustomerOrderDAOImpl() {
-		orderLineDAO = new OrderLineDAOImpl();
-	}
+	private static final String SELECT_RANGES =
+			" SELECT MIN(co.INVOICE_TOTAL), MAX(co.INVOICE_TOTAL), MIN(co.ORDER_DATE), MAX(co.ORDER_DATE)";
+	
+	private static final String FROM_TABLE = 
+			" FROM CUSTOMER_ORDER co";
+	
+	private static final String GET_RANGES_QUERY = 
+			SELECT_RANGES +FROM_TABLE;
 
 	private static final String CREATE_QUERY = 
 			" INSERT INTO CUSTOMER_ORDER(ORDER_STATE_ID,"
@@ -52,6 +61,10 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 					+ " SHIPPING_ADDRESS_ID = ?,"
 					+ " INVOICE_TOTAL = ?"
 					+ " WHERE ID = ?";
+	
+	public CustomerOrderDAOImpl() {
+		orderLineDAO = new OrderLineDAOImpl();
+	}
 
 	@Override
 	public Long create(Connection conn, CustomerOrder co) 
@@ -145,12 +158,6 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		return index;
 	}
 
-	private static final String SELECT_COLUMNS =
-			" SELECT co.ID, co.ORDER_STATE_ID, co.CUSTOMER_ID, co.ORDER_DATE, co.TRACKING_NUMBER, co.BILLING_ADDRESS_ID, co.SHIPPING_ADDRESS_ID, co.INVOICE_TOTAL";
-
-	private static final String FROM_TABLE = 
-			" FROM CUSTOMER_ORDER co";
-
 	@Override
 	public CustomerOrder findById(Connection conn, Long id) 
 			throws DataException {
@@ -214,13 +221,46 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		} finally {
 			JDBCUtils.close(stmt, rs);
 		}
+	}
+	
+	@Override
+	public CustomerOrderRanges getRanges(Connection conn, CustomerOrderCriteria criteria) 
+			throws DataException {
+		
+		CustomerOrderRanges ranges = new CustomerOrderRanges();
 
+		StringBuilder query = new StringBuilder(GET_RANGES_QUERY).append(buildWhereClause(criteria));
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(query.toString(),
+					ResultSet.TYPE_SCROLL_INSENSITIVE, 
+					ResultSet.CONCUR_READ_ONLY);
+			setQueryValues(stmt, criteria);
+
+			rs = stmt.executeQuery();
+			rs.next();
+			
+			int i = 1;
+			ranges.setMinAmount(rs.getDouble(i++));
+			ranges.setMaxAmount(rs.getDouble(i++));
+			ranges.setMinDate(rs.getDate(i++));
+			ranges.setMaxDate(rs.getDate(i++));
+			
+			return ranges;
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
 	}
 
 	private String buildFindByQuery(CustomerOrderCriteria criteria) {
 
 		StringBuilder query = new StringBuilder(SELECT_COLUMNS);
-		List<String> filledCriteria = new ArrayList<String>();
+		
 
 		// SELECT FROM
 		if (criteria.getCustomerEmail() != null) {
@@ -232,7 +272,15 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 					+ "ON c.ID = co.CUSTOMER_ID");				
 		}
 
-		// WHERE
+		return query
+				.append(buildWhereClause(criteria))
+				.append(SQLQueryUtils.buildOrderByClause(criteria))
+				.toString();
+	}
+
+	private StringBuilder buildWhereClause(CustomerOrderCriteria criteria) {
+		List<String> filledCriteria = new ArrayList<String>();
+		
 		if (criteria.getCustomerId() != null) {
 			filledCriteria.add(" co.CUSTOMER_ID = ?");
 		}
@@ -254,10 +302,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		if (criteria.getState() != null) {
 			filledCriteria.add(" co.ORDER_STATE_ID = ?");
 		}
-		return query
-				.append(SQLQueryUtils.buildWhereClause(filledCriteria))
-				.append(SQLQueryUtils.buildOrderByClause(criteria))
-				.toString();
+		return SQLQueryUtils.buildWhereClause(filledCriteria);
 	}
 
 	private void setQueryValues(PreparedStatement stmt, CustomerOrderCriteria criteria) throws SQLException {
@@ -303,6 +348,11 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		co.setTotalPrice(rs.getDouble(i++));
 		co.setOrderLines(orderLineDAO.findByCustomerOrder(conn, co.getId()));
 		return co;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		CustomerOrderDAOImpl dao = new CustomerOrderDAOImpl();
+		System.out.println(dao.getRanges(JDBCUtils.getConnection(), new CustomerOrderCriteria()));
 	}
 
 }

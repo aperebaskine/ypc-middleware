@@ -6,6 +6,7 @@ import java.util.List;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
+import com.pinguela.yourpc.model.CustomerOrderRanges;
 
 public interface CustomerOrderDAO {
 	
@@ -19,6 +20,9 @@ public interface CustomerOrderDAO {
 			throws DataException;
 	
 	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria)
+			throws DataException;
+	
+	public CustomerOrderRanges getRanges(Connection conn, CustomerOrderCriteria criteria)
 			throws DataException;
 
 }
