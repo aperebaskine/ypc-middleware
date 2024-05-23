@@ -13,6 +13,7 @@ import com.pinguela.yourpc.dao.CustomerOrderDAO;
 import com.pinguela.yourpc.dao.impl.CustomerOrderDAOImpl;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
+import com.pinguela.yourpc.model.CustomerOrderRanges;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.service.CustomerOrderService;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -119,6 +120,23 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 		try {
 			conn = JDBCUtils.getConnection();
 			return customerOrderDAO.findBy(conn, criteria);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+	
+	@Override
+	public CustomerOrderRanges getRanges(CustomerOrderCriteria criteria) throws ServiceException, DataException {
+		
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return customerOrderDAO.getRanges(conn, criteria);
+
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
