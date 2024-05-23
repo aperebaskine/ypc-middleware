@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.model;
 
 import java.util.Date;
+import java.util.List;
 
 public class Employee
 extends AbstractPerson {
@@ -15,6 +16,8 @@ extends AbstractPerson {
 	private String supervisorLastName2;
 	
 	private Address address;
+	
+	private List<EmployeeDepartment> departmentHistory;
 	
 	public Employee() {
 	}
@@ -91,4 +94,12 @@ extends AbstractPerson {
 		this.address = address;
 	}
 
+	public List<EmployeeDepartment> getDepartmentHistory() {
+		return departmentHistory;
+	}
+
+	public void setDepartmentHistory(List<EmployeeDepartment> departmentHistory) {
+		this.departmentHistory = departmentHistory;
+	}
+	
 }

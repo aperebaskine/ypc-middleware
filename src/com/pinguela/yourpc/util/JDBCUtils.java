@@ -180,6 +180,13 @@ public class JDBCUtils {
 		Short value = rs.getShort(index);
 		return rs.wasNull() ? null : value;
 	}
+	
+	public static final Date getNullableDate(ResultSet rs, int index) 
+			throws SQLException {
+
+		Date value = rs.getDate(index);
+		return rs.wasNull() ? null : value;
+	}
 
 	public static final void close(Connection conn, boolean commit) {
 

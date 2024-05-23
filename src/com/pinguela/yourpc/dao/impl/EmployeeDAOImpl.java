@@ -16,6 +16,7 @@ import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.dao.EmployeeDAO;
+import com.pinguela.yourpc.dao.EmployeeDepartmentDAO;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -79,9 +80,11 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
 	private static Logger logger = LogManager.getLogger(EmployeeDAOImpl.class);
 	private AddressDAO addressDAO = null;
+	private EmployeeDepartmentDAO employeeDepartmentDAO = null;
 	
 	public EmployeeDAOImpl() {
 		addressDAO = new AddressDAOImpl();
+		employeeDepartmentDAO = new EmployeeDepartmentDAOImpl();
 	}
 
 	@Override
