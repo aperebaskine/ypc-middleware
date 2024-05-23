@@ -402,7 +402,10 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		e.setSupervisorFirstName(rs.getString(i++));
 		e.setSupervisorLastName1(rs.getString(i++));
 		e.setSupervisorLastName2(rs.getString(i++));
+		
 		e.setAddress(addressDAO.findByEmployee(conn, e.getId()));
+		e.setDepartmentHistory(employeeDepartmentDAO.findByEmployee(conn, e.getId()));
+		
 		return e;
 	}
 
