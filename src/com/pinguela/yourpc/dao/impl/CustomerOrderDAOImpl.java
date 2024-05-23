@@ -349,10 +349,5 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		co.setOrderLines(orderLineDAO.findByCustomerOrder(conn, co.getId()));
 		return co;
 	}
-	
-	public static void main(String[] args) throws Exception {
-		CustomerOrderDAOImpl dao = new CustomerOrderDAOImpl();
-		System.out.println(dao.getRanges(JDBCUtils.getConnection(), new CustomerOrderCriteria()));
-	}
 
 }
