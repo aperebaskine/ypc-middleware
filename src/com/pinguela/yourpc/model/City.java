@@ -1,20 +1,11 @@
 package com.pinguela.yourpc.model;
 
 public class City 
-extends AbstractTerritory {
+extends AbstractTerritory<Integer> {
 
-	private Integer id;
 	private Integer provinceId;
 
 	public City() {
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public Integer getProvinceId() {
