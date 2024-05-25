@@ -9,6 +9,16 @@ extends AbstractValueObject {
 	private String name;
 	
 	public AbstractTerritory() {
+		this(null, null);
+	}
+	
+	public AbstractTerritory(PK id) {
+		this(id, null);
+	}
+	
+	public AbstractTerritory(PK id, String name) {
+		setId(id);
+		setName(name);
 	}
 	
 	public PK getId() {
