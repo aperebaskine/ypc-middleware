@@ -25,17 +25,21 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	private static final String ORDER_LINE_ALIAS = "ol";
 	private static final String TICKET_ORDER_LINE_ALIAS = "tol";
 	private static final String RMA_ORDER_LINE_ALIAS = "rol";
+	private static final String PRODUCT_ALIAS = "p";
 
 	// Quantity column table alias is a placeholder to be set in the formatted query constants
 	private static final String SELECT_COLUMNS =
 			" SELECT " +ORDER_LINE_ALIAS +".ID,"
 					+ " " +ORDER_LINE_ALIAS +".CUSTOMER_ORDER_ID,"
 					+ " " +ORDER_LINE_ALIAS +".PRODUCT_ID,"
+					+ " " +PRODUCT_ALIAS +".ID,"
 					+ " %1$s.QUANTITY,"
 					+ " " +ORDER_LINE_ALIAS +".PURCHASE_PRICE,"
 					+ " " +ORDER_LINE_ALIAS +".SALE_PRICE";
 	private static final String FROM_TABLE =
-			" FROM ORDER_LINE ol";
+			" FROM ORDER_LINE ol"
+			+ " INNER JOIN PRODUCT p"
+			+ " ON ol.PRODUCT_ID = p.ID";
 	private static final String JOIN_TICKET_ORDER_LINE =
 			" INNER JOIN TICKET_ORDER_LINE tol"
 					+ " ON ol.ID = tol.ORDER_LINE_ID";
@@ -136,6 +140,7 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 		ol.setId(rs.getLong(i++));
 		ol.setCustomerOrderId(rs.getLong(i++));
 		ol.setProductId(rs.getInt(i++));
+		ol.setProductName(rs.getString(i++));
 		ol.setQuantity(rs.getShort(i++));
 		ol.setPurchasePrice(rs.getDouble(i++));
 		ol.setSalePrice(rs.getDouble(i++));
@@ -223,7 +228,7 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	public Boolean assignToTicket(Connection conn, Ticket t) 
 			throws DataException {
 		unassign(conn, UNASSIGN_FROM_TICKET_QUERY, t.getId());
-		
+
 		String query = new StringBuilder(ASSIGN_TO_TICKET_QUERY)
 				.append(SQLQueryUtils.buildPlaceholderValuesClause(t.getOrderLines().size(), ASSIGN_QUERY_COLUMN_COUNT))
 				.toString();

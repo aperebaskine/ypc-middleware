@@ -6,6 +6,7 @@ extends AbstractValueObject {
 	private Long id;
 	private Long customerOrderId;
 	private Integer productId;
+	private String productName;
 	private Short quantity;
 	private Double purchasePrice;
 	private Double salePrice;
@@ -37,6 +38,14 @@ extends AbstractValueObject {
 		this.productId = productId;
 	}
 	
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
 	public Short getQuantity() {
 		return quantity;
 	}
