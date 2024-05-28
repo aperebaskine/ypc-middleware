@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.model;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class Category 
@@ -45,6 +46,23 @@ extends AbstractValueObject {
 
 	public void setChildren(Map<Short, Category> children) {
 		this.children = children;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Category other = (Category) obj;
+		return Objects.equals(id, other.id);
 	}
 	
 }
