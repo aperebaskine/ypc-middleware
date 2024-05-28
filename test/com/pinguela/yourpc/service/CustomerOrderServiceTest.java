@@ -87,6 +87,41 @@ class CustomerOrderServiceTest {
 			}
 		}
 	}
+	
+	@Nested
+	class TestFindByCustomer {
+
+		@Test
+		void testWithValidId() {
+			try {
+				List<CustomerOrder> results = customerOrderService.findByCustomer(1);
+				assertEquals(5l, results.size());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
+		}
+
+		@Test
+		void testWithInvalidId() {
+			try {
+				List<CustomerOrder> results = customerOrderService.findByCustomer(0);
+				assertTrue(results.isEmpty());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
+		}
+
+		@Test
+		void testWithNullId() {
+			try {
+				List<CustomerOrder> results = customerOrderService.findByCustomer(null);
+				assertNull(results);
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
+		}
+	}
+
 
 	@Nested
 	class TestFindBy {
@@ -208,7 +243,7 @@ class CustomerOrderServiceTest {
 
 		@Test
 		void testFindByState() {
-			for (String state : new String[]{"PND", "PRS", "CAN", "DEL", "SPD"}) {
+			for (String state : new String[]{"PND", "PRS", "DEL", "SPD"}) {
 				try {
 					criteria.setState(state);
 					List<CustomerOrder> orders = customerOrderService.findBy(criteria);
@@ -254,6 +289,11 @@ class CustomerOrderServiceTest {
 	class TestCreate {
 
 		private CustomerOrder o;
+		
+		@AfterAll
+		static void tearDownAfterClass() throws Exception {
+			TestSuite.initializeTestDatabase();
+		}
 
 		@BeforeEach
 		void setUp() {

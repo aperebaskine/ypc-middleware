@@ -19,6 +19,9 @@ public interface CustomerOrderService {
 	public CustomerOrder findById(Long id)
 			throws ServiceException, DataException;
 	
+	public List<CustomerOrder> findByCustomer(Integer customerId)
+			throws ServiceException, DataException;
+	
 	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria)
 			throws ServiceException, DataException;
 	

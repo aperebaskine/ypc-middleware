@@ -106,6 +106,24 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 			JDBCUtils.close(conn);
 		}
 	}
+	
+	@Override
+	public List<CustomerOrder> findByCustomer(Integer customerId) 
+			throws ServiceException, DataException {
+
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return customerOrderDAO.findByCustomer(conn, customerId);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+
 
 	@Override
 	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria) 

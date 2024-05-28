@@ -19,6 +19,9 @@ public interface CustomerOrderDAO {
 	public CustomerOrder findById(Connection conn, Long id)
 			throws DataException;
 	
+	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId)
+			throws DataException;
+	
 	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria)
 			throws DataException;
 	

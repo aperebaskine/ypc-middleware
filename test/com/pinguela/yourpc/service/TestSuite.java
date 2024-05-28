@@ -80,7 +80,7 @@ public class TestSuite {
 	}
 
 	@BeforeAll
-	static void initializeTestDaabase() throws Exception {
+	static void initializeTestDatabase() throws Exception {
 		executeSqlScripts(SQL_FILES);
 	}
 

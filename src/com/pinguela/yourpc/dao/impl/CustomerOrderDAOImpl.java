@@ -195,6 +195,45 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
+	
+	@Override
+	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId) 
+			throws DataException {
+		
+		if (customerId == null) {
+			return null;
+		}
+		
+
+		String query = SELECT_COLUMNS
+				+ FROM_TABLE
+				+ " WHERE CUSTOMER_ID = ?"
+				+ " ORDER BY ORDER_DATE DESC";
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<CustomerOrder> results = new ArrayList<>();
+
+		try {
+
+			stmt = conn.prepareStatement(query);
+
+			int index = 1;
+			stmt.setLong(index++, customerId);
+
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				results.add(loadNext(conn, rs));
+			}
+			return results;
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
 
 	@Override
 	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria) 
