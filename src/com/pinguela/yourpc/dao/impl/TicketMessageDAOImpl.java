@@ -15,7 +15,11 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.LogMessages;
+import com.pinguela.yourpc.dao.CustomerDAO;
+import com.pinguela.yourpc.dao.EmployeeDAO;
 import com.pinguela.yourpc.dao.TicketMessageDAO;
+import com.pinguela.yourpc.model.Customer;
+import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.TicketMessage;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -56,6 +60,14 @@ implements TicketMessageDAO {
 	private static final String DELETE_BY_TICKET_QUERY = DELETE_FROM_TABLE +DELETE_WHERE_TICKET_ID;
 
 	private static Logger logger = LogManager.getLogger(TicketMessageDAOImpl.class);
+	
+	private CustomerDAO customerDAO;
+	private EmployeeDAO employeeDAO;
+	
+	public TicketMessageDAOImpl() {
+		customerDAO = new CustomerDAOImpl();
+		employeeDAO = new EmployeeDAOImpl();
+	}
 
 	@Override
 	public List<TicketMessage> findByTicket(Connection conn, Long ticketId) 
@@ -70,7 +82,7 @@ implements TicketMessageDAO {
 					ResultSet.CONCUR_READ_ONLY);
 			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, ticketId);
 			rs = stmt.executeQuery();
-			return loadResults(rs);
+			return loadResults(conn, rs);
 		} catch (SQLException sqle) {
 			logger.error(sqle);
 			throw new DataException(sqle);
@@ -79,18 +91,18 @@ implements TicketMessageDAO {
 		}
 	}
 
-	private List<TicketMessage> loadResults(ResultSet rs)
-			throws SQLException {
+	private List<TicketMessage> loadResults(Connection conn, ResultSet rs)
+			throws SQLException, DataException {
 
 		List<TicketMessage> results = new ArrayList<TicketMessage>();
 		while (rs.next()) {
-			results.add(loadNext(rs));
+			results.add(loadNext(conn, rs));
 		}
 		return results;
 	}
 
-	private TicketMessage loadNext(ResultSet rs) 
-			throws SQLException {
+	private TicketMessage loadNext(Connection conn, ResultSet rs) 
+			throws SQLException, DataException {
 
 		TicketMessage tm = new TicketMessage();
 		int i = 1;
@@ -101,6 +113,19 @@ implements TicketMessageDAO {
 		tm.setEmployeeId(JDBCUtils.getNullableInt(rs, i++));
 		tm.setTimestamp(rs.getTimestamp(i++));
 		tm.setText(rs.getString(i++));
+		
+		if (tm.getCustomerId() != null) {
+			Customer c = customerDAO.findById(conn, tm.getCustomerId());
+			tm.setFirstName(c.getFirstName());
+			tm.setLastName1(c.getLastName1());
+			tm.setLastName2(c.getLastName2());
+		} else {
+			Employee e = employeeDAO.findById(conn, tm.getEmployeeId());
+			tm.setFirstName(e.getFirstName());
+			tm.setLastName1(e.getLastName1());
+			tm.setLastName2(e.getLastName2());
+		}
+		
 		return tm;
 	}
 
