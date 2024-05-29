@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public abstract class Attribute<E> 
 extends AbstractValueObject 
-implements AttributeDataTypes, AttributeValueHandlingModes {
+implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	
 	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
@@ -137,5 +137,36 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 	 * treated as a {@link #RANGE} (with minimum and maximum values), or a {@link #SET}.
 	 */
 	public abstract int getValueHandlingMode();
-
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public Attribute<E> clone() {
+		try {
+			Attribute<E> clone = (Attribute<E>) super.clone();
+			clone.removeAllValues();
+			
+			for (AttributeValue<E> value : this.values) {
+				clone.getValues().add(value.clone());
+			}
+			
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
+	};
+	
+	public Attribute<E> trim() {
+		if (values.size() > 2 && getValueHandlingMode() == RANGE) {
+			AttributeValue<E> min = values.get(0);
+			AttributeValue<E> max = values.get(values.size()-1);
+			
+			values.clear();
+			
+			values.add(min);
+			values.add(max);
+		}
+		
+		return this;
+	}
+	
 }

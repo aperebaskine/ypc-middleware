@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public class AttributeValue<E> extends AbstractValueObject {
+public class AttributeValue<E> extends AbstractValueObject implements Cloneable {
 
 	private Long id = null;
 	private E value = null;
@@ -22,6 +22,16 @@ public class AttributeValue<E> extends AbstractValueObject {
 
 	public void setValue(E value) {
 		this.value = value;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public AttributeValue<E> clone() {
+		try {
+			return (AttributeValue<E>) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 
 }
