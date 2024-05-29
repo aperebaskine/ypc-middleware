@@ -32,7 +32,7 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 			" SELECT " +ORDER_LINE_ALIAS +".ID,"
 					+ " " +ORDER_LINE_ALIAS +".CUSTOMER_ORDER_ID,"
 					+ " " +ORDER_LINE_ALIAS +".PRODUCT_ID,"
-					+ " " +PRODUCT_ALIAS +".ID,"
+					+ " " +PRODUCT_ALIAS +".NAME,"
 					+ " %1$s.QUANTITY,"
 					+ " " +ORDER_LINE_ALIAS +".PURCHASE_PRICE,"
 					+ " " +ORDER_LINE_ALIAS +".SALE_PRICE";
