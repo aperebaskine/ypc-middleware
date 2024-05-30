@@ -62,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	private static final String EMAIL_SUBJECT = "Registración en YourPC confirmada!";
-	private static final String EMAIL_MESSAGE = "Su cuenta en YourPC ha sido creada con éxito.";
+	private static final String EMAIL_MESSAGE_PLACEHOLDER = "Su cuenta en YourPC ha sido creada con éxito. Su nombre de usuario es %s y su contraseña es %s.";
 
 	// TODO: Use customer email instead of temporary test email
 	private static final String TEST_EMAIL = "pereb_test@outlook.com";
@@ -75,8 +75,11 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new IllegalArgumentException("Customer cannot be null.");
 		}
 
+		if (c.getUnencryptedPassword() == null) {
+			c.setUnencryptedPassword(String.valueOf(System.currentTimeMillis()));
+		}
+		
 		c.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(c.getUnencryptedPassword()));
-		c.setUnencryptedPassword(null);
 		c.setEmail(c.getEmail().toLowerCase());
 
 		Connection conn = null;
@@ -87,7 +90,8 @@ public class CustomerServiceImpl implements CustomerService {
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
 			Integer id = customerDAO.create(conn, c);
 			commit = (id != null);
-			mailService.send(EMAIL_SUBJECT, EMAIL_MESSAGE, TEST_EMAIL);
+			mailService.send(EMAIL_SUBJECT, String.format(EMAIL_MESSAGE_PLACEHOLDER, 
+					c.getEmail(), c.getUnencryptedPassword()), TEST_EMAIL);
 
 			return id;
 		} catch (MailException me) {
@@ -97,6 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
 		} finally {
+			c.setUnencryptedPassword(null);
 			JDBCUtils.close(conn, commit);
 		}
 	}

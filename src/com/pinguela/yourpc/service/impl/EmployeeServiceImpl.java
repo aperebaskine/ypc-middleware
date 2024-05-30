@@ -62,6 +62,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if (e == null || e.getUsername() == null) {
 			throw new IllegalArgumentException("Required parameters missing");
 		}
+		
+		if (e.getUnencryptedPassword() == null) {
+			e.setUnencryptedPassword(String.valueOf(System.currentTimeMillis()));
+		}
 
 		e.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(e.getUnencryptedPassword()));
 		e.setUsername(e.getUsername().toLowerCase());
