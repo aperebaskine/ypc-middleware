@@ -39,10 +39,9 @@ implements TicketDAO {
 					+ " t.TITLE,"
 					+ " t.DESCRIPTION";
 	private static final String FROM_TABLE =
-			" FROM TICKET t";
-	private static final String JOIN_TABLES =
-			" LEFT JOIN CUSTOMER c"
-					+ " ON t.CUSTOMER_ID = c.ID";
+			" FROM TICKET t"
+			+ " INNER JOIN CUSTOMER c"
+			+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
 	private static final String ID_FILTER =
 			" WHERE t.ID = ?";
 
@@ -113,9 +112,7 @@ implements TicketDAO {
 	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, int pos, int pageSize)
 			throws DataException {
 
-		StringBuilder query = new StringBuilder(FINDBY_QUERY);
-		if (criteria.getCustomerEmail() != null) query.append(JOIN_TABLES);
-		query.append(buildWhereClause(criteria));
+		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildWhereClause(criteria));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

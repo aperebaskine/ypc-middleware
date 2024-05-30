@@ -34,7 +34,8 @@ implements TicketMessageDAO {
 					+ " tm.DATE,"
 					+ " tm.TEXT";
 	private static final String FROM_TABLE =
-			" FROM TICKET_MESSAGE tm";
+			" FROM TICKET_MESSAGE tm"
+			+ " INNER JOIN CUSTOMER c on tm.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
 	private static final String WHERE_TICKET_ID =
 			" WHERE tm.TICKET_ID = ?";
 	private static final String FINDBYTICKET_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_TICKET_ID;
