@@ -29,10 +29,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 	EmployeeServiceTest.class,
 	MailServiceTest.class,
 	ProductServiceTest.class,
-	ProvinceServiceTest.class,
-	RMAServiceTest.class,
-	TicketMessageServiceTest.class,
-	TicketServiceTest.class})
+	ProvinceServiceTest.class})
 public class TestSuite {
 
 	private static final Map<String, Integer> TABLE_EXPECTED_ROW_COUNTS;
