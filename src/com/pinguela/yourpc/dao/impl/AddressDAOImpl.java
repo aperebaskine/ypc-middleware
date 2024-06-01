@@ -241,13 +241,7 @@ public class AddressDAOImpl implements AddressDAO {
 				rs = stmt.getGeneratedKeys();
 				rs.next();
 				a.setId(rs.getInt(JDBCUtils.GENERATED_KEY_INDEX));
-				
-				if (a.isDefault()) {
-					setDefault(conn, a.getId());
-				}
-				if (a.isBilling()) {
-					setBilling(conn, a.getId());
-				} 
+				updateDefaultAndBilling(conn, a);
 				return a.getId();
 			}
 		} catch (SQLException sqle) {
@@ -281,13 +275,7 @@ public class AddressDAOImpl implements AddressDAO {
 			if (affectedRows != 1) {
 				throw new DataException(ErrorCodes.UPDATE_FAILED);
 			}
-			
-			if (a.isDefault()) {
-				setDefault(conn, a.getId());
-			}
-			if (a.isBilling()) {
-				setBilling(conn, a.getId());
-			}
+			updateDefaultAndBilling(conn, a);
 			return a.getId();
 
 		} catch (SQLException sqle) {
@@ -295,6 +283,18 @@ public class AddressDAOImpl implements AddressDAO {
 			throw new DataException(sqle);
 		} finally {
 			JDBCUtils.close(stmt, rs);
+		}
+	}
+	
+	private void updateDefaultAndBilling(Connection conn, Address a) throws DataException {
+		if (a.getCustomerId() == null) {
+			return;
+		}			
+		if (a.isDefault()) {
+			setDefault(conn, a.getId());
+		}
+		if (a.isBilling()) {
+			setBilling(conn, a.getId());
 		}
 	}
 
