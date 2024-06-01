@@ -83,6 +83,39 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 	
 	@Override
+	public Attribute<?> findById(Connection conn, Long id, boolean returnUnassigned) throws DataException {
+
+		StringBuilder query = new StringBuilder(FINDBY_QUERY)
+				.append(" WHERE at.ID = ?");
+		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
+			query.append(JOIN_PRODUCT).append(GROUP_BY_VALUE);
+		}
+		query.append(ORDER_BY_CLAUSE);
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(
+					query.toString(), 
+					ResultSet.TYPE_FORWARD_ONLY, 
+					ResultSet.CONCUR_READ_ONLY
+					);
+			int i = 1;
+			stmt.setLong(i++, id);
+
+			rs = stmt.executeQuery();
+			return loadResults(rs).values().iterator().next();
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+	
+	@Override
 	public Map<String, Attribute<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
 			throws DataException {
 

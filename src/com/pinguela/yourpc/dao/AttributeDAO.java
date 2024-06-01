@@ -9,6 +9,9 @@ import com.pinguela.yourpc.model.Product;
 
 public interface AttributeDAO {
 	
+	public Attribute<?> findById(Connection conn, Long id, boolean returnUnassigned)
+			throws DataException;
+	
 	/**
 	 * Returns all the attributes that can be associated to a given category, including the set of
 	 * all possible values for said attribute. Calling class may determine whether to return values

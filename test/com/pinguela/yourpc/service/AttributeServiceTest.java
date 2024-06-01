@@ -25,6 +25,16 @@ class AttributeServiceTest {
 	void setUpBeforeClass() throws Exception {
 		attributeService = new AttributeServiceImpl();
 	}
+	
+	@Test
+	void testFindById() {
+		try {
+			Attribute<?> attribute = attributeService.findById(1l, true);
+			assertEquals(12, attribute.getValues().size());
+		} catch (YPCException e) {
+			fail(e);
+		} 
+	}
 
 	@Test
 	void testFindByCategoryWithValidCategoryIdAndUnssignedValues() {

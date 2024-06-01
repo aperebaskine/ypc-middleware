@@ -23,6 +23,27 @@ public class AttributeServiceImpl implements AttributeService {
 	public AttributeServiceImpl() {
 		attributeDAO = new AttributeDAOImpl();
 	}
+	
+	@Override
+	public Attribute<?> findById(Long id, boolean returnUnassigned) 
+			throws ServiceException, DataException {
+		
+		if (id == null) {
+			return null;
+		}
+		
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return attributeDAO.findById(conn, id, returnUnassigned);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
 
 	@Override
 	public Map<String, Attribute<?>> findByCategory(Short categoryId, boolean returnUnassigned)
