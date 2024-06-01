@@ -83,10 +83,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 	
 	@Override
-	public Attribute<?> findById(Connection conn, Long id, boolean returnUnassigned) throws DataException {
+	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned) throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY)
-				.append(" WHERE at.ID = ?");
+				.append(" WHERE at.NAME = ?");
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			query.append(JOIN_PRODUCT).append(GROUP_BY_VALUE);
 		}
@@ -102,7 +102,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 					ResultSet.CONCUR_READ_ONLY
 					);
 			int i = 1;
-			stmt.setLong(i++, id);
+			stmt.setString(i++, name);
 
 			rs = stmt.executeQuery();
 			return loadResults(rs).values().iterator().next();

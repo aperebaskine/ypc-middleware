@@ -25,10 +25,10 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
-	public Attribute<?> findById(Long id, boolean returnUnassigned) 
+	public Attribute<?> findByName(String name, boolean returnUnassigned) 
 			throws ServiceException, DataException {
 		
-		if (id == null) {
+		if (name == null) {
 			return null;
 		}
 		
@@ -36,7 +36,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return attributeDAO.findById(conn, id, returnUnassigned);
+			return attributeDAO.findByName(conn, name, returnUnassigned);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

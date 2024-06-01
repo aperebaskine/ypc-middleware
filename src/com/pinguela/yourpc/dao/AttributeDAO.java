@@ -9,7 +9,7 @@ import com.pinguela.yourpc.model.Product;
 
 public interface AttributeDAO {
 	
-	public Attribute<?> findById(Connection conn, Long id, boolean returnUnassigned)
+	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned)
 			throws DataException;
 	
 	/**

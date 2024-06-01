@@ -27,9 +27,9 @@ class AttributeServiceTest {
 	}
 	
 	@Test
-	void testFindById() {
+	void testFindByName() {
 		try {
-			Attribute<?> attribute = attributeService.findById(1l, true);
+			Attribute<?> attribute = attributeService.findByName("Brand", true);
 			assertEquals(12, attribute.getValues().size());
 		} catch (YPCException e) {
 			fail(e);
