@@ -85,12 +85,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 	@Override
 	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned) throws DataException {
 
-		StringBuilder query = new StringBuilder(FINDBY_QUERY)
-				.append(" WHERE at.NAME = ?");
+		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			query.append(JOIN_PRODUCT).append(GROUP_BY_VALUE);
 		}
-		query.append(ORDER_BY_CLAUSE);
+		query.append(" WHERE at.NAME = ?").append(ORDER_BY_CLAUSE);
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
