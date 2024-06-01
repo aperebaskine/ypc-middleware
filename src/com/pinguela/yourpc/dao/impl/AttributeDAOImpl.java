@@ -87,9 +87,13 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
-			query.append(JOIN_PRODUCT).append(GROUP_BY_VALUE);
+			query.append(JOIN_PRODUCT);
 		}
-		query.append(" WHERE at.NAME = ?").append(ORDER_BY_CLAUSE);
+		query.append(" WHERE at.NAME = ?");
+		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
+			query.append(GROUP_BY_VALUE);
+		}
+		query.append(ORDER_BY_CLAUSE);
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
