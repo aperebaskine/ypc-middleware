@@ -5,7 +5,7 @@ public class AttributeValue<E> extends AbstractValueObject implements Cloneable 
 	private Long id = null;
 	private E value = null;
 
-	AttributeValue() {
+	public AttributeValue() {
 	}
 
 	public Long getId() {
