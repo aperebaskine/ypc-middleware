@@ -270,6 +270,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 				rs = stmt.getGeneratedKeys();
 				rs.first();
 				e.setId(rs.getInt(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX));
+				e.getAddress().setEmployeeId(e.getId());
 				addressDAO.create(conn, e.getAddress());
 				return e.getId();
 			}
