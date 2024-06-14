@@ -49,14 +49,13 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		
 		String fullyQualifiedSubclassName =
 				String.format("%s.%s%s", packageName, parameterClassName, Attribute.class.getSimpleName());
-		
 		Attribute<T> attribute = null;
 
 		try { 
 			attribute = (Attribute<T>) 
 					Class.forName(fullyQualifiedSubclassName).getDeclaredConstructor().newInstance(); 
 		} catch (Exception e) {
-
+			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
 		return attribute;
 	}
