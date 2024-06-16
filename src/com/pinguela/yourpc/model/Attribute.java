@@ -17,13 +17,26 @@ public abstract class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	
+	private static final String FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER;
+	
+	static {
+		String packageName = Attribute.class.getPackage().getName();
+		String className = Attribute.class.getSimpleName();
+		
+		FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER =
+				new StringBuilder(packageName)
+				.append(".%s")
+				.append(className)
+				.toString();
+	}
+	
 	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
 	 * to the name of the parameterised class used by the attribute instance.</p>
 	 * <p><b>This map must contain an entry for every parameterised type used in
 	 * a subclass of this abstract factory.</b></p>
 	 */
-	public static final Map<String, Class<?>> PARAMETERIZED_TYPE_CLASS_NAMES;
+	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
 	
 	static {
 		Map<String, Class<?>> classNameMap = new HashMap<String, Class<?>>();
@@ -31,7 +44,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		classNameMap.put(VARCHAR, java.lang.String.class);
 		classNameMap.put(DECIMAL, java.lang.Double.class);
 		classNameMap.put(BOOLEAN, java.lang.Boolean.class);
-		PARAMETERIZED_TYPE_CLASS_NAMES = Collections.unmodifiableMap(classNameMap);
+		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(classNameMap);
 	}
 	
 	private String name;
@@ -44,11 +57,10 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	@SuppressWarnings("unchecked")
 	public static <T> Attribute<T> getInstance(Class<T> target) {
 		
-		String packageName = Attribute.class.getPackage().getName();
 		String parameterClassName = target.getSimpleName();
 		
 		String fullyQualifiedSubclassName =
-				String.format("%s.%s%s", packageName, parameterClassName, Attribute.class.getSimpleName());
+				String.format(FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER, parameterClassName);
 		Attribute<T> attribute = null;
 
 		try { 
@@ -61,18 +73,12 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	}
 	
 	public static Attribute<?> getInstance(String dataType) {
-		
-		Attribute<?> attribute = null;
-
-		Class<?> parameterClass = PARAMETERIZED_TYPE_CLASS_NAMES.get(dataType);
-		attribute = getInstance(parameterClass);
-
-		return attribute;
+		return getInstance(TYPE_PARAMETER_CLASSES.get(dataType));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public final Class<E> getParameterizedTypeClass() {
-		return (Class<E>) PARAMETERIZED_TYPE_CLASS_NAMES.get(getDataTypeIdentifier());
+	public final Class<E> getTypeParameterClass() {
+		return (Class<E>) TYPE_PARAMETER_CLASSES.get(getDataTypeIdentifier());
 	}
 
 	public String getName() {
@@ -94,7 +100,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	@SuppressWarnings("unchecked")
 	public boolean addValue(Long id, Object value) {
 		
-		if (value != null && !getParameterizedTypeClass().isInstance(value)) {
+		if (value != null && !getTypeParameterClass().isInstance(value)) {
 			throw new IllegalArgumentException("Object type does not match type parameter.");
 		}
 		

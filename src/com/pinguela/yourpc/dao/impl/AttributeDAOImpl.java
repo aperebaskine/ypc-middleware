@@ -37,7 +37,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 				.append(", at.").append(NAME_COLUMN)
 				.append(", av.").append(VALUE_ID_COLUMN);
 		
-		for (String dataType : Attribute.PARAMETERIZED_TYPE_CLASS_NAMES.keySet()) {
+		for (String dataType : Attribute.TYPE_PARAMETER_CLASSES.keySet()) {
 			selectClause.append(", av.").append(AttributeUtils.getValueColumnName(dataType));
 		}
 		SELECT_COLUMNS = selectClause.toString();
@@ -229,7 +229,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		}
 
 		// Add value to list
-		Class<?> parameterizedTypeClass = (Class<?>) attribute.getParameterizedTypeClass();
+		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
 		Long id = JDBCUtils.getNullableLong(rs, VALUE_ID_COLUMN);
 		Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
 		((Attribute<Object>) attribute).addValue(id, value);
