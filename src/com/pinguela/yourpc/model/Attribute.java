@@ -13,7 +13,7 @@ import java.util.Map;
  * of the subclass' type parameter class name followed by this class' name.</b></p>
  * @param <E> The attribute's data type
  */
-public abstract class Attribute<E> 
+public abstract class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	

@@ -11,4 +11,5 @@ public class StringAttribute extends Attribute<String> {
 	public int getValueHandlingMode() {
 		return SET;
 	}
+
 }
