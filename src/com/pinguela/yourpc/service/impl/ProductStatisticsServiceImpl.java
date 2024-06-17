@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.ProductStatisticsDAO;
+import com.pinguela.yourpc.dao.impl.ProductStatisticsDAOImpl;
 import com.pinguela.yourpc.model.ProductStatisticsDTO;
 import com.pinguela.yourpc.service.ProductStatisticsService;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -20,6 +21,10 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 	private static Logger logger = LogManager.getLogger(ProductStatisticsServiceImpl.class);
 	
 	private ProductStatisticsDAO productStatisticsDAO;
+	
+	public ProductStatisticsServiceImpl() {
+		this.productStatisticsDAO = new ProductStatisticsDAOImpl();
+	}
 
 	@Override
 	public List<ProductStatisticsDTO> findByProduct(Date startDate, Date endDate, Long productId) 
