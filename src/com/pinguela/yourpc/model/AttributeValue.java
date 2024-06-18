@@ -1,6 +1,10 @@
 package com.pinguela.yourpc.model;
 
-public class AttributeValue<E> extends AbstractValueObject implements Cloneable {
+import java.util.Objects;
+
+public class AttributeValue<E> 
+extends AbstractValueObject 
+implements Cloneable {
 
 	private Long id = null;
 	private E value = null;
@@ -33,5 +37,24 @@ public class AttributeValue<E> extends AbstractValueObject implements Cloneable 
 			throw new AssertionError();
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AttributeValue<?> other = (AttributeValue<?>) obj;
+		return Objects.equals(id, other.id) && Objects.equals(value, other.value);
+	}
+	
+	
 
 }
