@@ -132,6 +132,20 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		values.removeAll(values);
 	}
 	
+	public Attribute<E> trim() {
+		if (values.size() > 2 && getValueHandlingMode() == RANGE) {
+			AttributeValue<E> min = values.get(0);
+			AttributeValue<E> max = values.get(values.size()-1);
+			
+			values.clear();
+			
+			values.add(min);
+			values.add(max);
+		}
+		
+		return this;
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public Attribute<E> clone() {
@@ -148,20 +162,6 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 			throw new AssertionError();
 		}
 	};
-	
-	public Attribute<E> trim() {
-		if (values.size() > 2 && getValueHandlingMode() == RANGE) {
-			AttributeValue<E> min = values.get(0);
-			AttributeValue<E> max = values.get(values.size()-1);
-			
-			values.clear();
-			
-			values.add(min);
-			values.add(max);
-		}
-		
-		return this;
-	}
 
 	@Override
 	public int hashCode() {
