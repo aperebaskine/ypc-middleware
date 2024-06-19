@@ -1,6 +1,8 @@
 package com.pinguela.yourpc.model;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class NullAttribute extends Attribute<String> {
 	
@@ -35,11 +37,19 @@ public class NullAttribute extends Attribute<String> {
 	public Attribute<String> clone() {
 		return this;
 	}
+	
+	@Override
+	public List<AttributeValue<String>> getValues() {
+		return Collections.unmodifiableList(super.getValues());
+	}
 
 	@Override
-	public Attribute<String> trim() {
-		return this;
+	public List<AttributeValue<String>> getTrimmedValues() {
+		return getValues();
 	}
+
+	@Override
+	public void addValue(AttributeValue<String> attributeValue) {}
 
 	@Override
 	public String getDataTypeIdentifier() {
