@@ -54,27 +54,50 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	protected Attribute() {
 		values = new ArrayList<AttributeValue<E>>();
 	}
+	
+	public static Attribute<?> getInstance(String dataType) {
+		return getInstance(TYPE_PARAMETER_CLASSES.get(dataType));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <E> Attribute<E> getInstance(String name, E... values) {
+		
+		Class<E> typeParameter = (Class<E>) values.getClass().getComponentType();
+		
+		if (!TYPE_PARAMETER_CLASSES.containsValue(typeParameter)) {
+			throw new IllegalArgumentException("Provided values must match one of the allowed type parameters.");
+		}
+		
+		Attribute<E> attribute = getInstance(typeParameter);
+		attribute.setName(name);
+		
+		for (E value : values) {
+			attribute.addValue(null, value);
+		}
+		
+		return attribute;
+	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Attribute<T> getInstance(Class<T> target) {
+	public static <E> Attribute<E> getInstance(Class<E> typeParameterClass) {
 		
-		String parameterClassName = target.getSimpleName();
+		if (!TYPE_PARAMETER_CLASSES.containsValue(typeParameterClass)) {
+			throw new IllegalArgumentException("Cannot instantiate attribute with the provided type parameter.");
+		}
+		
+		String parameterClassName = typeParameterClass.getSimpleName();
 		
 		String fullyQualifiedSubclassName =
 				String.format(FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER, parameterClassName);
-		Attribute<T> attribute = null;
+		Attribute<E> attribute = null;
 
 		try { 
-			attribute = (Attribute<T>) 
+			attribute = (Attribute<E>) 
 					Class.forName(fullyQualifiedSubclassName).getDeclaredConstructor().newInstance(); 
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
 		return attribute;
-	}
-	
-	public static Attribute<?> getInstance(String dataType) {
-		return getInstance(TYPE_PARAMETER_CLASSES.get(dataType));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -98,22 +121,18 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		return values.get(index).getValue();
 	}
 
-	@SuppressWarnings("unchecked")
-	public boolean addValue(Long id, Object value) {
+	public void addValue(Long id, E value) {
 		
 		if (value != null && !getTypeParameterClass().isInstance(value)) {
 			throw new IllegalArgumentException("Object type does not match type parameter.");
 		}
 		
 		if (id == null && value == null) {
-			return false;
+			throw new IllegalArgumentException("ID and value cannot both be null.");
 		}
 		
-		AttributeValue<E> attributeValue = new AttributeValue<E>();
+		AttributeValue<E> attributeValue = new AttributeValue<E>(id, value);
 		values.add(attributeValue);
-		attributeValue.setId(id);
-		attributeValue.setValue((E) value);
-		return true;
 	}
 	
 	public void addAll(Collection<AttributeValue<E>> newValues) {
