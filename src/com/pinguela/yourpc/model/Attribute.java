@@ -129,7 +129,9 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 			AttributeValue<E> max = values.get(values.size()-1);
 
 			trimmedValues.add(min);
-			trimmedValues.add(max);
+			if (!min.getValue().equals(max.getValue())) {
+				trimmedValues.add(max);
+			}
 			break;
 		case SET:
 			trimmedValues = values;
