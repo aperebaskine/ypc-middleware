@@ -82,7 +82,8 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	public static <E> Attribute<E> getInstance(Class<E> typeParameterClass) {
 
 		if (!TYPE_PARAMETER_CLASSES.containsValue(typeParameterClass)) {
-			throw new IllegalArgumentException("Cannot instantiate attribute with the provided type parameter.");
+			throw new IllegalArgumentException(
+					String.format("Cannot instantiate attribute using type parameter %s.", typeParameterClass.getName()));
 		}
 
 		String parameterClassName = typeParameterClass.getSimpleName();
@@ -117,6 +118,10 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		return values;
 	}
 
+	/**
+	 * Returns the list of values for this attribute. If the handling mode is {@link #RANGE},
+	 * only returns the first and last values in the list.
+	 */
 	public List<AttributeValue<E>> getTrimmedValues() {
 
 		List<AttributeValue<E>> trimmedValues = null;
