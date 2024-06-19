@@ -55,12 +55,12 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		values = new ArrayList<AttributeValue<E>>();
 	}
 
-	public static Attribute<?> getInstance(String dataType) {
+	public static final Attribute<?> getInstance(String dataType) {
 		return getInstance(TYPE_PARAMETER_CLASSES.get(dataType));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E> Attribute<E> getInstance(String name, E... values) {
+	public static final <E> Attribute<E> getInstance(String name, E... values) {
 
 		Class<E> typeParameter = (Class<E>) values.getClass().getComponentType();
 
@@ -79,7 +79,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E> Attribute<E> getInstance(Class<E> typeParameterClass) {
+	public static final <E> Attribute<E> getInstance(Class<E> typeParameterClass) {
 
 		if (!TYPE_PARAMETER_CLASSES.containsValue(typeParameterClass)) {
 			throw new IllegalArgumentException(
