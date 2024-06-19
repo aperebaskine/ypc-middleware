@@ -121,7 +121,8 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		return values.get(index).getValue();
 	}
 
-	public void addValue(Long id, E value) {
+	@SuppressWarnings("unchecked")
+	public void addValue(Long id, Object value) {
 		
 		if (value != null && !getTypeParameterClass().isInstance(value)) {
 			throw new IllegalArgumentException("Object type does not match type parameter.");
@@ -131,7 +132,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 			throw new IllegalArgumentException("ID and value cannot both be null.");
 		}
 		
-		AttributeValue<E> attributeValue = new AttributeValue<E>(id, value);
+		AttributeValue<E> attributeValue = new AttributeValue<E>(id, (E) value);
 		values.add(attributeValue);
 	}
 	
