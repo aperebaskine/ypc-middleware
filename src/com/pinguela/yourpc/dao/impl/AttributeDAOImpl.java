@@ -97,6 +97,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
+		Attribute<?> attribute = null;
 
 		try {
 			stmt = conn.prepareStatement(
@@ -108,7 +109,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 			stmt.setString(i++, name);
 
 			rs = stmt.executeQuery();
-			return loadResults(rs).values().iterator().next();
+			if (rs.next()) {
+				attribute = loadNext(rs);
+			}
+			return attribute;
 
 		} catch (SQLException sqle) {
 			logger.error(sqle);
