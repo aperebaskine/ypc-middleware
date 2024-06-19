@@ -9,7 +9,12 @@ implements Cloneable {
 	private Long id = null;
 	private E value = null;
 
-	public AttributeValue() {
+	AttributeValue() {
+	}
+	
+	AttributeValue(Long id, E value) {
+		this.id = id;
+		this.value = value;
 	}
 
 	public Long getId() {
