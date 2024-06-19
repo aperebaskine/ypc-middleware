@@ -136,6 +136,10 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		values.add(attributeValue);
 	}
 	
+	public void addValue(AttributeValue<E> attributeValue) {
+		values.add(attributeValue);
+	}
+	
 	public void addAll(Collection<AttributeValue<E>> newValues) {
 		values.addAll(newValues);
 	}
