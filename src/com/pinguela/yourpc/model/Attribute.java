@@ -119,23 +119,23 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 
 	public List<AttributeValue<E>> getTrimmedValues() {
 
-		List<AttributeValue<E>> values = null;
+		List<AttributeValue<E>> trimmedValues = null;
 
 		switch (getValueHandlingMode()) {
 		case RANGE:
-			values = new ArrayList<AttributeValue<E>>();
+			trimmedValues = new ArrayList<AttributeValue<E>>();
 
 			AttributeValue<E> min = values.get(0);
 			AttributeValue<E> max = values.get(values.size()-1);
 
-			values.add(min);
-			values.add(max);
+			trimmedValues.add(min);
+			trimmedValues.add(max);
 			break;
 		case SET:
-			values = this.values;
+			trimmedValues = values;
 		}
 
-		return values;
+		return trimmedValues;
 	}
 
 	public E getValueAt(int index) {
