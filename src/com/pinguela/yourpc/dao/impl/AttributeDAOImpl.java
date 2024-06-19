@@ -28,7 +28,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
 	private static final String NAME_COLUMN = "NAME";
 	private static final String VALUE_ID_COLUMN = "ID";
-	
+
 	private static final String SELECT_ID = 
 			" SELECT av." +VALUE_ID_COLUMN;
 	private static final String SELECT_COLUMNS;
@@ -36,7 +36,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		StringBuilder selectClause = new StringBuilder(" SELECT at.").append(DATA_TYPE_COLUMN)
 				.append(", at.").append(NAME_COLUMN)
 				.append(", av.").append(VALUE_ID_COLUMN);
-		
+
 		for (String dataType : Attribute.TYPE_PARAMETER_CLASSES.keySet()) {
 			selectClause.append(", av.").append(AttributeUtils.getValueColumnName(dataType));
 		}
@@ -79,9 +79,9 @@ public class AttributeDAOImpl implements AttributeDAO {
 			" INSERT INTO ATTRIBUTE_VALUE(ATTRIBUTE_TYPE_ID, %1$s)"
 					+ " SELECT ID AS ATTRIBUTE_TYPE_ID, ? AS %1$s" 
 					+ " FROM ATTRIBUTE_TYPE WHERE NAME = ?";
-	
+
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
-	
+
 	@Override
 	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned) throws DataException {
 
@@ -117,7 +117,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	@Override
 	public Map<String, Attribute<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
 			throws DataException {
@@ -198,7 +198,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		while (rs.next()) {
 			addValue(rs, results);
 		}
-		
+
 		return results;
 	}
 
@@ -213,26 +213,35 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @param retrievedValue Value to add to the map
 	 * @throws SQLException propagated by the driver
 	 */
-	@SuppressWarnings("unchecked")
 	private void addValue(ResultSet rs, Map<String, Attribute<?>> currentResults) 
 			throws SQLException, DataException {
 
-		String name = rs.getString(NAME_COLUMN);
-		Attribute<?> attribute;
+		Attribute<?> next = loadNext(rs);
+		String name = next.getName();
 
 		if (currentResults.containsKey(name)) { // Add value to previously retrieved attribute type
-			attribute = currentResults.get(name);
-		} else { // Load new attribute type
-			attribute = Attribute.getInstance(rs.getString(DATA_TYPE_COLUMN));
-			attribute.setName(name);
-			currentResults.put(name, attribute);
+			Attribute<?> attribute = currentResults.get(name);
+			
+			for (AttributeValue<?> attributeValue : next.getValues()) {
+				attribute.addValue(attributeValue.getId(), attributeValue.getValue());
+			}
+		} else { 
+			currentResults.put(name, next);
 		}
+	}
+
+	private Attribute<?> loadNext(ResultSet rs) throws SQLException {
+
+		Attribute<?> attribute = Attribute.getInstance(rs.getString(DATA_TYPE_COLUMN));
+		attribute.setName(rs.getString(NAME_COLUMN));
 
 		// Add value to list
 		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
-		Long id = JDBCUtils.getNullableLong(rs, VALUE_ID_COLUMN);
+		Long id = rs.getLong(VALUE_ID_COLUMN);
 		Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
-		((Attribute<Object>) attribute).addValue(id, value);
+		attribute.addValue(id, value);
+		
+		return attribute;
 	}
 
 	@Override
@@ -335,7 +344,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		String columnName = AttributeUtils.getValueColumnName(dataTypeIdentifier);
 		Integer targetSqlType = AttributeUtils.getTargetSqlTypeIdentifier(dataTypeIdentifier);
 		Object value = attributeValue.getValue();
-		
+
 		// Double-check that attribute value isn't in the database already
 		Long id = findValueId(conn, value, attributeName, columnName, targetSqlType);
 
