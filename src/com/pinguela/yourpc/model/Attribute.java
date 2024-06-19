@@ -64,8 +64,8 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 
 		Class<E> typeParameter = (Class<E>) values.getClass().getComponentType();
 
-		if (!TYPE_PARAMETER_CLASSES.containsValue(typeParameter)) {
-			throw new IllegalArgumentException("Provided values must match one of the allowed type parameters.");
+		if (values == null || !TYPE_PARAMETER_CLASSES.containsValue(typeParameter)) {
+			throw new IllegalArgumentException("Type of values must match one of the allowed type parameters.");
 		}
 
 		Attribute<E> attribute = getInstance(typeParameter);
