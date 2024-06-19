@@ -17,9 +17,7 @@ public class NullAttribute extends Attribute<String> {
 	}
 
 	@Override
-	public boolean addValue(Long id, Object value) {
-		return false;
-	}
+	public void addValue(Long id, String value) {}
 
 	@Override
 	public void addAll(Collection<AttributeValue<String>> newValues) {}
