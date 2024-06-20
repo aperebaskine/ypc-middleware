@@ -16,7 +16,9 @@ import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeStatisticsDTO;
 import com.pinguela.yourpc.model.ProductStatisticsDTO;
+import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.SQLQueryUtils;
 
 public class ProductStatisticsDAOImpl 
 implements ProductStatisticsDAO {
@@ -35,7 +37,7 @@ implements ProductStatisticsDAO {
 			+ " ORDER BY DATE ASC, ol.SALE_PRICE ASC";
 	
 	private static final String FINDMOST_QUERY_PLACEHOLDER = 
-			" SELECT p.ID, p.NAME, sum(ol.quantity), sum(rol.quantity), avg(ol.purchase_price), avg(ol.sale_price) " +
+			" SELECT p.ID, p.NAME, sum(ol.quantity), sum(rol.quantity), sum(rol.quantity) / sum(ol.quantity) * 100 return_pct, avg(ol.purchase_price), avg(ol.sale_price) " +
             " FROM PRODUCT p " +
             " INNER JOIN ORDER_LINE ol " +
             " ON p.ID = ol.PRODUCT_ID " +
@@ -43,9 +45,10 @@ implements ProductStatisticsDAO {
             " ON co.ID = ol.CUSTOMER_ORDER_ID " +
             " LEFT JOIN RMA_ORDER_LINE rol " +
             " ON rol.ORDER_LINE_ID = ol.ID " +
-            " WHERE p.CATEGORY_ID = ? " +
-            " AND CAST(co.ORDER_DATE AS DATE) >= ? " +
-            " AND CAST(co.ORDER_DATE AS DATE) <= ? " +
+            " WHERE CAST(co.ORDER_DATE AS DATE) >= ? " +
+            " AND CAST(co.ORDER_DATE AS DATE) <= ? ";
+	
+	private static final String FINDMOST_QUERY_PLACEHOLDER_GROUPBY =
             " GROUP BY p.ID"
             + " ORDER BY %s DESC";
 
@@ -108,15 +111,39 @@ implements ProductStatisticsDAO {
 	@Override
 	public List<ProductStatisticsDTO> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException {
-		String query = String.format(FINDMOST_QUERY_PLACEHOLDER, "sum(ol.quantity)");
-		return findMost(conn, query, startDate, endDate, categoryId);
+		StringBuilder query = new StringBuilder(FINDMOST_QUERY_PLACEHOLDER);
+
+		if (categoryId != null) {	
+			String categoryCondition = 
+					new StringBuilder(" AND p.CATEGORY_ID")
+					.append(SQLQueryUtils.buildPlaceholderComparisonClause(
+							CategoryUtils.getLowerHierarchy(categoryId).keySet())
+							)
+					.toString();
+			query.append(categoryCondition);
+		}
+		
+		query.append(String.format(FINDMOST_QUERY_PLACEHOLDER_GROUPBY, "sum(ol.quantity)"));
+		return findMost(conn, query.toString(), startDate, endDate, categoryId);
 	}
 	
 	@Override
 	public List<ProductStatisticsDTO> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException {
-		String query = String.format(FINDMOST_QUERY_PLACEHOLDER, "sum(rol.quantity)");
-		return findMost(conn, query, startDate, endDate, categoryId);
+		StringBuilder query = new StringBuilder(FINDMOST_QUERY_PLACEHOLDER);
+
+		if (categoryId != null) {	
+			String categoryCondition = 
+					new StringBuilder(" AND p.CATEGORY_ID")
+					.append(SQLQueryUtils.buildPlaceholderComparisonClause(
+							CategoryUtils.getLowerHierarchy(categoryId).keySet())
+							)
+					.toString();
+			query.append(categoryCondition);
+		}
+		
+		query.append(String.format(FINDMOST_QUERY_PLACEHOLDER_GROUPBY, "return_pct"));
+		return findMost(conn, query.toString(), startDate, endDate, categoryId);
 	}
 	
 	private List<ProductStatisticsDTO> findMost(Connection conn, String query, Date startDate, Date endDate, Short categoryId)
@@ -127,12 +154,16 @@ implements ProductStatisticsDAO {
 		List<ProductStatisticsDTO> results = new ArrayList<ProductStatisticsDTO>();
 		
 		try {
-			stmt = conn.prepareStatement(FINDBYPRODUCT_QUERY);
+			stmt = conn.prepareStatement(query);
 			
 			int i = 1;
-			stmt.setShort(i++, categoryId);
 			stmt.setDate(i++, new java.sql.Date(startDate.getTime()));
 			stmt.setDate(i++, new java.sql.Date(endDate.getTime()));
+			if (categoryId != null) {	
+				for (Short parameter : CategoryUtils.getLowerHierarchy(categoryId).keySet()) {
+					stmt.setShort(i++, parameter);
+				}
+			}
 			
 			rs = stmt.executeQuery();
 			
@@ -141,14 +172,13 @@ implements ProductStatisticsDAO {
 				ProductStatisticsDTO dto = new ProductStatisticsDTO();
 				
 				int j = 1;
-				dto.setId(rs.getLong(i++));
-				dto.setName(rs.getString(i++));
+				dto.setId(rs.getLong(j++));
+				dto.setName(rs.getString(j++));
 				dto.setQuantitySold(rs.getInt(j++));
 				dto.setQuantityReturned(rs.getInt(j++));
+				dto.setPctReturned(rs.getDouble(j++));
 				dto.setAvgPurchasePrice(rs.getDouble(j++));
 				dto.setAvgSalePrice(rs.getDouble(j++));
-				
-				dto.setPctReturned((double) dto.getQuantitySold() * dto.getQuantityReturned() / 100);
 				
 				results.add(dto);
 			}
