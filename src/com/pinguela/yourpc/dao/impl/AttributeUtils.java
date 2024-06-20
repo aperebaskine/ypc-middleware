@@ -10,10 +10,11 @@ import java.util.Map;
 
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeDataTypes;
+import com.pinguela.yourpc.model.AttributeValueHandlingModes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 class AttributeUtils 
-implements AttributeDataTypes {
+implements AttributeDataTypes, AttributeValueHandlingModes {
 
 	static final String PRE_FORMAT_COLUMN_NAME = "VALUE_%s";
 
@@ -107,11 +108,11 @@ implements AttributeDataTypes {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));
 			} else {
 				switch (attribute.getValueHandlingMode()) {
-				case Attribute.RANGE:
+				case RANGE:
 					condition.append(String.format(" av.%1$s >= ? AND av.%1$s <= ?)",
 							getValueColumnName(attribute)));
 					break;
-				case Attribute.SET:
+				case SET:
 					condition.append(String.format(" av.%1$s", getValueColumnName(attribute)))
 					.append(SQLQueryUtils.buildPlaceholderComparisonClause(attribute.getValues().size()))
 					.append(")");

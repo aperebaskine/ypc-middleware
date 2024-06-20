@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.ProductStatisticsDAO;
+import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.AttributeStatisticsDTO;
 import com.pinguela.yourpc.model.ProductStatisticsDTO;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -31,6 +33,44 @@ implements ProductStatisticsDAO {
 			+ " AND CAST(co.ORDER_DATE AS DATE) <= ?"
 			+ " GROUP BY DATE, ol.SALE_PRICE"
 			+ " ORDER BY DATE ASC, ol.SALE_PRICE ASC";
+	
+	private static final String FINDMOST_QUERY_PLACEHOLDER = 
+			" SELECT p.ID, p.NAME, sum(ol.quantity), sum(rol.quantity), avg(ol.purchase_price), avg(ol.sale_price) " +
+            " FROM PRODUCT p " +
+            " INNER JOIN ORDER_LINE ol " +
+            " ON p.ID = ol.PRODUCT_ID " +
+            " INNER JOIN CUSTOMER_ORDER CO " +
+            " ON co.ID = ol.CUSTOMER_ORDER_ID " +
+            " LEFT JOIN RMA_ORDER_LINE rol " +
+            " ON rol.ORDER_LINE_ID = ol.ID " +
+            " WHERE p.CATEGORY_ID = ? " +
+            " AND CAST(co.ORDER_DATE AS DATE) >= ? " +
+            " AND CAST(co.ORDER_DATE AS DATE) <= ? " +
+            " GROUP BY p.ID"
+            + " ORDER BY %s DESC";
+
+	public static final String FINDBYATTRIBUTE_QUERY =
+		    " SELECT COUNT(at.ID), at.NAME, at.ATTRIBUTE_DATA_TYPE_ID, av.VALUE_BIGINT, av.VALUE_VARCHAR, av.VALUE_DECIMAL, av.VALUE_BOOLEAN " +
+		    "+ FROM ATTRIBUTE_TYPE at " +
+		    "+ INNER JOIN CATEGORY_ATTRIBUTE_TYPE cat " +
+		    "+ ON cat.ATTRIBUTE_TYPE_ID = at.ID " +
+		    "+ INNER JOIN ATTRIBUTE_VALUE av " +
+		    "+ ON at.ID = av.ATTRIBUTE_TYPE_ID " +
+		    "+ INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav " +
+		    "+ ON av.ID = pav.ATTRIBUTE_VALUE_ID " +
+		    "+ INNER JOIN PRODUCT p " +
+		    "+ ON p.ID = pav.PRODUCT_ID " +
+		    "+ INNER JOIN ORDER_LINE ol " +
+		    "+ ON ol.PRODUCT_ID = p.ID " +
+		    "+ INNER JOIN CUSTOMER_ORDER co " +
+		    "+ ON co.ID = ol.CUSTOMER_ORDER_ID " +
+		    "+ AND CAST(co.ORDER_DATE AS DATE) >= ? " +
+		    "+ AND CAST(co.ORDER_DATE AS DATE) <= ? " +
+		    " WHERE at.NAME = ? " +
+		    " AND p.CATEGORY_ID = ? " +
+		    " GROUP BY at.NAME, av.VALUE_BIGINT, av.VALUE_VARCHAR, av.VALUE_DECIMAL, av.VALUE_BOOLEAN " +
+		    " ORDER BY at.NAME ASC, av.VALUE_BIGINT ASC, av.VALUE_VARCHAR ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC; ";
+
 	
 	private static Logger logger = LogManager.getLogger(ProductStatisticsDAOImpl.class);
 
@@ -65,14 +105,108 @@ implements ProductStatisticsDAO {
 		}	
 	}
 	
+	@Override
+	public List<ProductStatisticsDTO> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
+			throws DataException {
+		String query = String.format(FINDMOST_QUERY_PLACEHOLDER, "sum(ol.quantity)");
+		return findMost(conn, query, startDate, endDate, categoryId);
+	}
+	
+	@Override
+	public List<ProductStatisticsDTO> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
+			throws DataException {
+		String query = String.format(FINDMOST_QUERY_PLACEHOLDER, "sum(rol.quantity)");
+		return findMost(conn, query, startDate, endDate, categoryId);
+	}
+	
+	private List<ProductStatisticsDTO> findMost(Connection conn, String query, Date startDate, Date endDate, Short categoryId)
+			throws DataException {
+		
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<ProductStatisticsDTO> results = new ArrayList<ProductStatisticsDTO>();
+		
+		try {
+			stmt = conn.prepareStatement(FINDBYPRODUCT_QUERY);
+			
+			int i = 1;
+			stmt.setShort(i++, categoryId);
+			stmt.setDate(i++, new java.sql.Date(startDate.getTime()));
+			stmt.setDate(i++, new java.sql.Date(endDate.getTime()));
+			
+			rs = stmt.executeQuery();
+			
+			while (rs.next()) {
+				ProductStatisticsDTO dto = new ProductStatisticsDTO();
+				
+				int j = 1;
+				dto.setId(rs.getLong(i++));
+				dto.setName(rs.getString(i++));
+				dto.setQuantitySold(rs.getInt(j++));
+				dto.setQuantityReturned(rs.getInt(j++));
+				dto.setAvgPurchasePrice(rs.getDouble(j++));
+				dto.setAvgSalePrice(rs.getDouble(j++));
+				
+				dto.setPctReturned((double) dto.getQuantitySold() * dto.getQuantityReturned() / 100);
+				
+				results.add(dto);
+			}
+			return results;
+			
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e.getMessage(), e);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}	
+	}
+	
+	@Override
+	public List<AttributeStatisticsDTO<?>> findByAttribute(Connection conn, Date startDate, Date endDate,
+			Short categoryId, String attributeName) throws DataException {
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<AttributeStatisticsDTO<?>> results = new ArrayList<AttributeStatisticsDTO<?>>();
+		
+		try {
+			stmt = conn.prepareStatement(FINDBYPRODUCT_QUERY);
+			
+			int i = 1;
+			stmt.setDate(i++, new java.sql.Date(startDate.getTime()));
+			stmt.setDate(i++, new java.sql.Date(endDate.getTime()));
+			stmt.setShort(i++, categoryId);
+			stmt.setString(i++, attributeName);
+			
+			rs = stmt.executeQuery();
+			
+			while (rs.next()) {
+				int j = 1;
+				Integer quantity = rs.getInt(i++);
+				String name = rs.getString(j++);
+				String dataType = rs.getString(i++);				
+				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), Attribute.TYPE_PARAMETER_CLASSES.get(dataType));
+				
+				results.add(new AttributeStatisticsDTO<>(name, value, quantity));
+			}
+			return results;
+			
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e.getMessage(), e);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}	
+	}
+	
 	private ProductStatisticsDTO loadNext(ResultSet rs) throws SQLException {
 		ProductStatisticsDTO dto = new ProductStatisticsDTO();
 		
 		int i = 1;
-		dto.setDate(rs.getDate(i++));
+		dto.setStatisticsDate(rs.getDate(i++));
 		dto.setQuantitySold(rs.getInt(i++));
 		dto.setQuantityReturned(rs.getInt(i++));
-		dto.setAvgPrice(rs.getDouble(i++));
+		dto.setAvgSalePrice(rs.getDouble(i++));
 		
 		return dto;
 	}
