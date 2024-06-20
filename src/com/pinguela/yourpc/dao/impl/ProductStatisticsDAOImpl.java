@@ -136,7 +136,8 @@ implements ProductStatisticsDAO {
 			
 			rs = stmt.executeQuery();
 			
-			while (rs.next()) {
+			int pos = 0;
+			while (rs.next() && pos++ < 16) {
 				ProductStatisticsDTO dto = new ProductStatisticsDTO();
 				
 				int j = 1;
