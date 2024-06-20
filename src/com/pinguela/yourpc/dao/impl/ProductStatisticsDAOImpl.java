@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,25 +53,25 @@ implements ProductStatisticsDAO {
             " GROUP BY p.ID"
             + " ORDER BY %s DESC";
 
-	public static final String FINDBYATTRIBUTE_QUERY =
+	public static final String FINDBYATTRIBUTE_PLACEHOLDER_QUERY =
 		    " SELECT COUNT(at.ID), at.NAME, at.ATTRIBUTE_DATA_TYPE_ID, av.VALUE_BIGINT, av.VALUE_VARCHAR, av.VALUE_DECIMAL, av.VALUE_BOOLEAN " +
-		    "+ FROM ATTRIBUTE_TYPE at " +
-		    "+ INNER JOIN CATEGORY_ATTRIBUTE_TYPE cat " +
-		    "+ ON cat.ATTRIBUTE_TYPE_ID = at.ID " +
-		    "+ INNER JOIN ATTRIBUTE_VALUE av " +
-		    "+ ON at.ID = av.ATTRIBUTE_TYPE_ID " +
-		    "+ INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav " +
-		    "+ ON av.ID = pav.ATTRIBUTE_VALUE_ID " +
-		    "+ INNER JOIN PRODUCT p " +
-		    "+ ON p.ID = pav.PRODUCT_ID " +
-		    "+ INNER JOIN ORDER_LINE ol " +
-		    "+ ON ol.PRODUCT_ID = p.ID " +
-		    "+ INNER JOIN CUSTOMER_ORDER co " +
-		    "+ ON co.ID = ol.CUSTOMER_ORDER_ID " +
-		    "+ AND CAST(co.ORDER_DATE AS DATE) >= ? " +
-		    "+ AND CAST(co.ORDER_DATE AS DATE) <= ? " +
+		    " FROM ATTRIBUTE_TYPE at " +
+		    " INNER JOIN CATEGORY_ATTRIBUTE_TYPE cat " +
+		    " ON cat.ATTRIBUTE_TYPE_ID = at.ID " +
+		    " INNER JOIN ATTRIBUTE_VALUE av " +
+		    " ON at.ID = av.ATTRIBUTE_TYPE_ID " +
+		    " INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav " +
+		    " ON av.ID = pav.ATTRIBUTE_VALUE_ID " +
+		    " INNER JOIN PRODUCT p " +
+		    " ON p.ID = pav.PRODUCT_ID " +
+		    " INNER JOIN ORDER_LINE ol " +
+		    " ON ol.PRODUCT_ID = p.ID " +
+		    " INNER JOIN CUSTOMER_ORDER co " +
+		    " ON co.ID = ol.CUSTOMER_ORDER_ID " +
+		    " AND CAST(co.ORDER_DATE AS DATE) >= ? " +
+		    " AND CAST(co.ORDER_DATE AS DATE) <= ? " +
 		    " WHERE at.NAME = ? " +
-		    " AND p.CATEGORY_ID = ? " +
+		    " AND p.CATEGORY_ID%s" +
 		    " GROUP BY at.NAME, av.VALUE_BIGINT, av.VALUE_VARCHAR, av.VALUE_DECIMAL, av.VALUE_BOOLEAN " +
 		    " ORDER BY at.NAME ASC, av.VALUE_BIGINT ASC, av.VALUE_VARCHAR ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC; ";
 
@@ -195,27 +196,34 @@ implements ProductStatisticsDAO {
 	@Override
 	public List<AttributeStatisticsDTO<?>> findByAttribute(Connection conn, Date startDate, Date endDate,
 			Short categoryId, String attributeName) throws DataException {
+		
+		Set<Short> categoryIds = CategoryUtils.getLowerHierarchy(categoryId).keySet();
+		String query = String.format(FINDBYATTRIBUTE_PLACEHOLDER_QUERY, SQLQueryUtils.buildPlaceholderComparisonClause(categoryIds.size()));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		List<AttributeStatisticsDTO<?>> results = new ArrayList<AttributeStatisticsDTO<?>>();
 		
 		try {
-			stmt = conn.prepareStatement(FINDBYPRODUCT_QUERY);
+			stmt = conn.prepareStatement(query);
 			
 			int i = 1;
 			stmt.setDate(i++, new java.sql.Date(startDate.getTime()));
 			stmt.setDate(i++, new java.sql.Date(endDate.getTime()));
-			stmt.setShort(i++, categoryId);
 			stmt.setString(i++, attributeName);
+			if (categoryId != null) {	
+				for (Short parameter : categoryIds) {
+					stmt.setShort(i++, parameter);
+				}
+			}
 			
 			rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				int j = 1;
-				Integer quantity = rs.getInt(i++);
+				Integer quantity = rs.getInt(j++);
 				String name = rs.getString(j++);
-				String dataType = rs.getString(i++);				
+				String dataType = rs.getString(j++);				
 				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), Attribute.TYPE_PARAMETER_CLASSES.get(dataType));
 				
 				results.add(new AttributeStatisticsDTO<>(name, value, quantity));

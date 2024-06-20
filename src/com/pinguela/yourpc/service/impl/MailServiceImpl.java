@@ -3,9 +3,8 @@ package com.pinguela.yourpc.service.impl;
 import javax.mail.Authenticator;
 
 import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+import org.apache.commons.mail.HtmlEmail;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,29 +31,31 @@ public class MailServiceImpl implements MailService {
 
 	@Override
 	public void send(String subject, String message, String... to) 
-		throws MailException {
-		
-		if (subject == null || subject.length() == 0) {
-			throw new MailException("Empty subject.");
-		}
+	    throws MailException {
 
-		Email email = null;
-		
-		try {
-			email = new SimpleEmail();
-			email.setHostName(ConfigManager.getValue(SMTP_SERVER_PNAME));
-			email.setSmtpPort(Integer.valueOf(ConfigManager.getValue(SMTP_PORT_PNAME)));
-			email.setAuthenticator(authenticator);
-			email.setStartTLSEnabled(Boolean.valueOf(ConfigManager.getValue(TLS_ENABLED_PNAME)));
-			email.setFrom(ConfigManager.getValue(EMAIL_USER_PNAME));
-			email.setSubject(subject);
-			email.setMsg(message);
-			email.addTo(to);
-			email.send();
-		} catch (EmailException e) {
-			logger.error(e);
-			throw new MailException("Sending to " +to, e);
-		}
+	    if (subject == null || subject.length() == 0) {
+	        throw new MailException("Empty subject.");
+	    }
+
+	    HtmlEmail email = null;
+
+	    try {
+	        email = new HtmlEmail();
+	        email.setCharset("UTF-8");
+	        email.setHostName(ConfigManager.getValue(SMTP_SERVER_PNAME));
+	        email.setSmtpPort(Integer.valueOf(ConfigManager.getValue(SMTP_PORT_PNAME)));
+	        email.setAuthenticator(authenticator);
+	        email.setStartTLSEnabled(Boolean.valueOf(ConfigManager.getValue(TLS_ENABLED_PNAME)));
+	        email.setFrom(ConfigManager.getValue(EMAIL_USER_PNAME));
+	        email.setSubject(subject);
+	        email.setHtmlMsg(message);  // Set the HTML message
+	        email.setTextMsg("Your email client does not support HTML messages");  // Fallback text message
+	        email.addTo(to);
+	        email.send();
+	    } catch (EmailException e) {
+	        logger.error(e);
+	        throw new MailException("Sending to " + String.join(", ", to), e);
+	    }
 	}
 
 }
