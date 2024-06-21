@@ -238,8 +238,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 		// Add value to list
 		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
 		Long id = rs.getLong(VALUE_ID_COLUMN);
-		Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
-		attribute.addValue(id, value);
+		
+		if (!rs.wasNull()) { // Attribute without values
+			Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
+			attribute.addValue(id, value);
+		}
 		
 		return attribute;
 	}
