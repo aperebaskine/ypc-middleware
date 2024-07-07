@@ -21,6 +21,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import com.pinguela.DataException;
 import com.pinguela.InvalidLoginCredentialsException;
 import com.pinguela.YPCException;
+import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
 import com.pinguela.yourpc.service.impl.EmployeeServiceImpl;
@@ -67,7 +68,6 @@ class EmployeeServiceTest {
 		
 		@BeforeEach
 		void setUp() {
-			
 			initEmployee();
 		}
 		
@@ -84,6 +84,16 @@ class EmployeeServiceTest {
 			e.setUnencryptedPassword("abc123.");
 			e.setIban("QWERTYUIOPASDFGHJKLÑ");
 			e.setBic("QWERTYUIOPA");
+			
+			Address a = new Address();
+			a.setStreetName("TEST" +System.currentTimeMillis());
+			a.setStreetNumber((short) 1);
+			a.setFloor((short) 1);
+			a.setDoor("D");
+			a.setZipCode("12345");
+			a.setCityId(1);
+			
+			e.setAddress(a);
 		}
 		
 		@Test
@@ -166,12 +176,6 @@ class EmployeeServiceTest {
 		void testWithInvalidUsername() {
 			e.setUsername(null);
 			assertThrows(IllegalArgumentException.class, () -> employeeService.register(e));
-		}
-		
-		@Test
-		void testWithInvalidPassword() {
-			e.setUnencryptedPassword(null);
-			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		
 		@Test

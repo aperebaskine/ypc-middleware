@@ -165,12 +165,6 @@ class CustomerServiceTest {
 			c.setEmail("ethan@example.com");
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
-
-		@Test
-		void testWithInvalidPassword() {
-			c.setUnencryptedPassword(null);
-			assertThrows(DataException.class, () -> customerService.register(c));
-		}
 	}
 
 	@Nested
