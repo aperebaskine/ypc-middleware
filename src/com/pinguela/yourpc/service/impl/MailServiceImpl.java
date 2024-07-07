@@ -36,6 +36,10 @@ public class MailServiceImpl implements MailService {
 	    if (subject == null || subject.length() == 0) {
 	        throw new MailException("Empty subject.");
 	    }
+	    
+	    if (to == null || to.length == 0) {
+	    	throw new MailException("No recipients.");
+	    }
 
 	    HtmlEmail email = null;
 
