@@ -2,21 +2,36 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-public class ProductStatisticsDTO 
-extends Product {
+public class ProductStatistics 
+extends AbstractValueObject {
 	
-	private Date statisticsDate;
+	private Long productId;
+	private String productName;
+	private Date date;
 	private Integer quantitySold;
 	private Integer quantityReturned;
 	private Double pctReturned;
 	private Double avgPurchasePrice;
 	private Double avgSalePrice;
 	
-	public Date getStatisticsDate() {
-		return statisticsDate;
+	
+	public Long getProductId() {
+		return productId;
 	}
-	public void setStatisticsDate(Date date) {
-		this.statisticsDate = date;
+	public void setProductId(Long id) {
+		this.productId = id;
+	}
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String name) {
+		this.productName = name;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
 	}
 	public Integer getQuantitySold() {
 		return quantitySold;

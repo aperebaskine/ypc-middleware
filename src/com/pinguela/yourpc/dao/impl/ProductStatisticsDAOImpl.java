@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeStatisticsDTO;
-import com.pinguela.yourpc.model.ProductStatisticsDTO;
+import com.pinguela.yourpc.model.AttributeStatistics;
+import com.pinguela.yourpc.model.ProductStatistics;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -79,12 +79,12 @@ implements ProductStatisticsDAO {
 	private static Logger logger = LogManager.getLogger(ProductStatisticsDAOImpl.class);
 
 	@Override
-	public List<ProductStatisticsDTO> findByProduct(Connection conn, Date startDate, Date endDate, Long productId)
+	public List<ProductStatistics> findByProduct(Connection conn, Date startDate, Date endDate, Long productId)
 			throws DataException {
 		
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		List<ProductStatisticsDTO> results = new ArrayList<ProductStatisticsDTO>();
+		List<ProductStatistics> results = new ArrayList<ProductStatistics>();
 		
 		try {
 			stmt = conn.prepareStatement(FINDBYPRODUCT_QUERY);
@@ -110,7 +110,7 @@ implements ProductStatisticsDAO {
 	}
 	
 	@Override
-	public List<ProductStatisticsDTO> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException {
 		StringBuilder query = new StringBuilder(FINDMOST_QUERY_PLACEHOLDER);
 
@@ -129,7 +129,7 @@ implements ProductStatisticsDAO {
 	}
 	
 	@Override
-	public List<ProductStatisticsDTO> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException {
 		StringBuilder query = new StringBuilder(FINDMOST_QUERY_PLACEHOLDER);
 
@@ -147,12 +147,12 @@ implements ProductStatisticsDAO {
 		return findMost(conn, query.toString(), startDate, endDate, categoryId);
 	}
 	
-	private List<ProductStatisticsDTO> findMost(Connection conn, String query, Date startDate, Date endDate, Short categoryId)
+	private List<ProductStatistics> findMost(Connection conn, String query, Date startDate, Date endDate, Short categoryId)
 			throws DataException {
 		
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		List<ProductStatisticsDTO> results = new ArrayList<ProductStatisticsDTO>();
+		List<ProductStatistics> results = new ArrayList<ProductStatistics>();
 		
 		try {
 			stmt = conn.prepareStatement(query);
@@ -170,11 +170,11 @@ implements ProductStatisticsDAO {
 			
 			int pos = 0;
 			while (rs.next() && pos++ < 16) {
-				ProductStatisticsDTO dto = new ProductStatisticsDTO();
+				ProductStatistics dto = new ProductStatistics();
 				
 				int j = 1;
-				dto.setId(rs.getLong(j++));
-				dto.setName(rs.getString(j++));
+				dto.setProductId(rs.getLong(j++));
+				dto.setProductName(rs.getString(j++));
 				dto.setQuantitySold(rs.getInt(j++));
 				dto.setQuantityReturned(rs.getInt(j++));
 				dto.setPctReturned(rs.getDouble(j++));
@@ -194,7 +194,7 @@ implements ProductStatisticsDAO {
 	}
 	
 	@Override
-	public List<AttributeStatisticsDTO<?>> findByAttribute(Connection conn, Date startDate, Date endDate,
+	public List<AttributeStatistics<?>> findByAttribute(Connection conn, Date startDate, Date endDate,
 			Short categoryId, String attributeName) throws DataException {
 		
 		Set<Short> categoryIds = CategoryUtils.getLowerHierarchy(categoryId).keySet();
@@ -202,7 +202,7 @@ implements ProductStatisticsDAO {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		List<AttributeStatisticsDTO<?>> results = new ArrayList<AttributeStatisticsDTO<?>>();
+		List<AttributeStatistics<?>> results = new ArrayList<AttributeStatistics<?>>();
 		
 		try {
 			stmt = conn.prepareStatement(query);
@@ -226,7 +226,7 @@ implements ProductStatisticsDAO {
 				String dataType = rs.getString(j++);				
 				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), Attribute.TYPE_PARAMETER_CLASSES.get(dataType));
 				
-				results.add(new AttributeStatisticsDTO<>(name, value, quantity));
+				results.add(new AttributeStatistics<>(name, value, quantity));
 			}
 			return results;
 			
@@ -238,11 +238,11 @@ implements ProductStatisticsDAO {
 		}	
 	}
 	
-	private ProductStatisticsDTO loadNext(ResultSet rs) throws SQLException {
-		ProductStatisticsDTO dto = new ProductStatisticsDTO();
+	private ProductStatistics loadNext(ResultSet rs) throws SQLException {
+		ProductStatistics dto = new ProductStatistics();
 		
 		int i = 1;
-		dto.setStatisticsDate(rs.getDate(i++));
+		dto.setDate(rs.getDate(i++));
 		dto.setQuantitySold(rs.getInt(i++));
 		dto.setQuantityReturned(rs.getInt(i++));
 		dto.setAvgSalePrice(rs.getDouble(i++));

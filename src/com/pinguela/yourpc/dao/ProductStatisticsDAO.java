@@ -5,21 +5,21 @@ import java.util.Date;
 import java.util.List;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.AttributeStatisticsDTO;
-import com.pinguela.yourpc.model.ProductStatisticsDTO;
+import com.pinguela.yourpc.model.AttributeStatistics;
+import com.pinguela.yourpc.model.ProductStatistics;
 
 public interface ProductStatisticsDAO {
 	
-	public List<ProductStatisticsDTO> findByProduct(Connection conn, Date startDate, Date endDate, Long productId)
+	public List<ProductStatistics> findByProduct(Connection conn, Date startDate, Date endDate, Long productId)
 			throws DataException;
 	
-	public List<AttributeStatisticsDTO<?>> findByAttribute(Connection conn, Date startDate, Date endDate, Short categoryId, String attributeName)
+	public List<AttributeStatistics<?>> findByAttribute(Connection conn, Date startDate, Date endDate, Short categoryId, String attributeName)
 			throws DataException;
 	
-	public List<ProductStatisticsDTO> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostSold(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException;
 	
-	public List<ProductStatisticsDTO> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostReturned(Connection conn, Date startDate, Date endDate, Short categoryId)
 			throws DataException;
 
 }

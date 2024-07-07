@@ -12,8 +12,8 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.dao.impl.ProductStatisticsDAOImpl;
-import com.pinguela.yourpc.model.AttributeStatisticsDTO;
-import com.pinguela.yourpc.model.ProductStatisticsDTO;
+import com.pinguela.yourpc.model.AttributeStatistics;
+import com.pinguela.yourpc.model.ProductStatistics;
 import com.pinguela.yourpc.service.ProductStatisticsService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -28,7 +28,7 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 	}
 
 	@Override
-	public List<ProductStatisticsDTO> findByProduct(Date startDate, Date endDate, Long productId) 
+	public List<ProductStatistics> findByProduct(Date startDate, Date endDate, Long productId) 
 			throws ServiceException, DataException {
 		Connection conn = null;
 
@@ -45,7 +45,7 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 	}
 
 	@Override
-	public List<AttributeStatisticsDTO<?>> findByAttribute(Date startDate, Date endDate, Short categoryId, String attributeName)
+	public List<AttributeStatistics<?>> findByAttribute(Date startDate, Date endDate, Short categoryId, String attributeName)
 			throws ServiceException, DataException {
 		Connection conn = null;
 
@@ -62,7 +62,7 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 	}
 
 	@Override
-	public List<ProductStatisticsDTO> findMostSold(Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostSold(Date startDate, Date endDate, Short categoryId)
 			throws ServiceException, DataException {
 		Connection conn = null;
 
@@ -79,7 +79,7 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 	}
 
 	@Override
-	public List<ProductStatisticsDTO> findMostReturned(Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> findMostReturned(Date startDate, Date endDate, Short categoryId)
 			throws ServiceException, DataException {
 		Connection conn = null;
 
