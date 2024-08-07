@@ -52,12 +52,6 @@ extends AbstractValueObject {
 	public void setLastName2(String lastName2) {
 		this.lastName2 = lastName2;
 	}
-	
-	public String getFullName() {
-		return getLastName2() == null 
-				? String.join(" ", getFirstName(), getLastName1())
-						: String.join(" ", getFirstName(), getLastName1(), getLastName2());
-	}
 
 	public String getDocumentTypeId() {
 		return documentTypeId;
