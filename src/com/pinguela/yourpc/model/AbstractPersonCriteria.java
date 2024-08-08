@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public abstract class AbstractPersonCriteria<PK, T> extends AbstractCriteria<PK, T> {
+public abstract class AbstractPersonCriteria<PK, T> extends AbstractEntityCriteria<PK, T> {
 	
 	private String firstName = null;
 	private String lastName1 = null;

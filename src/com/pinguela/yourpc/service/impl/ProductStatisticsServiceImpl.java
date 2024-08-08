@@ -14,6 +14,7 @@ import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.dao.impl.ProductStatisticsDAOImpl;
 import com.pinguela.yourpc.model.AttributeStatistics;
 import com.pinguela.yourpc.model.ProductStatistics;
+import com.pinguela.yourpc.model.ProductStatisticsCriteria;
 import com.pinguela.yourpc.service.ProductStatisticsService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -60,32 +61,16 @@ public class ProductStatisticsServiceImpl implements ProductStatisticsService {
 			JDBCUtils.close(conn);
 		}
 	}
-
+	
 	@Override
-	public List<ProductStatistics> findMostSold(Date startDate, Date endDate, Short categoryId)
+	public List<ProductStatistics> getSalesStatistics(ProductStatisticsCriteria criteria)
 			throws ServiceException, DataException {
+		
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return productStatisticsDAO.findMostSold(conn, startDate, endDate, categoryId);
-
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
-
-	@Override
-	public List<ProductStatistics> findMostReturned(Date startDate, Date endDate, Short categoryId)
-			throws ServiceException, DataException {
-		Connection conn = null;
-
-		try {
-			conn = JDBCUtils.getConnection();
-			return productStatisticsDAO.findMostReturned(conn, startDate, endDate, categoryId);
+			return productStatisticsDAO.getSalesStatistics(conn, criteria);
 
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);

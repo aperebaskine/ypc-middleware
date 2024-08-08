@@ -1,13 +1,9 @@
 package com.pinguela.yourpc.model;
 
-public interface Criteria<PK, T> {
+public interface Criteria<T> {
 
 	Boolean ASC = Boolean.TRUE;
 	Boolean DESC = Boolean.FALSE;
-	
-	PK getId();
-	
-	void setId(PK id);
 
 	String getOrderBy();
 
@@ -16,5 +12,5 @@ public interface Criteria<PK, T> {
 	Boolean getAscDesc();
 
 	void setAscDesc(Boolean ascDesc);
-
+	
 }

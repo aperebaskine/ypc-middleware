@@ -3,7 +3,7 @@ package com.pinguela.yourpc.model;
 import java.util.Date;
 
 public class ProductStatistics 
-extends AbstractValueObject {
+extends AbstractStatistics<Product> {
 	
 	private Long productId;
 	private String productName;

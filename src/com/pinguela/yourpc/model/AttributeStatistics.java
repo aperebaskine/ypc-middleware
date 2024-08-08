@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.model;
 
 public class AttributeStatistics<T> 
-extends AbstractValueObject {
+extends AbstractStatistics<Attribute<?>> {
 	
 	private String name;
 	private T value;

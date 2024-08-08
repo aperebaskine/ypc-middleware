@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ProductCriteria
-extends AbstractCriteria<Long, Product> {
+extends AbstractEntityCriteria<Long, Product> {
 	
 	public static final String ORDER_BY_NAME = " p.NAME";
 	public static final String ORDER_BY_LAUNCH_DATE = " p.LAUNCH_DATE";

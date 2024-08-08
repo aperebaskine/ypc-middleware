@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public abstract class AbstractCustomerOperationCriteria<PK, T> extends AbstractCriteria<PK, T> {
+public abstract class AbstractCustomerOperationCriteria<PK, T> extends AbstractEntityCriteria<PK, T> {
 	
 	private Integer customerId;
 	private String customerEmail;

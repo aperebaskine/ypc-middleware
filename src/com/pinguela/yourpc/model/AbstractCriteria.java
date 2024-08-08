@@ -1,26 +1,14 @@
 package com.pinguela.yourpc.model;
 
-public abstract class AbstractCriteria<PK, T>
+public abstract class AbstractCriteria<T>
 extends AbstractValueObject
-implements Criteria<PK, T> {
+implements Criteria<T> { 
 	
-	private PK id;
 	private String orderBy;
 	private Boolean ascDesc;
 	
 	{
 		setDefaultOrdering();
-	}
-	
-	public AbstractCriteria() {
-	}
-	
-	public PK getId() {
-		return id;
-	}
-	
-	public void setId(PK id) {
-		this.id = id;
 	}
 	
 	@Override
@@ -58,5 +46,5 @@ implements Criteria<PK, T> {
 	 * </p>
 	 */
 	protected abstract void setDefaultOrdering();
-	
+
 }
