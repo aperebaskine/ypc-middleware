@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public class DoubleAttribute extends Attribute<Double> {
+public final class DoubleAttribute extends Attribute<Double> {
 
 	DoubleAttribute() {
 		super();
@@ -14,5 +14,10 @@ public class DoubleAttribute extends Attribute<Double> {
 	@Override
 	public int getValueHandlingMode() {
 		return RANGE;
+	}
+
+	@Override
+	public Class<Double> getTypeParameterClass() {
+		return java.lang.Double.class;
 	}
 }

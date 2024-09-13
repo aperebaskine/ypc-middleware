@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public class LongAttribute extends Attribute<Long> {
+public final class LongAttribute extends Attribute<Long> {
 
 	LongAttribute() {
 		super();
@@ -14,5 +14,10 @@ public class LongAttribute extends Attribute<Long> {
 	@Override
 	public int getValueHandlingMode() {
 		return RANGE;
+	}
+
+	@Override
+	public Class<Long> getTypeParameterClass() {
+		return java.lang.Long.class;
 	}
 }

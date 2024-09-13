@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class NullAttribute extends Attribute<String> {
+public final class NullAttribute extends Attribute<String> {
 	
 	public NullAttribute() {
 		super.setName("");
@@ -22,7 +22,7 @@ public class NullAttribute extends Attribute<String> {
 	public void addValue(Long id, Object value) {}
 
 	@Override
-	public void addAll(Collection<AttributeValue<String>> newValues) {}
+	public void addAllValues(Collection<AttributeValue<String>> newValues) {}
 
 	@Override
 	public void removeValue(int index) {}
@@ -59,6 +59,11 @@ public class NullAttribute extends Attribute<String> {
 	@Override
 	public int getValueHandlingMode() {
 		return SET;
+	}
+
+	@Override
+	public Class<String> getTypeParameterClass() {
+		return java.lang.String.class;
 	}
 
 }

@@ -8,28 +8,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Abstract factory class for product attributes.
  * <p><b>The name of each concrete subclass of this abstract factory must be comprised
  * of the subclass' type parameter class name followed by this class' name.</b></p>
  * @param <E> The attribute's data type
  */
-public abstract class Attribute<E>
+public abstract sealed class Attribute<E>
 extends AbstractValueObject 
-implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
-
-	private static final String FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER;
-
-	static {
-		String packageName = Attribute.class.getPackage().getName();
-		String className = Attribute.class.getSimpleName();
-
-		FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER =
-				new StringBuilder(packageName)
-				.append(".%s")
-				.append(className)
-				.toString();
-	}
+implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
+permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
+	
+	private static Logger logger = LogManager.getLogger(Attribute.class);
+	
+	private static final Map<Class<?>, Class<?>> SUBCLASSES;
 
 	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
@@ -38,14 +33,31 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	 * a subclass of this abstract factory.</b></p>
 	 */
 	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
-
+	
 	static {
-		Map<String, Class<?>> classNameMap = new HashMap<String, Class<?>>();
-		classNameMap.put(BIGINT, java.lang.Long.class);
-		classNameMap.put(VARCHAR, java.lang.String.class);
-		classNameMap.put(DECIMAL, java.lang.Double.class);
-		classNameMap.put(BOOLEAN, java.lang.Boolean.class);
-		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(classNameMap);
+		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
+		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
+		
+		for (Class<?> clazz : Attribute.class.getPermittedSubclasses()) {
+			
+			if (clazz.isAssignableFrom(NullAttribute.class)) {
+				continue;
+			}
+			
+			try {
+				
+				Attribute<?> attribute = (Attribute<?>) clazz.getDeclaredConstructor().newInstance();
+				Class<?> typeParameterClass = attribute.getTypeParameterClass();
+				
+				typeParameterClassMap.put(attribute.getDataTypeIdentifier(), typeParameterClass);
+				subclassMap.put(typeParameterClass, clazz);
+			} catch (Exception e) {
+				logger.fatal(e.getMessage(), e);
+			}
+			
+		}
+		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
+		SUBCLASSES = Collections.unmodifiableMap(subclassMap);
 	}
 
 	private String name;
@@ -86,24 +98,15 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 					String.format("Cannot instantiate attribute using type parameter %s.", typeParameterClass.getName()));
 		}
 
-		String parameterClassName = typeParameterClass.getSimpleName();
-
-		String fullyQualifiedSubclassName =
-				String.format(FULLY_QUALIFIED_SUBCLASS_NAME_PLACEHOLDER, parameterClassName);
 		Attribute<E> attribute = null;
 
 		try { 
 			attribute = (Attribute<E>) 
-					Class.forName(fullyQualifiedSubclassName).getDeclaredConstructor().newInstance(); 
+					SUBCLASSES.get(typeParameterClass).getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
 		return attribute;
-	}
-
-	@SuppressWarnings("unchecked")
-	public final Class<E> getTypeParameterClass() {
-		return (Class<E>) TYPE_PARAMETER_CLASSES.get(getDataTypeIdentifier());
 	}
 
 	public String getName() {
@@ -168,7 +171,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		values.add(attributeValue);
 	}
 
-	public void addAll(Collection<AttributeValue<E>> newValues) {
+	public void addAllValues(Collection<AttributeValue<E>> newValues) {
 		values.addAll(newValues);
 	}
 
@@ -217,6 +220,11 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		Attribute<?> other = (Attribute<?>) obj;
 		return Objects.equals(name, other.name) && Objects.equals(values, other.values);
 	}
+	
+	/**
+	 * @return The type parameter class corresponding to the attribute class.
+	 */
+	public abstract Class<E> getTypeParameterClass();
 
 	/**
 	 * @return The data type constant from {@link AttributeDataTypes} corresponding

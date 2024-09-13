@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.model;
 
-public class BooleanAttribute extends Attribute<Boolean> {
+public final class BooleanAttribute 
+extends Attribute<Boolean> {
 	
 	BooleanAttribute() {
 		super();
@@ -14,6 +15,11 @@ public class BooleanAttribute extends Attribute<Boolean> {
 	@Override
 	public int getValueHandlingMode() {
 		return SET;
+	}
+
+	@Override
+	public Class<Boolean> getTypeParameterClass() {
+		return java.lang.Boolean.class;
 	}
 
 }
