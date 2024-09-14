@@ -36,11 +36,6 @@ public final class NullAttribute extends Attribute<NullType> {
 	}
 	
 	@Override
-	public NullType getValueAt(int index) {
-		return null;
-	}
-	
-	@Override
 	public List<AttributeValue<NullType>> getAllValues() {
 		return Collections.unmodifiableList(super.getAllValues());
 	}
