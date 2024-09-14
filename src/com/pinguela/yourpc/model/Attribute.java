@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * Abstract factory class for product attributes.
  * <p><b>The name of each concrete subclass of this abstract factory must be comprised
@@ -21,9 +18,7 @@ public abstract sealed class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
 permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
-	
-	private static Logger logger = LogManager.getLogger(Attribute.class);
-	
+
 	private static final Map<Class<?>, Class<?>> SUBCLASSES;
 
 	/**
@@ -33,28 +28,24 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	 * a subclass of this abstract factory.</b></p>
 	 */
 	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
-	
+
 	static {
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
-		
+
 		for (Class<?> clazz : Attribute.class.getPermittedSubclasses()) {
-			
-			if (clazz.isAssignableFrom(NullAttribute.class)) {
-				continue;
-			}
-			
+
 			try {
-				
+
 				Attribute<?> attribute = (Attribute<?>) clazz.getDeclaredConstructor().newInstance();
 				Class<?> typeParameterClass = attribute.getTypeParameterClass();
-				
+
 				typeParameterClassMap.put(attribute.getDataTypeIdentifier(), typeParameterClass);
 				subclassMap.put(typeParameterClass, clazz);
 			} catch (Exception e) {
-				logger.fatal(e.getMessage(), e);
+
 			}
-			
+
 		}
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 		SUBCLASSES = Collections.unmodifiableMap(subclassMap);
@@ -98,15 +89,11 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 					String.format("Cannot instantiate attribute using type parameter %s.", typeParameterClass.getName()));
 		}
 
-		Attribute<E> attribute = null;
-
 		try { 
-			attribute = (Attribute<E>) 
-					SUBCLASSES.get(typeParameterClass).getDeclaredConstructor().newInstance();
+			return (Attribute<E>) SUBCLASSES.get(typeParameterClass).getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
-		return attribute;
 	}
 
 	public String getName() {
@@ -117,7 +104,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		this.name = name;
 	}
 
-	public List<AttributeValue<E>> getValues() {
+	public List<AttributeValue<E>> getAllValues() {
 		return values;
 	}
 
@@ -125,7 +112,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	 * Returns the list of values for this attribute. If the handling mode is {@link #RANGE},
 	 * only returns the first and last values in the list.
 	 */
-	public List<AttributeValue<E>> getTrimmedValues() {
+	public List<AttributeValue<E>> getValuesByHandlingMode() {
 
 		List<AttributeValue<E>> trimmedValues = null;
 
@@ -183,25 +170,20 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		values.remove(value);
 	}
 
-	public void removeAllValues() {
-		values.removeAll(values);
+	public void clearValues() {
+		values.clear();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Attribute<E> clone() {
-		try {
-			Attribute<E> clone = (Attribute<E>) super.clone();
-			clone.removeAllValues();
+		Attribute<E> clone = Attribute.getInstance(getTypeParameterClass());
+		clone.setName(this.name);
 
-			for (AttributeValue<E> value : this.values) {
-				clone.getValues().add(value.clone());
-			}
-
-			return clone;
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError();
+		for (AttributeValue<E> value : this.values) {
+			clone.getAllValues().add(value.clone());
 		}
+
+		return clone;
 	};
 
 	@Override
@@ -220,7 +202,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		Attribute<?> other = (Attribute<?>) obj;
 		return Objects.equals(name, other.name) && Objects.equals(values, other.values);
 	}
-	
+
 	/**
 	 * @return The type parameter class corresponding to the attribute class.
 	 */

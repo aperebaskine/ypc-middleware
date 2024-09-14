@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public final class NullAttribute extends Attribute<String> {
+import javax.lang.model.type.NullType;
+
+public final class NullAttribute extends Attribute<NullType> {
 	
 	public NullAttribute() {
 		super.setName("");
@@ -14,15 +16,10 @@ public final class NullAttribute extends Attribute<String> {
 	public void setName(String name) {}
 
 	@Override
-	public String getValueAt(int index) {
-		return null;
-	}
-
-	@Override
 	public void addValue(Long id, Object value) {}
 
 	@Override
-	public void addAllValues(Collection<AttributeValue<String>> newValues) {}
+	public void addAllValues(Collection<AttributeValue<NullType>> newValues) {}
 
 	@Override
 	public void removeValue(int index) {}
@@ -31,25 +28,30 @@ public final class NullAttribute extends Attribute<String> {
 	public void removeValue(AttributeValue<?> value) {}
 
 	@Override
-	public void removeAllValues() {}
+	public void clearValues() {}
 
 	@Override
-	public Attribute<String> clone() {
+	public Attribute<NullType> clone() {
 		return this;
 	}
 	
 	@Override
-	public List<AttributeValue<String>> getValues() {
-		return Collections.unmodifiableList(super.getValues());
+	public NullType getValueAt(int index) {
+		return null;
+	}
+	
+	@Override
+	public List<AttributeValue<NullType>> getAllValues() {
+		return Collections.unmodifiableList(super.getAllValues());
 	}
 
 	@Override
-	public List<AttributeValue<String>> getTrimmedValues() {
-		return getValues();
+	public List<AttributeValue<NullType>> getValuesByHandlingMode() {
+		return getAllValues();
 	}
 
 	@Override
-	public void addValue(AttributeValue<String> attributeValue) {}
+	public void addValue(AttributeValue<NullType> attributeValue) {}
 
 	@Override
 	public String getDataTypeIdentifier() {
@@ -62,8 +64,8 @@ public final class NullAttribute extends Attribute<String> {
 	}
 
 	@Override
-	public Class<String> getTypeParameterClass() {
-		return java.lang.String.class;
+	public Class<NullType> getTypeParameterClass() {
+		return javax.lang.model.type.NullType.class;
 	}
 
 }

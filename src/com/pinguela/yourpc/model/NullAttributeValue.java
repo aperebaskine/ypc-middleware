@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.model;
 
+import javax.lang.model.type.NullType;
+
 public class NullAttributeValue 
-extends AttributeValue<String> {
+extends AttributeValue<NullType> {
 	
 	public NullAttributeValue() {
 		super.setId(0l);
@@ -11,10 +13,10 @@ extends AttributeValue<String> {
 	public void setId(Long id) {}
 
 	@Override
-	public void setValue(String value) {}
+	public void setValue(NullType value) {}
 
 	@Override
-	public AttributeValue<String> clone() {
+	public AttributeValue<NullType> clone() {
 		return this;
 	}
 
