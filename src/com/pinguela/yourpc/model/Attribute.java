@@ -19,6 +19,9 @@ extends AbstractValueObject
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
 permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
 
+	/**
+	 * Maps type parameter classes to their corresponding subclasses.
+	 */
 	private static final Map<Class<?>, Class<?>> SUBCLASSES;
 
 	/**
