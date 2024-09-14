@@ -43,7 +43,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 				typeParameterClassMap.put(attribute.getDataTypeIdentifier(), typeParameterClass);
 				subclassMap.put(typeParameterClass, clazz);
 			} catch (Exception e) {
-
+				throw new ExceptionInInitializerError(e);
 			}
 
 		}
