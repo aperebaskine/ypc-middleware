@@ -54,18 +54,18 @@ public final class NullAttribute extends Attribute<NullType> {
 	public void addValue(AttributeValue<NullType> attributeValue) {}
 
 	@Override
+	public Class<NullType> getTypeParameterClass() {
+		return javax.lang.model.type.NullType.class;
+	}
+
+	@Override
 	public String getDataTypeIdentifier() {
-		return VARCHAR;
+		return "";
 	}
 
 	@Override
 	public int getValueHandlingMode() {
 		return SET;
-	}
-
-	@Override
-	public Class<NullType> getTypeParameterClass() {
-		return javax.lang.model.type.NullType.class;
 	}
 
 }

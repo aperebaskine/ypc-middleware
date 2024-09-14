@@ -20,23 +20,27 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes
 permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
 
 	/**
-	 * Maps type parameter classes to their corresponding subclasses.
-	 */
-	private static final Map<Class<?>, Class<?>> SUBCLASSES;
-
-	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
 	 * to the name of the parameterised class used by the attribute instance.</p>
 	 * <p><b>This map must contain an entry for every parameterised type used in
 	 * a subclass of this abstract factory.</b></p>
 	 */
 	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
+	
+	/**
+	 * Maps type parameter classes to their corresponding subclasses.
+	 */
+	private static final Map<Class<?>, Class<?>> SUBCLASSES;
 
 	static {
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 
 		for (Class<?> clazz : Attribute.class.getPermittedSubclasses()) {
+			
+			if (clazz.isAssignableFrom(NullAttribute.class)) {
+				continue;
+			}
 
 			try {
 
