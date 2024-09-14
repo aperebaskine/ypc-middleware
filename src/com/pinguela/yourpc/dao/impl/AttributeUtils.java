@@ -16,7 +16,7 @@ import com.pinguela.yourpc.util.SQLQueryUtils;
 class AttributeUtils 
 implements AttributeDataTypes, AttributeValueHandlingModes {
 
-	static final String PRE_FORMAT_COLUMN_NAME = "VALUE_%s";
+	private static final String COLUMN_NAME_PLACEHOLDER = "VALUE_%s";
 
 	/**
 	 * Mapping of the attribute data type identifier constants to the
@@ -90,7 +90,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 	}
 
 	static final String getValueColumnName(String dataTypeIdentifier) {
-		return String.format(PRE_FORMAT_COLUMN_NAME, getTargetSqlTypeName(dataTypeIdentifier));
+		return String.format(COLUMN_NAME_PLACEHOLDER, getTargetSqlTypeName(dataTypeIdentifier));
 	}
 
 	static final String getValueColumnName(Attribute<?> attribute) {
