@@ -53,6 +53,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 			}
 
 		}
+		
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 		SUBCLASSES = Collections.unmodifiableMap(subclassMap);
 	}
