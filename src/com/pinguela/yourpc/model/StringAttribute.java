@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.model;
 
-public class StringAttribute extends Attribute<String> {
+public final class StringAttribute extends Attribute<String> {
 	
 	StringAttribute() {
 		super();
@@ -14,6 +14,11 @@ public class StringAttribute extends Attribute<String> {
 	@Override
 	public int getValueHandlingMode() {
 		return SET;
+	}
+
+	@Override
+	public Class<String> getTypeParameterClass() {
+		return java.lang.String.class;
 	}
 
 }
