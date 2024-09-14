@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class ImageEntry
+extends AbstractValueObject
 implements Serializable, Comparable<ImageEntry> {
 
 	/**

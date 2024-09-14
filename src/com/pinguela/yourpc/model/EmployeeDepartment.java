@@ -2,7 +2,7 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-public class EmployeeDepartment {
+public class EmployeeDepartment extends AbstractValueObject {
 	
 	private Integer employeeId;
 	private String departmentId;

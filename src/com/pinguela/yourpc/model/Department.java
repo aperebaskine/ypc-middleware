@@ -2,7 +2,7 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-public class Department {
+public class Department extends AbstractValueObject {
 	
 	private String id;
 	private String name;

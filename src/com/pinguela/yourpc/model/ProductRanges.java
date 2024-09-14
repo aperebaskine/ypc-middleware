@@ -2,7 +2,7 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-public class ProductRanges {
+public class ProductRanges extends AbstractValueObject {
 	
 	private Integer stockMin;
 	private Integer stockMax;
