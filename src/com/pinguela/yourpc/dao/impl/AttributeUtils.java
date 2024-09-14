@@ -104,7 +104,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		for (Attribute<?> attribute : attributes.values()) {
 			StringBuilder condition = new StringBuilder(" (at.NAME = ? AND");
 
-			if (attribute.getValues().size() == 1) {
+			if (attribute.getAllValues().size() == 1) {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));
 			} else {
 				switch (attribute.getValueHandlingMode()) {
@@ -114,7 +114,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 					break;
 				case SET:
 					condition.append(String.format(" av.%1$s", getValueColumnName(attribute)))
-					.append(SQLQueryUtils.buildPlaceholderComparisonClause(attribute.getValues().size()))
+					.append(SQLQueryUtils.buildPlaceholderComparisonClause(attribute.getAllValues().size()))
 					.append(")");
 					break;
 				}

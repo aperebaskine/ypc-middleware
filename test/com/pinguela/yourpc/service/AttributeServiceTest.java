@@ -30,7 +30,7 @@ class AttributeServiceTest {
 	void testFindByName() {
 		try {
 			Attribute<?> attribute = attributeService.findByName("Brand", true);
-			assertEquals(12, attribute.getValues().size());
+			assertEquals(12, attribute.getAllValues().size());
 		} catch (YPCException e) {
 			fail(e);
 		} 
@@ -43,7 +43,7 @@ class AttributeServiceTest {
 					attributeService.findByCategory((short) 1, AttributeService.RETURN_UNASSIGNED_VALUES);
 			
 			Attribute<?> boostFreqAttribute = attributes.get("Boost Frequency (MHz)");
-			assertEquals(6500l, boostFreqAttribute.getValueAt(boostFreqAttribute.getValues().size()-1));
+			assertEquals(6500l, boostFreqAttribute.getValueAt(boostFreqAttribute.getAllValues().size()-1));
 		} catch (YPCException e) {
 			fail(e);
 		}
@@ -56,7 +56,7 @@ class AttributeServiceTest {
 					attributeService.findByCategory((short) 1, AttributeService.NO_UNASSIGNED_VALUES);
 			
 			Attribute<?> boostFreq = attributes.get("Boost Frequency (MHz)");
-			assertEquals(6000l, boostFreq.getValueAt(boostFreq.getValues().size()-1));
+			assertEquals(6000l, boostFreq.getValueAt(boostFreq.getAllValues().size()-1));
 			
 		} catch (Exception e) {
 			 fail(e);
