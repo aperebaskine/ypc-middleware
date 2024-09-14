@@ -51,7 +51,6 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 			} catch (Exception e) {
 				throw new ExceptionInInitializerError(e);
 			}
-
 		}
 		
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
