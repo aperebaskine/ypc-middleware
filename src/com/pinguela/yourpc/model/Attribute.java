@@ -33,8 +33,8 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
 
 	static {
-		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
+		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 
 		for (Class<?> subclass : Attribute.class.getPermittedSubclasses()) {
 			
