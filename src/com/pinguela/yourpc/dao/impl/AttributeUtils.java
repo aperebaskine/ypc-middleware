@@ -37,7 +37,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		SQL_DATA_TYPE_NAMES = initializeSqlTypeNameMap(dataTypeConstantMap);
 	}
 
-	static final Map<String, String> getDataTypeConstants() {
+	private static final Map<String, String> getDataTypeConstants() {
 		Field[] dataTypeConstants = AttributeDataTypes.class.getFields();
 		Map<String, String> dataTypeNameMap = new HashMap<String, String>();
 		for (Field dataTypeConstant : dataTypeConstants) {
@@ -50,7 +50,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return dataTypeNameMap;
 	}
 
-	static final Map<String, Integer> initializeSqlTypeIdentifierMap(Map<String, String> dataTypeConstants) {
+	private static final Map<String, Integer> initializeSqlTypeIdentifierMap(Map<String, String> dataTypeConstants) {
 
 		Map<String, Integer> sqlTypeIdentifierMap = new HashMap<String, Integer>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
@@ -64,7 +64,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return Collections.unmodifiableMap(sqlTypeIdentifierMap);
 	}
 
-	static final Map<String, String> initializeSqlTypeNameMap(Map<String, String> dataTypeConstants) {
+	private static final Map<String, String> initializeSqlTypeNameMap(Map<String, String> dataTypeConstants) {
 
 		Map<String, String> sqlTypeNameMap = new HashMap<String, String>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
