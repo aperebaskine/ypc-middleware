@@ -18,7 +18,12 @@ public abstract sealed class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
 permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
-
+	
+	/**
+	 * Maps type parameter classes to their corresponding subclasses.
+	 */
+	private static final Map<Class<?>, Class<?>> SUBCLASSES;
+	
 	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
 	 * to the name of the parameterised class used by the attribute instance.</p>
@@ -26,35 +31,30 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	 * a subclass of this abstract factory.</b></p>
 	 */
 	public static final Map<String, Class<?>> TYPE_PARAMETER_CLASSES;
-	
-	/**
-	 * Maps type parameter classes to their corresponding subclasses.
-	 */
-	private static final Map<Class<?>, Class<?>> SUBCLASSES;
 
 	static {
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 
-		for (Class<?> clazz : Attribute.class.getPermittedSubclasses()) {
+		for (Class<?> subclass : Attribute.class.getPermittedSubclasses()) {
 			
-			if (clazz.isAssignableFrom(NullAttribute.class)) {
+			if (subclass.isAssignableFrom(NullAttribute.class)) {
 				continue;
 			}
 
 			try {
-				Attribute<?> attribute = (Attribute<?>) clazz.getDeclaredConstructor().newInstance();
+				Attribute<?> attribute = (Attribute<?>) subclass.getDeclaredConstructor().newInstance();
 				Class<?> typeParameterClass = attribute.getTypeParameterClass();
 
+				subclassMap.put(typeParameterClass, subclass);
 				typeParameterClassMap.put(attribute.getDataTypeIdentifier(), typeParameterClass);
-				subclassMap.put(typeParameterClass, clazz);
 			} catch (Exception e) {
 				throw new ExceptionInInitializerError(e);
 			}
 		}
 		
-		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 		SUBCLASSES = Collections.unmodifiableMap(subclassMap);
+		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 	}
 
 	private String name;
