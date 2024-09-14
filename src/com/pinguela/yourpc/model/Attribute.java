@@ -43,7 +43,6 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 			}
 
 			try {
-
 				Attribute<?> attribute = (Attribute<?>) clazz.getDeclaredConstructor().newInstance();
 				Class<?> typeParameterClass = attribute.getTypeParameterClass();
 
