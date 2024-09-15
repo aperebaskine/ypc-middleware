@@ -11,17 +11,6 @@ extends AbstractValueObject {
 	private String lastName2;
 	
 	public FullName() {
-		this(null, null, null);
-	}
-	
-	public FullName(String firstName, String lastName1) {
-		this(firstName, lastName1, null);
-	}
-	
-	public FullName(String firstName, String lastName1, String lastName2) {
-		this.firstName = firstName;
-		this.lastName1 = lastName1;
-		this.lastName2 = lastName2;
 	}
 	
 	public String getFirstName() {
