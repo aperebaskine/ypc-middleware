@@ -120,25 +120,25 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	 */
 	public List<AttributeValue<E>> getValuesByHandlingMode() {
 
-		List<AttributeValue<E>> trimmedValues = null;
+		List<AttributeValue<E>> valuesToReturn = null;
 
 		switch (getValueHandlingMode()) {
 		case RANGE:
-			trimmedValues = new ArrayList<AttributeValue<E>>();
+			valuesToReturn = new ArrayList<AttributeValue<E>>();
 
 			AttributeValue<E> min = values.get(0);
 			AttributeValue<E> max = values.get(values.size()-1);
 
-			trimmedValues.add(min);
+			valuesToReturn.add(min);
 			if (!min.getValue().equals(max.getValue())) {
-				trimmedValues.add(max);
+				valuesToReturn.add(max);
 			}
 			break;
 		case SET:
-			trimmedValues = values;
+			valuesToReturn = values;
 		}
 
-		return trimmedValues;
+		return valuesToReturn;
 	}
 
 	public E getValueAt(int index) {
