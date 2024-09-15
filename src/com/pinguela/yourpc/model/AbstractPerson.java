@@ -6,9 +6,7 @@ public abstract class AbstractPerson
 extends AbstractValueObject {
 
 	private Integer id;
-	private String firstName;
-	private String lastName1;
-	private String lastName2;
+	private FullName name;
 	private String documentTypeId;
 	private String documentType;
 	private String documentNumber;
@@ -19,6 +17,7 @@ extends AbstractValueObject {
 	private String encryptedPassword;
 
 	public AbstractPerson() {
+		name = new FullName();
 	}
 
 	public Integer getId() {
@@ -29,28 +28,36 @@ extends AbstractValueObject {
 		this.id = id;
 	}
 
+	public FullName getFullName() {
+		return name;
+	}
+
+	public void setFullName(FullName name) {
+		this.name = name;
+	}
+
 	public String getFirstName() {
-		return firstName;
+		return name.getFirstName();
 	}
 
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		name.setFirstName(firstName);
 	}
 
 	public String getLastName1() {
-		return lastName1;
+		return name.getLastName1();
 	}
 
 	public void setLastName1(String lastName1) {
-		this.lastName1 = lastName1;
+		name.setLastName1(lastName1);
 	}
 
 	public String getLastName2() {
-		return lastName2;
+		return name.getLastName2();
 	}
 
 	public void setLastName2(String lastName2) {
-		this.lastName2 = lastName2;
+		name.setLastName2(lastName2);
 	}
 
 	public String getDocumentTypeId() {
