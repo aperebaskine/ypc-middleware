@@ -110,7 +110,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		this.name = name;
 	}
 
-	public List<AttributeValue<E>> getAllValues() {
+	public List<AttributeValue<E>> getValues() {
 		return values;
 	}
 
@@ -186,7 +186,7 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		clone.setName(this.name);
 
 		for (AttributeValue<E> value : this.values) {
-			clone.getAllValues().add(value.clone());
+			clone.getValues().add(value.clone());
 		}
 
 		return clone;

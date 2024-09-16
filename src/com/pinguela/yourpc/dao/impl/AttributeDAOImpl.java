@@ -222,7 +222,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		if (currentResults.containsKey(name)) { // Add value to previously retrieved attribute type
 			Attribute<?> attribute = currentResults.get(name);
 			
-			for (AttributeValue<?> attributeValue : next.getAllValues()) {
+			for (AttributeValue<?> attributeValue : next.getValues()) {
 				attribute.addValue(attributeValue.getId(), attributeValue.getValue());
 			}
 		} else { 
@@ -267,8 +267,8 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 			int stmtIndex = 1;
 			for (Attribute<?> attribute : p.getAttributes().values()) {
-				for (int valueIndex = 0; valueIndex < attribute.getAllValues().size(); valueIndex++) {
-					AttributeValue<?> av = attribute.getAllValues().get(valueIndex);
+				for (int valueIndex = 0; valueIndex < attribute.getValues().size(); valueIndex++) {
+					AttributeValue<?> av = attribute.getValues().get(valueIndex);
 					if (av.getId() == null) { // Attribute value was not previously retrieved from database
 						identifyOrCreate(conn, av, attribute.getName(), attribute.getDataTypeIdentifier());
 					}
@@ -299,7 +299,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static int getAttributeCount(Product p) {
 		int count = 0;
 		for (Attribute<?> attribute : p.getAttributes().values()) {
-			count+=attribute.getAllValues().size();
+			count+=attribute.getValues().size();
 		}
 		return count;
 	}
