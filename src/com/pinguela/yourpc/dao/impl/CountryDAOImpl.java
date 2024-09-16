@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CountryDAO;
@@ -24,7 +25,7 @@ public class CountryDAOImpl implements CountryDAO {
 	private static final Logger logger = LogManager.getLogger(CountryDAOImpl.class);
 	
 	@Override
-	public List<Country> findAll(Connection conn) 
+	public List<Country> findAll(Session session) 
 		throws DataException {
 		
 		PreparedStatement stmt = null;

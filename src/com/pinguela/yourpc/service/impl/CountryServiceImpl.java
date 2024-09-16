@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -13,6 +14,7 @@ import com.pinguela.yourpc.dao.CountryDAO;
 import com.pinguela.yourpc.dao.impl.CountryDAOImpl;
 import com.pinguela.yourpc.model.Country;
 import com.pinguela.yourpc.service.CountryService;
+import com.pinguela.yourpc.util.HibernateUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 public class CountryServiceImpl implements CountryService {
@@ -27,6 +29,8 @@ public class CountryServiceImpl implements CountryService {
 	@Override
 	public List<Country> findAll() 
 			throws ServiceException, DataException {
+		
+		Session session = HibernateUtils.SESSION_FACTORY.openSession();
 		
 		Connection conn = null;
 
