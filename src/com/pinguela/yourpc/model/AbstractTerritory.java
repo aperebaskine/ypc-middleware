@@ -2,23 +2,17 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public abstract class AbstractTerritory<PK>
 extends AbstractValueObject {
 	
-	private PK id;
+	private @Id PK id;
 	private String name;
 	
 	public AbstractTerritory() {
-		this(null, null);
-	}
-	
-	public AbstractTerritory(PK id) {
-		this(id, null);
-	}
-	
-	public AbstractTerritory(PK id, String name) {
-		setId(id);
-		setName(name);
 	}
 	
 	public PK getId() {

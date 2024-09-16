@@ -1,28 +1,27 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class Province 
 extends AbstractTerritory<Integer> {
 	
-	private String countryId;
+	@ManyToOne
+	@JoinColumn(name = "COUNTRY_ID")
+	private Country country;
 
-	
 	public Province() {
 		super();
 	}
-	
-	public Province(Integer id, String name) {
-		super(id, name);
+
+	public Country getCountry() {
+		return country;
 	}
-	
-	public Province(Integer id) {
-		super(id);
-	}
-	
-	public String getCountryId() {
-		return countryId;
-	}
-	public void setCountryId(String countryId) {
-		this.countryId = countryId;
+
+	public void setCountry(Country country) {
+		this.country = country;
 	}
 
 }
