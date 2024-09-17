@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
+@SuppressWarnings("serial")
 @MappedSuperclass
 public abstract class AbstractTerritory<PK>
 extends AbstractValueObject {

@@ -14,6 +14,7 @@ import java.util.Objects;
  * of the subclass' type parameter class name followed by this class' name.</b></p>
  * @param <E> The attribute's data type
  */
+@SuppressWarnings("serial")
 public abstract sealed class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 

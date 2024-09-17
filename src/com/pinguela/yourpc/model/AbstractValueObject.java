@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+@SuppressWarnings("serial")
 public abstract class AbstractValueObject
 implements ValueObject, Serializable {
 	

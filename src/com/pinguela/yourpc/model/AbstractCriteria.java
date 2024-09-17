@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.model;
 
+@SuppressWarnings("serial")
 public abstract class AbstractCriteria<T>
 extends AbstractValueObject
 implements Criteria<T> { 
