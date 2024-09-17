@@ -1,4 +1,4 @@
-package com.pinguela.yourpc.util;
+package com.pinguela.yourpc.service.impl;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -13,11 +13,11 @@ import com.pinguela.yourpc.model.AbstractValueObject;
 
 import jakarta.persistence.Entity;
 
-public class HibernateUtils {
+public abstract class AbstractDatabaseService {
 	
 	private static final String MODEL_PACKAGE_NAME = "com.pinguela.yourpc.model";
 	
-	public static final SessionFactory SESSION_FACTORY;
+	protected static final SessionFactory SESSION_FACTORY;
 	
 	static {
 		ServiceRegistry standardRegistry =

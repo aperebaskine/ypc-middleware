@@ -2,6 +2,7 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
@@ -23,6 +24,7 @@ extends AbstractValueObject {
 		this.id = id;
 	}
 
+	@Column(nullable = false, length = 40)
 	public String getName() {
 		return name;
 	}

@@ -1,8 +1,11 @@
 package com.pinguela.yourpc.model;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Province 
@@ -11,6 +14,9 @@ extends AbstractTerritory<Integer> {
 	@ManyToOne
 	@JoinColumn(name = "COUNTRY_ID")
 	private Country country;
+	
+	@OneToMany(mappedBy = "province")
+	private List<City> cities;
 
 	public Province() {
 		super();
@@ -22,6 +28,14 @@ extends AbstractTerritory<Integer> {
 
 	public void setCountry(Country country) {
 		this.country = country;
+	}
+
+	public List<City> getCities() {
+		return cities;
+	}
+
+	public void setCities(List<City> cities) {
+		this.cities = cities;
 	}
 
 }

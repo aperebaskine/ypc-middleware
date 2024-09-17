@@ -1,7 +1,5 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,10 +12,10 @@ import com.pinguela.yourpc.dao.CountryDAO;
 import com.pinguela.yourpc.dao.impl.CountryDAOImpl;
 import com.pinguela.yourpc.model.Country;
 import com.pinguela.yourpc.service.CountryService;
-import com.pinguela.yourpc.util.HibernateUtils;
-import com.pinguela.yourpc.util.JDBCUtils;
 
-public class CountryServiceImpl implements CountryService {
+public class CountryServiceImpl 
+extends AbstractDatabaseService
+implements CountryService {
 	
 	private static Logger logger = LogManager.getLogger(CountryServiceImpl.class);
 	private CountryDAO countryDAO = null;
@@ -30,18 +28,17 @@ public class CountryServiceImpl implements CountryService {
 	public List<Country> findAll() 
 			throws ServiceException, DataException {
 		
-		Session session = HibernateUtils.SESSION_FACTORY.openSession();
-		
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return countryDAO.findAll(conn);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = SESSION_FACTORY.openSession();
+			return countryDAO.findAll(session);
+		} catch (Exception e) {
+			logger.fatal(e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			// TODO : Handle null
+			session.close();
 		}
 	}
 
