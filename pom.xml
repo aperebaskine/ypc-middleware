@@ -111,5 +111,12 @@
 	    <version>2.24.0</version>
 	    <scope>test</scope>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-c3p0 -->
+	<dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate-c3p0</artifactId>
+	    <version>6.6.0.Final</version>
+	    <type>pom</type>
+	</dependency>
   </dependencies>
 </project>

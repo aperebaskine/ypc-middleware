@@ -4,11 +4,11 @@ import java.util.Map;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
-import com.pinguela.yourpc.model.DocumentType;
+import com.pinguela.yourpc.model.IDType;
 
 public interface DocumentTypeService {
 	
-	public Map<String, DocumentType> findAll()
+	public Map<String, IDType> findAll()
 			throws ServiceException, DataException;
 
 }

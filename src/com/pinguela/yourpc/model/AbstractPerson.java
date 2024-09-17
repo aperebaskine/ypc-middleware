@@ -2,23 +2,30 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
+
 @SuppressWarnings("serial")
+@MappedSuperclass
 public abstract class AbstractPerson
 extends AbstractValueObject {
 
-	private Integer id;
-	private FullName fullName;
-	private String documentTypeId;
-	private String documentType;
-	private String documentNumber;
-	private String phoneNumber;
+	private @Id Integer id;
+	private @Embedded FullName name;
+	private @Embedded ID document;
+	private @Column(name = "PHONE") String phoneNumber;
 	private String email;
-	private Date creationDate;
-	private String unencryptedPassword;
-	private String encryptedPassword;
+	private @CreationTimestamp Date creationDate;
+	private @Transient String unencryptedPassword;
+	private @Column(name = "PASSWORD") String encryptedPassword;
 
 	public AbstractPerson() {
-		fullName = new FullName();
+		name = new FullName();
 	}
 
 	public Integer getId() {
@@ -29,60 +36,44 @@ extends AbstractValueObject {
 		this.id = id;
 	}
 
-	public FullName getFullName() {
-		return fullName;
+	public FullName getName() {
+		return name;
 	}
 
-	public void setFullName(FullName name) {
-		this.fullName = name;
+	public void setName(FullName name) {
+		this.name = name;
 	}
 
 	public String getFirstName() {
-		return fullName.getFirstName();
+		return name.getFirstName();
 	}
 
 	public void setFirstName(String firstName) {
-		fullName.setFirstName(firstName);
+		name.setFirstName(firstName);
 	}
 
 	public String getLastName1() {
-		return fullName.getLastName1();
+		return name.getLastName1();
 	}
 
 	public void setLastName1(String lastName1) {
-		fullName.setLastName1(lastName1);
+		name.setLastName1(lastName1);
 	}
 
 	public String getLastName2() {
-		return fullName.getLastName2();
+		return name.getLastName2();
 	}
 
 	public void setLastName2(String lastName2) {
-		fullName.setLastName2(lastName2);
+		name.setLastName2(lastName2);
 	}
 
-	public String getDocumentTypeId() {
-		return documentTypeId;
+	public ID getDocument() {
+		return document;
 	}
 
-	public void setDocumentTypeId(String documentTypeId) {
-		this.documentTypeId = documentTypeId;
-	}
-
-	public String getDocumentType() {
-		return documentType;
-	}
-
-	public void setDocumentType(String documentType) {
-		this.documentType = documentType;
-	}
-
-	public String getDocumentNumber() {
-		return documentNumber;
-	}
-
-	public void setDocumentNumber(String documentNumber) {
-		this.documentNumber = documentNumber;
+	public void setDocument(ID document) {
+		this.document = document;
 	}
 
 	public String getPhoneNumber() {

@@ -1,14 +1,15 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class FullName 
 extends AbstractValueObject {
 	
-	private String firstName;
-	private String lastName1;
-	private String lastName2;
+	private @Column String firstName;
+	private @Column String lastName1;
+	private @Column String lastName2;
 	
 	public FullName() {
 	}

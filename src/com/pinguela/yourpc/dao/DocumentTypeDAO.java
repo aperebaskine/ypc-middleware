@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.util.Map;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.DocumentType;
+import com.pinguela.yourpc.model.IDType;
 
 public interface DocumentTypeDAO {
 	
-	public Map<String, DocumentType> findAll(Connection conn)
+	public Map<String, IDType> findAll(Connection conn)
 			throws DataException;
 
 }

@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.DocumentTypeDAO;
-import com.pinguela.yourpc.model.DocumentType;
+import com.pinguela.yourpc.model.IDType;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 public class DocumentTypeDAOImpl 
@@ -25,17 +25,17 @@ implements DocumentTypeDAO {
 			+ " FROM DOCUMENT_TYPE dt";
 
 	@Override
-	public Map<String, DocumentType> findAll(Connection conn) throws DataException {
+	public Map<String, IDType> findAll(Connection conn) throws DataException {
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		Map<String, DocumentType> results = new HashMap<String, DocumentType>();
+		Map<String, IDType> results = new HashMap<String, IDType>();
 		
 		try {
 			stmt = conn.prepareStatement(QUERY);
 			rs = stmt.executeQuery();
 			
 			while (rs.next()) {
-				DocumentType dt = loadNext(rs);
+				IDType dt = loadNext(rs);
 				results.put(dt.getId(), dt);
 			}
 			
@@ -48,8 +48,8 @@ implements DocumentTypeDAO {
 		}
 	}
 	
-	private DocumentType loadNext(ResultSet rs) throws SQLException {
-		DocumentType dt = new DocumentType();
+	private IDType loadNext(ResultSet rs) throws SQLException {
+		IDType dt = new IDType();
 		
 		int i = 1;
 		dt.setId(rs.getString(i++));

@@ -2,9 +2,15 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-public class Department extends AbstractValueObject {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Department 
+extends AbstractValueObject {
 	
-	private String id;
+	private @Id @Column(columnDefinition = "CHAR(3)") String id;
 	private String name;
 	
 	public String getId() {

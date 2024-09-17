@@ -2,11 +2,18 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-public class DocumentType 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "DOCUMENT_TYPE")
+public class IDType 
 extends AbstractValueObject {
 	
-	private String id;
-	private String name;
+	private @Id @Column(columnDefinition = "CHAR(3)") String id;
+	private @Column String name;
 	
 	public String getId() {
 		return id;
@@ -34,7 +41,7 @@ extends AbstractValueObject {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DocumentType other = (DocumentType) obj;
+		IDType other = (IDType) obj;
 		return Objects.equals(id, other.id);
 	}
 	

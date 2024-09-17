@@ -11,7 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.DocumentTypeDAO;
 import com.pinguela.yourpc.dao.impl.DocumentTypeDAOImpl;
-import com.pinguela.yourpc.model.DocumentType;
+import com.pinguela.yourpc.model.IDType;
 import com.pinguela.yourpc.service.DocumentTypeService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -26,7 +26,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
 	}
 
 	@Override
-	public Map<String, DocumentType> findAll() 
+	public Map<String, IDType> findAll() 
 			throws ServiceException, DataException {
 		Connection conn = null;
 		
