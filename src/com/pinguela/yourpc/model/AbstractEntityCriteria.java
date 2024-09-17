@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.model;
 
-@SuppressWarnings("serial")
 public abstract class AbstractEntityCriteria<PK, T>
 extends AbstractCriteria<T>
 implements EntityCriteria<PK, T> {

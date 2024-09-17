@@ -2,7 +2,6 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-@SuppressWarnings("serial")
 public abstract class AbstractStatisticsCriteria<T> 
 extends AbstractCriteria<T> {
 	
