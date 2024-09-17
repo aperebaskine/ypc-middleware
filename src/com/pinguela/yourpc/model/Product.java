@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.annotations.Type;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -31,6 +33,7 @@ extends AbstractValueObject {
 
 	@ManyToMany(mappedBy = "values")
 	@MapKey(name = "name")
+	@Type(AttributeType.class)
 	private Map<String, Attribute<?>> attributes;
 
 	public Product() {

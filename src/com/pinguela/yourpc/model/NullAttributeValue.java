@@ -2,7 +2,8 @@ package com.pinguela.yourpc.model;
 
 import javax.lang.model.type.NullType;
 
-public class NullAttributeValue 
+@SuppressWarnings("serial")
+public final class NullAttributeValue 
 extends AttributeValue<NullType> {
 	
 	public NullAttributeValue() {

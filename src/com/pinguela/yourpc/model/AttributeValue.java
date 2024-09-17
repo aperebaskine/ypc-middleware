@@ -2,6 +2,9 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class AttributeValue<E> 
 extends AbstractValueObject 
 implements Cloneable {

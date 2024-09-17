@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.hibernate.annotations.ManyToAny;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.TypeRegistration;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.SecondaryTable;
 import jakarta.persistence.Table;
 
 /**
@@ -26,7 +30,9 @@ import jakarta.persistence.Table;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "ATTRIBUTE_TYPE")
+@SecondaryTable(name = "ATTRIBUTE_VALUE")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@TypeRegistration(basicClass = Attribute.class, userType = AttributeType.class)
 public abstract sealed class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
@@ -73,7 +79,8 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 	private @Id Long id;
 	private @NaturalId String name;
 	
-	@OneToMany
+	@ManyToAny
+	@JoinTable(name = "ATTRIBUTE_VALUE", joinColumns = @JoinColumn(name = "attribute_value_id"))
 	private List<AttributeValue<E>> values;
 
 	protected Attribute() {

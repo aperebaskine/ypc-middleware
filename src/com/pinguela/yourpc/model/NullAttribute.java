@@ -6,7 +6,9 @@ import java.util.List;
 
 import javax.lang.model.type.NullType;
 
-public final class NullAttribute extends Attribute<NullType> {
+@SuppressWarnings("serial")
+public final class NullAttribute
+extends Attribute<NullType> {
 	
 	public NullAttribute() {
 		super.setName("");
