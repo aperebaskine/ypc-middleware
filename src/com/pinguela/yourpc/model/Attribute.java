@@ -8,6 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.hibernate.annotations.NaturalId;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 /**
  * Abstract factory class for product attributes.
  * <p><b>The name of each concrete subclass of this abstract factory must be comprised
@@ -15,6 +24,9 @@ import java.util.Objects;
  * @param <E> The attribute's data type
  */
 @SuppressWarnings("serial")
+@Entity
+@Table(name = "ATTRIBUTE_TYPE")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract sealed class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
@@ -58,7 +70,10 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 	}
 
-	private String name;
+	private @Id Long id;
+	private @NaturalId String name;
+	
+	@OneToMany
 	private List<AttributeValue<E>> values;
 
 	protected Attribute() {
@@ -101,6 +116,14 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {

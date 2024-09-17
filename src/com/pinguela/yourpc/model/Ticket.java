@@ -4,13 +4,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
 public class Ticket 
 extends AbstractValueObject {
 	
-	private Long id;
-	private Integer customerId;
-	private Integer employeeId;
-	private Date creationDate;
+	private @Id Long id;
+	
+	@ManyToOne
+	private Customer customer;
+	
+	@ManyToOne
+	private Employee employee;
+	
+	private @CreationTimestamp Date creationDate;
 	private String state;
 	private String type;
 	private Long productId;
@@ -31,17 +41,17 @@ extends AbstractValueObject {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Integer getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
-	public Integer getEmployeeId() {
-		return employeeId;
+	public Employee getEmployee() {
+		return employee;
 	}
-	public void setEmployeeId(Integer employeeId) {
-		this.employeeId = employeeId;
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
 	}
 	public Date getCreationDate() {
 		return creationDate;

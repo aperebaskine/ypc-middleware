@@ -4,12 +4,24 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class Category 
 extends AbstractValueObject {
 
-	private Short id;
+	private @Id Short id;
 	private String name;
+	
+	@ManyToOne
+	@JoinColumn(name = "PARENT_ID")
 	private Category parent = null;
+	
+	@OneToMany(mappedBy = "parent")
 	private Map<Short, Category> children = null;
 
 	public Category() {

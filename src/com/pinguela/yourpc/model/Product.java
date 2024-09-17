@@ -4,22 +4,34 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKey;
+
+@Entity
 public class Product 
 extends AbstractValueObject {
 
-	private Long id;
+	private @Id Long id;
 	private String name;
-	private String category;
-	private Short categoryId;
+
+	private @ManyToOne Category category;
 	private String description;
 	private Date launchDate;
 	private Integer stock;
 	private Double purchasePrice;
 	private Double salePrice;
-	private String replacementName;
-	private Long replacementId;
 
-	private Map<String, Attribute<?>> attributes = null;
+	@ManyToOne
+	@JoinColumn(name = "REPLACEMENT_ID")
+	private Product replacement;
+
+	@ManyToMany(mappedBy = "values")
+	@MapKey(name = "name")
+	private Map<String, Attribute<?>> attributes;
 
 	public Product() {
 		this.attributes = new HashMap<String, Attribute<?>>();
@@ -41,11 +53,11 @@ extends AbstractValueObject {
 		this.name = name;
 	}
 
-	public String getCategory() {
+	public Category getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
+	public void setCategory(Category category) {
 		this.category = category;
 	}
 
@@ -89,28 +101,12 @@ extends AbstractValueObject {
 		this.salePrice = price;
 	}
 
-	public String getReplacementName() {
-		return replacementName;
+	public Product getReplacement() {
+		return replacement;
 	}
 
-	public void setReplacementName(String replacementName) {
-		this.replacementName = replacementName;
-	}
-
-	public Long getReplacementId() {
-		return replacementId;
-	}
-
-	public void setReplacementId(Long replacementId) {
-		this.replacementId = replacementId;
-	}
-
-	public Short getCategoryId() {
-		return categoryId;
-	}
-
-	public void setCategoryId(Short categoryId) {
-		this.categoryId = categoryId;
+	public void setReplacement(Product replacement) {
+		this.replacement = replacement;
 	}
 
 	public Map<String, Attribute<?>> getAttributes() {

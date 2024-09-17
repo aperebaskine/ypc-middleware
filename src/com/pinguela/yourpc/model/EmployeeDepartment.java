@@ -53,10 +53,12 @@ public class EmployeeDepartment extends AbstractValueObject {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(department, employee, endDate);
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
