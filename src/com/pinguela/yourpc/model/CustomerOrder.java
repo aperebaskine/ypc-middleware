@@ -9,7 +9,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
@@ -20,8 +19,8 @@ extends AbstractValueObject {
 	private @Id Long id;
 	
 	@ManyToOne
-	@JoinTable(name = "ORDER_STATE", joinColumns = @JoinColumn(name = "CUSTOMER_ORDER_ID"))
-	private ItemState<CustomerOrder> state;
+	@JoinColumn(name = "ORDER_STATE_ID")
+	private OrderState state;
 	
 	@ManyToOne
 	@JoinColumn(name = "CUSTOMER_ID")
@@ -54,11 +53,11 @@ extends AbstractValueObject {
 		this.id = id;
 	}
 
-	public ItemState<CustomerOrder> getState() {
+	public OrderState getState() {
 		return state;
 	}
 
-	public void setState(ItemState<CustomerOrder> state) {
+	public void setState(OrderState state) {
 		this.state = state;
 	}
 

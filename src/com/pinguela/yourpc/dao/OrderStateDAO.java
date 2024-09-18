@@ -5,11 +5,11 @@ import java.util.Map;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 
 public interface OrderStateDAO {
 	
-	public Map<String, ItemState<CustomerOrder>> findAll(Connection conn)
+	public Map<String, EntityState<CustomerOrder>> findAll(Connection conn)
 			throws DataException;
 
 }

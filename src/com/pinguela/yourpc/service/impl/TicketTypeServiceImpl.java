@@ -11,7 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.TicketTypeDAO;
 import com.pinguela.yourpc.dao.impl.TicketTypeDAOImpl;
-import com.pinguela.yourpc.model.ItemType;
+import com.pinguela.yourpc.model.EntityType;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.service.TicketTypeService;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -27,7 +27,7 @@ public class TicketTypeServiceImpl implements TicketTypeService {
 	}
 
 	@Override
-	public Map<String, ItemType<Ticket>> findAll() throws ServiceException, DataException {
+	public Map<String, EntityType<Ticket>> findAll() throws ServiceException, DataException {
 		Connection conn = null;
 
 		try {

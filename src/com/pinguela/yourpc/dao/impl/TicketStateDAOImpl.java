@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.TicketStateDAO;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -26,7 +26,7 @@ implements TicketStateDAO {
 					+ " FROM TICKET_STATE ts";
 
 	@Override
-	public Map<String, ItemState<Ticket>> findAll(Connection conn) throws DataException {
+	public Map<String, EntityState<Ticket>> findAll(Connection conn) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -45,19 +45,19 @@ implements TicketStateDAO {
 		}
 	}
 
-	private Map<String, ItemState<Ticket>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, ItemState<Ticket>> results = new HashMap<>();
+	private Map<String, EntityState<Ticket>> loadResults(ResultSet rs) throws SQLException {
+		Map<String, EntityState<Ticket>> results = new HashMap<>();
 
 		while (rs.next()) {
-			ItemState<Ticket> next = loadNext(rs);
+			EntityState<Ticket> next = loadNext(rs);
 			results.put(next.getId(), next);
 		}
 
 		return results;
 	}
 
-	private ItemState<Ticket> loadNext(ResultSet rs) throws SQLException {
-		ItemState<Ticket> state = new ItemState<>();
+	private EntityState<Ticket> loadNext(ResultSet rs) throws SQLException {
+		EntityState<Ticket> state = new EntityState<>();
 
 		int i = 1;
 		state.setId(rs.getString(i++));

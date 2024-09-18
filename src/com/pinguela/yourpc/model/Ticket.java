@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -31,12 +30,12 @@ extends AbstractValueObject {
 	private @CreationTimestamp Date creationDate;
 	
 	@ManyToOne
-	@JoinTable(name = "TICKET_STATE", joinColumns = @JoinColumn(name = "TICKET_STATE_ID"))
-	private ItemState<Ticket> state;
+	@JoinColumn(name = "TICKET_STATE_ID")
+	private TicketState state;
 	
 	@ManyToOne
-	@JoinTable(name = "TICKET_TYPE", joinColumns = @JoinColumn(name = "TICKET_TYPE_ID"))
-	private ItemState<Ticket> type;
+	@JoinColumn(name = "TICKET_TYPE_ID")
+	private TicketType type;
 	
 	@ManyToOne
 	@JoinColumn(name = "PRODUCT_ID")
@@ -46,6 +45,7 @@ extends AbstractValueObject {
 	private String description;
 	
 	@ManyToMany
+	@JoinTable(name = "TICKET_ORDER_LINE", inverseJoinColumns = @JoinColumn(name = "ORDER_LINE_ID"))
 	private List<OrderLine> orderLines = null;
 	
 	@OneToMany(mappedBy = "ticket")
@@ -88,19 +88,19 @@ extends AbstractValueObject {
 		this.creationDate = creationDate;
 	}
 
-	public ItemState<Ticket> getState() {
+	public TicketState getState() {
 		return state;
 	}
 
-	public void setState(ItemState<Ticket> state) {
+	public void setState(TicketState state) {
 		this.state = state;
 	}
 
-	public ItemState<Ticket> getType() {
+	public TicketType getType() {
 		return type;
 	}
 
-	public void setType(ItemState<Ticket> type) {
+	public void setType(TicketType type) {
 		this.type = type;
 	}
 

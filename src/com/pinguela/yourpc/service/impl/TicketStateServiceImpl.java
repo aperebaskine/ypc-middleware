@@ -11,7 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.TicketStateDAO;
 import com.pinguela.yourpc.dao.impl.TicketStateDAOImpl;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.service.TicketStateService;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -27,7 +27,7 @@ public class TicketStateServiceImpl implements TicketStateService {
 	}
 
 	@Override
-	public Map<String, ItemState<Ticket>> findAll() throws ServiceException, DataException {
+	public Map<String, EntityState<Ticket>> findAll() throws ServiceException, DataException {
 		Connection conn = null;
 
 		try {

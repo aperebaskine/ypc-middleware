@@ -2,13 +2,10 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-import org.hibernate.annotations.EmbeddableInstantiator;
-
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Id;
 
 @Embeddable
-@EmbeddableInstantiator()
 public class AttributeValue<E> 
 extends AbstractValueObject 
 implements Cloneable {

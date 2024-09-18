@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.OrderStateDAO;
 import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 public class OrderStateDAOImpl 
@@ -26,7 +26,7 @@ implements OrderStateDAO {
 			+ " FROM ORDER_STATE os";
 	
 	@Override
-	public Map<String, ItemState<CustomerOrder>> findAll(Connection conn) throws DataException {
+	public Map<String, EntityState<CustomerOrder>> findAll(Connection conn) throws DataException {
 		
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -45,19 +45,19 @@ implements OrderStateDAO {
 		}
 	}
 	
-	private Map<String, ItemState<CustomerOrder>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, ItemState<CustomerOrder>> results = new HashMap<>();
+	private Map<String, EntityState<CustomerOrder>> loadResults(ResultSet rs) throws SQLException {
+		Map<String, EntityState<CustomerOrder>> results = new HashMap<>();
 		
 		while (rs.next()) {
-			ItemState<CustomerOrder> next = loadNext(rs);
+			EntityState<CustomerOrder> next = loadNext(rs);
 			results.put(next.getId(), next);
 		}
 		
 		return results;
 	}
 	
-	private ItemState<CustomerOrder> loadNext(ResultSet rs) throws SQLException {
-		ItemState<CustomerOrder> state = new ItemState<>();
+	private EntityState<CustomerOrder> loadNext(ResultSet rs) throws SQLException {
+		EntityState<CustomerOrder> state = new EntityState<>();
 		
 		int i = 1;
 		state.setId(rs.getString(i++));

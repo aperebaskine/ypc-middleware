@@ -4,12 +4,12 @@ import java.util.Map;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
-import com.pinguela.yourpc.model.ItemType;
+import com.pinguela.yourpc.model.EntityType;
 import com.pinguela.yourpc.model.Ticket;
 
 public interface TicketTypeService {
 	
-	public Map<String, ItemType<Ticket>> findAll()
+	public Map<String, EntityType<Ticket>> findAll()
 			throws ServiceException, DataException;
 
 }

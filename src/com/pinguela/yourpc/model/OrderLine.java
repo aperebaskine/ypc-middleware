@@ -13,12 +13,8 @@ extends AbstractValueObject {
 	private @Id Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "CUSTOMER_ORDER_ID")
+	@JoinColumn(name = "CUSTOMER_ORDER_ID", insertable = false, updatable = false)
 	private CustomerOrder order;
-
-	@ManyToOne
-	@JoinColumn(name = "CUSTOMER_ID")
-	private Customer customer;
 	
 	@ManyToOne
 	@JoinColumn(name = "PRODUCT_ID")
@@ -45,14 +41,6 @@ extends AbstractValueObject {
 
 	public void setOrder(CustomerOrder order) {
 		this.order = order;
-	}
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
 	}
 
 	public Product getProduct() {

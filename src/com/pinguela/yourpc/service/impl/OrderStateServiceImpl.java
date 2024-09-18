@@ -12,7 +12,7 @@ import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.OrderStateDAO;
 import com.pinguela.yourpc.dao.impl.OrderStateDAOImpl;
 import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 import com.pinguela.yourpc.service.OrderStateService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -27,7 +27,7 @@ public class OrderStateServiceImpl implements OrderStateService {
 	}
 
 	@Override
-	public Map<String, ItemState<CustomerOrder>> findAll() throws ServiceException, DataException {
+	public Map<String, EntityState<CustomerOrder>> findAll() throws ServiceException, DataException {
 		Connection conn = null;
 
 		try {

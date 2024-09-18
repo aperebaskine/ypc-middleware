@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.TicketTypeDAO;
-import com.pinguela.yourpc.model.ItemType;
+import com.pinguela.yourpc.model.EntityType;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -26,7 +26,7 @@ implements TicketTypeDAO {
 					+ " FROM TICKET_TYPE tt";
 
 	@Override
-	public Map<String, ItemType<Ticket>> findAll(Connection conn) throws DataException {
+	public Map<String, EntityType<Ticket>> findAll(Connection conn) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -45,19 +45,19 @@ implements TicketTypeDAO {
 		}
 	}
 
-	private Map<String, ItemType<Ticket>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, ItemType<Ticket>> results = new HashMap<>();
+	private Map<String, EntityType<Ticket>> loadResults(ResultSet rs) throws SQLException {
+		Map<String, EntityType<Ticket>> results = new HashMap<>();
 
 		while (rs.next()) {
-			ItemType<Ticket> next = loadNext(rs);
+			EntityType<Ticket> next = loadNext(rs);
 			results.put(next.getId(), next);
 		}
 
 		return results;
 	}
 
-	private ItemType<Ticket> loadNext(ResultSet rs) throws SQLException {
-		ItemType<Ticket> type = new ItemType<>();
+	private EntityType<Ticket> loadNext(ResultSet rs) throws SQLException {
+		EntityType<Ticket> type = new EntityType<>();
 
 		int i = 1;
 		type.setId(rs.getString(i++));

@@ -4,14 +4,15 @@ import java.util.Objects;
 
 import org.hibernate.annotations.NaturalId;
 
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
-@Embeddable
-public class ItemType<T> extends AbstractValueObject {
+@MappedSuperclass
+public class EntityType<T> extends AbstractValueObject {
 
-	private @Id String id;
-	private @NaturalId String name;
+	private @Id @Column(insertable = false, updatable = false, columnDefinition = "CHAR(3)") String id;
+	private @NaturalId @Column(insertable = false, updatable = false) String name;
 
 	public String getId() {
 		return id;
@@ -40,7 +41,7 @@ public class ItemType<T> extends AbstractValueObject {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ItemType<T> other = (ItemType<T>) obj;
+		EntityType<T> other = (EntityType<T>) obj;
 		return Objects.equals(id, other.id);
 	}
 

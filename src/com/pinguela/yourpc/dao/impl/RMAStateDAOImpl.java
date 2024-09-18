@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.RMAStateDAO;
-import com.pinguela.yourpc.model.ItemState;
+import com.pinguela.yourpc.model.EntityState;
 import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -26,7 +26,7 @@ implements RMAStateDAO {
 					+ " FROM RMA_STATE rmas";
 
 	@Override
-	public Map<String, ItemState<RMA>> findAll(Connection conn) throws DataException {
+	public Map<String, EntityState<RMA>> findAll(Connection conn) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -45,19 +45,19 @@ implements RMAStateDAO {
 		}
 	}
 
-	private Map<String, ItemState<RMA>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, ItemState<RMA>> results = new HashMap<>();
+	private Map<String, EntityState<RMA>> loadResults(ResultSet rs) throws SQLException {
+		Map<String, EntityState<RMA>> results = new HashMap<>();
 
 		while (rs.next()) {
-			ItemState<RMA> next = loadNext(rs);
+			EntityState<RMA> next = loadNext(rs);
 			results.put(next.getId(), next);
 		}
 
 		return results;
 	}
 
-	private ItemState<RMA> loadNext(ResultSet rs) throws SQLException {
-		ItemState<RMA> state = new ItemState<>();
+	private EntityState<RMA> loadNext(ResultSet rs) throws SQLException {
+		EntityState<RMA> state = new EntityState<>();
 
 		int i = 1;
 		state.setId(rs.getString(i++));

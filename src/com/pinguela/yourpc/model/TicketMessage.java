@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -27,7 +28,7 @@ extends AbstractValueObject {
 	@JoinColumn(name = "EMPLOYEE_ID")
 	private Employee employee;
 	
-	private @CreationTimestamp Date timestamp;
+	private @CreationTimestamp @Column(name = "DATE") Date timestamp;
 	
 	private String text;
 	
