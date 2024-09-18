@@ -6,99 +6,142 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
+@Entity
 public class Ticket 
 extends AbstractValueObject {
 	
 	private @Id Long id;
 	
 	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ID")
 	private Customer customer;
 	
 	@ManyToOne
 	private Employee employee;
 	
 	private @CreationTimestamp Date creationDate;
-	private String state;
-	private String type;
-	private Long productId;
+	
+	@ManyToOne
+	@JoinTable(name = "TICKET_STATE", joinColumns = @JoinColumn(name = "TICKET_STATE_ID"))
+	private ItemState<Ticket> state;
+	
+	@ManyToOne
+	@JoinTable(name = "TICKET_TYPE", joinColumns = @JoinColumn(name = "TICKET_TYPE_ID"))
+	private ItemState<Ticket> type;
+	
+	@ManyToOne
+	@JoinColumn(name = "PRODUCT_ID")
+	private Product product;
+
 	private String title;
 	private String description;
 	
+	@ManyToMany
 	private List<OrderLine> orderLines = null;
+	
+	@OneToMany(mappedBy = "ticket")
 	private List<TicketMessage> messageList = null;
 	
 	public Ticket() {
 		orderLines = new ArrayList<OrderLine>();
 		messageList = new ArrayList<TicketMessage>();
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public Customer getCustomer() {
 		return customer;
 	}
+
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+
 	public Employee getEmployee() {
 		return employee;
 	}
+
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
 	}
+
 	public Date getCreationDate() {
 		return creationDate;
 	}
+
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
-	public String getState() {
+
+	public ItemState<Ticket> getState() {
 		return state;
 	}
-	public void setState(String state) {
+
+	public void setState(ItemState<Ticket> state) {
 		this.state = state;
 	}
-	public String getType() {
+
+	public ItemState<Ticket> getType() {
 		return type;
 	}
-	public void setType(String type) {
+
+	public void setType(ItemState<Ticket> type) {
 		this.type = type;
 	}
-	public Long getProductId() {
-		return productId;
+
+	public Product getProduct() {
+		return product;
 	}
-	public void setProductId(Long productId) {
-		this.productId = productId;
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
-	public List<TicketMessage> getMessageList() {
-		return messageList;
-	}
-	public void setMessageList(List<TicketMessage> messageList) {
-		this.messageList = messageList;
-	}
-	public List<OrderLine> getOrderLines() {
-		return orderLines;
-	}
-	public void setOrderLines(List<OrderLine> orderLines) {
-		this.orderLines = orderLines;
-	}
+
 	public String getTitle() {
 		return title;
 	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
-	} 
+	}
+
+	public List<OrderLine> getOrderLines() {
+		return orderLines;
+	}
+
+	public void setOrderLines(List<OrderLine> orderLines) {
+		this.orderLines = orderLines;
+	}
+
+	public List<TicketMessage> getMessageList() {
+		return messageList;
+	}
+
+	public void setMessageList(List<TicketMessage> messageList) {
+		this.messageList = messageList;
+	}
+	
 }

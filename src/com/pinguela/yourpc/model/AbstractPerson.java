@@ -25,7 +25,6 @@ extends AbstractValueObject {
 	private @Column(name = "PASSWORD") String encryptedPassword;
 
 	public AbstractPerson() {
-		name = new FullName();
 	}
 
 	public Integer getId() {

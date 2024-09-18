@@ -13,7 +13,7 @@ public class IDType
 extends AbstractValueObject {
 	
 	private @Id @Column(columnDefinition = "CHAR(3)") String id;
-	private @Column String name;
+	private String name;
 	
 	public String getId() {
 		return id;

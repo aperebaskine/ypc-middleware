@@ -1,59 +1,76 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class OrderLine 
 extends AbstractValueObject {
 	
-	private Long id;
-	private Long customerOrderId;
-	private Integer productId;
-	private String productName;
+	private @Id Long id;
+	
+	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ORDER_ID")
+	private CustomerOrder order;
+
+	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ID")
+	private Customer customer;
+	
+	@ManyToOne
+	@JoinColumn(name = "PRODUCT_ID")
+	private Product product;
+	
 	private Short quantity;
-	private Double purchasePrice;
-	private Double salePrice;
+	private @Column(columnDefinition = "DECIMAL(20,8)") Double purchasePrice;
+	private @Column(columnDefinition = "DECIMAL(20,8)") Double salePrice;
 	
 	public OrderLine() {
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	public Long getCustomerOrderId() {
-		return customerOrderId;
-	}
-	
-	public void setCustomerOrderId(Long purchaseOrderId) {
-		this.customerOrderId = purchaseOrderId;
-	}
-	
-	public Integer getProductId() {
-		return productId;
-	}
-	
-	public void setProductId(Integer productId) {
-		this.productId = productId;
-	}
-	
-	public String getProductName() {
-		return productName;
+
+	public CustomerOrder getOrder() {
+		return order;
 	}
 
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setOrder(CustomerOrder order) {
+		this.order = order;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	public Short getQuantity() {
 		return quantity;
 	}
-	
+
 	public void setQuantity(Short quantity) {
 		this.quantity = quantity;
 	}
-	
+
 	public Double getPurchasePrice() {
 		return purchasePrice;
 	}
@@ -65,7 +82,7 @@ extends AbstractValueObject {
 	public Double getSalePrice() {
 		return salePrice;
 	}
-	
+
 	public void setSalePrice(Double salePrice) {
 		this.salePrice = salePrice;
 	}

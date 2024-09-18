@@ -3,18 +3,44 @@ package com.pinguela.yourpc.model;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class CustomerOrder 
 extends AbstractValueObject {
 	
-	private Long id;
-	private String state;
-	private Integer customerId;
-	private Date orderDate;
-	private String trackingNumber;
-	private Integer billingAddressId;
-	private Integer shippingAddressId;
-	private Double totalPrice;
+	private @Id Long id;
 	
+	@ManyToOne
+	@JoinTable(name = "ORDER_STATE", joinColumns = @JoinColumn(name = "CUSTOMER_ORDER_ID"))
+	private ItemState<CustomerOrder> state;
+	
+	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ID")
+	private Customer customer;
+
+	private @CreationTimestamp Date orderDate;
+	private String trackingNumber;
+
+	@ManyToOne
+	@JoinColumn(name = "BILLING_ADDRESS_ID")
+	private Address billingAddress;
+	
+	@ManyToOne
+	@JoinColumn(name = "SHIPPING_ADDRESS_ID")
+	private Address shippingAddress;
+	
+	private @Column(name = "INVOICE_TOTAL", columnDefinition = "DECIMAL(20,8)") Double totalPrice;
+	
+	@OneToMany(mappedBy = "order")
 	private List<OrderLine> orderLines;
 	
 	public CustomerOrder() {
@@ -28,20 +54,20 @@ extends AbstractValueObject {
 		this.id = id;
 	}
 
-	public String getState() {
+	public ItemState<CustomerOrder> getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(ItemState<CustomerOrder> state) {
 		this.state = state;
 	}
 
-	public Integer getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public Date getOrderDate() {
@@ -60,20 +86,20 @@ extends AbstractValueObject {
 		this.trackingNumber = trackingNumber;
 	}
 
-	public Integer getBillingAddressId() {
-		return billingAddressId;
+	public Address getBillingAddress() {
+		return billingAddress;
 	}
 
-	public void setBillingAddressId(Integer billingAddressId) {
-		this.billingAddressId = billingAddressId;
+	public void setBillingAddress(Address billingAddress) {
+		this.billingAddress = billingAddress;
 	}
 
-	public Integer getShippingAddressId() {
-		return shippingAddressId;
+	public Address getShippingAddress() {
+		return shippingAddress;
 	}
 
-	public void setShippingAddressId(Integer shippingAddressId) {
-		this.shippingAddressId = shippingAddressId;
+	public void setShippingAddress(Address shippingAddress) {
+		this.shippingAddress = shippingAddress;
 	}
 
 	public Double getTotalPrice() {

@@ -2,10 +2,16 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.NaturalId;
+
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Id;
+
+@Embeddable
 public class ItemState<T> extends AbstractValueObject {
 	
-	private String id;
-	private String name;
+	private @Id String id;
+	private @NaturalId String name;
 	
 	public String getId() {
 		return id;

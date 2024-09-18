@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -21,6 +22,7 @@ extends AbstractValueObject {
 	@JoinColumn(name = "PARENT_ID")
 	private Category parent = null;
 	
+	@MapKey(name = "id")
 	@OneToMany(mappedBy = "parent")
 	private Map<Short, Category> children = null;
 

@@ -4,14 +4,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.annotations.Type;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKey;
+import jakarta.persistence.Transient;
 
 @Entity
 public class Product 
@@ -24,16 +22,16 @@ extends AbstractValueObject {
 	private String description;
 	private Date launchDate;
 	private Integer stock;
-	private Double purchasePrice;
-	private Double salePrice;
+	private @Column(columnDefinition = "DECIMAL(8,20)") Double purchasePrice;
+	private @Column(columnDefinition = "DECIMAL(8,20)") Double salePrice;
 
 	@ManyToOne
 	@JoinColumn(name = "REPLACEMENT_ID")
 	private Product replacement;
 
-	@ManyToMany(mappedBy = "values")
-	@MapKey(name = "name")
-	@Type(AttributeType.class)
+//	@MapKey(name = "name")
+//	@ManyToMany(mappedBy = "values")
+	@Transient
 	private Map<String, Attribute<?>> attributes;
 
 	public Product() {

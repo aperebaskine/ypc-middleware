@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.DiscriminatorValue;
+
+@DiscriminatorValue(value = AttributeDataTypes.BIGINT)
 public final class LongAttribute extends Attribute<Long> {
 
 	LongAttribute() {

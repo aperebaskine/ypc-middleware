@@ -2,80 +2,82 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class TicketMessage
 extends AbstractValueObject {
 	
-	private Long id;
-	private Long ticketId;
-	private Integer customerId;
-	private Integer employeeId;
-	private String firstName;
-	private String lastName1;
-	private String lastName2;
-	private Date timestamp;
+	private @Id Long id;
+
+	@ManyToOne
+	@JoinColumn(name = "TICKET_ID")
+	private Ticket ticket;
+	
+	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ID")
+	private Customer customer;
+	
+	@ManyToOne
+	@JoinColumn(name = "EMPLOYEE_ID")
+	private Employee employee;
+	
+	private @CreationTimestamp Date timestamp;
+	
 	private String text;
 	
 	public TicketMessage() {
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Long getTicketId() {
-		return ticketId;
-	}
-	public void setTicketId(Long ticketId) {
-		this.ticketId = ticketId;
-	}
-	public Integer getCustomerId() {
-		return customerId;
-	}
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
-	}
-	public Integer getEmployeeId() {
-		return employeeId;
-	}
-	public void setEmployeeId(Integer employeeId) {
-		this.employeeId = employeeId;
-	}
-	
-	public String getFirstName() {
-		return firstName;
+
+	public Ticket getTicket() {
+		return ticket;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public void setTicket(Ticket ticket) {
+		this.ticket = ticket;
 	}
 
-	public String getLastName1() {
-		return lastName1;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setLastName1(String lastName1) {
-		this.lastName1 = lastName1;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
-	public String getLastName2() {
-		return lastName2;
+	public Employee getEmployee() {
+		return employee;
 	}
 
-	public void setLastName2(String lastName2) {
-		this.lastName2 = lastName2;
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
 	}
 
 	public Date getTimestamp() {
 		return timestamp;
 	}
+
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
+
 	public String getText() {
 		return text;
 	}
+
 	public void setText(String text) {
 		this.text = text;
 	}

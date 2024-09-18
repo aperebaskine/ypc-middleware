@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.DiscriminatorValue;
+
+@DiscriminatorValue(value = AttributeDataTypes.DECIMAL)
 public final class DoubleAttribute extends Attribute<Double> {
 
 	DoubleAttribute() {
