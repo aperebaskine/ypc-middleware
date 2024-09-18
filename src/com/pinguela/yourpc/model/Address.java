@@ -113,19 +113,19 @@ extends AbstractValueObject {
 		this.city = city;
 	}
 
-	public Boolean getIsDefault() {
+	public Boolean isDefault() {
 		return isDefault;
 	}
 
-	public void setIsDefault(Boolean isDefault) {
+	public void setDefault(Boolean isDefault) {
 		this.isDefault = isDefault;
 	}
 
-	public Boolean getIsBilling() {
+	public Boolean isBilling() {
 		return isBilling;
 	}
 
-	public void setIsBilling(Boolean isBilling) {
+	public void setBilling(Boolean isBilling) {
 		this.isBilling = isBilling;
 	}
 
