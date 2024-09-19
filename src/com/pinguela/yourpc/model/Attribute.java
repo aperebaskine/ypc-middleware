@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.hibernate.annotations.ManyToAny;
+import org.reflections.Reflections;
 
 import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -29,10 +29,9 @@ import jakarta.persistence.Table;
 @Table(name = "ATTRIBUTE_TYPE")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID")
-public abstract sealed class Attribute<E>
+public abstract class Attribute<E>
 extends AbstractValueObject 
-implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
-permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
+implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	
 	/**
 	 * Maps type parameter classes to their corresponding subclasses.
@@ -51,7 +50,8 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 
-		for (Class<?> subclass : Attribute.class.getPermittedSubclasses()) {
+		Reflections reflections = new Reflections(Attribute.class.getPackage().getName());
+		for (Class<?> subclass : reflections.getSubTypesOf(Attribute.class)) {
 			
 			if (subclass.isAssignableFrom(NullAttribute.class)) {
 				continue;
