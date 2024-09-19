@@ -79,12 +79,12 @@ class ProductServiceTest {
 	@Nested
 	class TestFindBy {
 		
-		private static Attribute<String> varcharAttribute;
-		private static Attribute<Long> bigintAttribute;
-		private static Attribute<Double> decimalAttribute;
-		private static Attribute<Boolean> booleanAttribute;
+		private Attribute<String> varcharAttribute;
+		private Attribute<Long> bigintAttribute;
+		private Attribute<Double> decimalAttribute;
+		private Attribute<Boolean> booleanAttribute;
 		
-		static {
+		{
 			varcharAttribute = Attribute.getInstance(String.class);
 			varcharAttribute.setName("Brand");
 			varcharAttribute.addValue(null, "AMD");
@@ -581,7 +581,7 @@ class ProductServiceTest {
 	public class TestDelete {
 		
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 		

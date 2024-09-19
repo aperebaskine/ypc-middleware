@@ -291,7 +291,7 @@ class CustomerOrderServiceTest {
 		private CustomerOrder o;
 		
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTestDatabase();
 		}
 

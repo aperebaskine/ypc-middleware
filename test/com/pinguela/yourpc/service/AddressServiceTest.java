@@ -361,7 +361,7 @@ class AddressServiceTest {
 		}
 
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 	}
@@ -398,7 +398,7 @@ class AddressServiceTest {
 		}
 
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 	}
@@ -434,7 +434,7 @@ class AddressServiceTest {
 		}
 
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 	}

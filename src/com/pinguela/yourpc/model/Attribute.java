@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reflections.Reflections;
 
 /**
  * Abstract factory class for product attributes.
@@ -17,10 +18,9 @@ import org.apache.logging.log4j.Logger;
  * of the subclass' type parameter class name followed by this class' name.</b></p>
  * @param <E> The attribute's data type
  */
-public abstract sealed class Attribute<E>
+public abstract class Attribute<E>
 extends AbstractValueObject 
-implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes 
-permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullAttribute {
+implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	
 	private static Logger logger = LogManager.getLogger(Attribute.class);
 	
@@ -38,7 +38,9 @@ permits LongAttribute, StringAttribute, DoubleAttribute, BooleanAttribute, NullA
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 		
-		for (Class<?> clazz : Attribute.class.getPermittedSubclasses()) {
+		Reflections reflections = new Reflections(Attribute.class.getPackage());
+		
+		for (Class<?> clazz : reflections.getSubTypesOf(Attribute.class)) {
 			
 			if (clazz.isAssignableFrom(NullAttribute.class)) {
 				continue;
