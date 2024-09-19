@@ -71,25 +71,19 @@ public class NullObject {
 
 		try {
 			if (instances.containsKey(target)) {
-				return (T) instances.get(target);
+				instance = (T) instances.get(target);
+			} else if (target.isInterface()) {
+				instance = (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[] {target}, interceptor);
+			} else {
+				Enhancer enhancer = new Enhancer();
+				enhancer.setSuperclass(target);
+				enhancer.setCallback(interceptor);
+				instance = (T) enhancer.create();
 			}
-
-			if (target.isInterface()) {
-				return (T) Proxy.newProxyInstance(target.getClassLoader(), new Class<?>[] {target}, interceptor);
-			}
-
-			try {
-				target.getDeclaredConstructor();
-			} catch (NoSuchMethodException e) {
-				throw new IllegalArgumentException(String.format(
-						"Cannot create null object: class %s doesn't provide a no-arg constructor.", target.getName()));
-			}
-
-			Enhancer enhancer = new Enhancer();
-			enhancer.setSuperclass(target);
-			enhancer.setCallback(interceptor);
-			instance = (T) enhancer.create();
-
+		} catch (Exception e) {
+			throw new IllegalArgumentException(String.format(
+					"Cannot create null object for class %s, exception thrown: %s", 
+					target.getName(), e.getMessage()), e);
 		} finally {
 			if (instance != null) {
 				setCustomReturnValues(customReturnValueMethods, customReturnValues);
