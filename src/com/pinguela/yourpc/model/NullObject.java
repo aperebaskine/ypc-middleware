@@ -80,18 +80,16 @@ public class NullObject {
 				enhancer.setCallback(interceptor);
 				instance = (T) enhancer.create();
 			}
+			
+			setCustomReturnValues(customReturnValueMethods, customReturnValues);
+			instances.put(target, instance);
+			return instance;
+			
 		} catch (Exception e) {
 			throw new IllegalArgumentException(String.format(
 					"Cannot create null object for class %s, exception thrown: %s", 
 					target.getName(), e.getMessage()), e);
-		} finally {
-			if (instance != null) {
-				setCustomReturnValues(customReturnValueMethods, customReturnValues);
-				instances.put(target, instance);
-			}
 		}
-
-		return instance;
 	}
 
 	public static void setCustomReturnValues(Method[] methods, Object[] returnValues) {
