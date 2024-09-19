@@ -92,5 +92,17 @@
 	    <artifactId>mysql-connector-j</artifactId>
 	    <version>8.2.0</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/cglib/cglib -->
+	<dependency>
+	    <groupId>cglib</groupId>
+	    <artifactId>cglib</artifactId>
+	    <version>3.3.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
+	<dependency>
+	    <groupId>org.reflections</groupId>
+	    <artifactId>reflections</artifactId>
+	    <version>0.10.2</version>
+	</dependency>
   </dependencies>
 </project>
