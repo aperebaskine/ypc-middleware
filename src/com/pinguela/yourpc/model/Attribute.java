@@ -38,14 +38,8 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 		
-		Reflections reflections = new Reflections(Attribute.class.getPackage());
-		
+		Reflections reflections = new Reflections(Attribute.class.getPackage().getName());
 		for (Class<?> clazz : reflections.getSubTypesOf(Attribute.class)) {
-			
-			if (clazz.isAssignableFrom(NullAttribute.class)) {
-				continue;
-			}
-			
 			try {
 				
 				Attribute<?> attribute = (Attribute<?>) clazz.getDeclaredConstructor().newInstance();
