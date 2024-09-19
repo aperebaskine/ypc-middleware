@@ -118,5 +118,11 @@
 	    <version>6.6.0.Final</version>
 	    <type>pom</type>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/cglib/cglib -->
+	<dependency>
+	    <groupId>cglib</groupId>
+	    <artifactId>cglib</artifactId>
+	    <version>3.3.0</version>
+	</dependency>
   </dependencies>
 </project>

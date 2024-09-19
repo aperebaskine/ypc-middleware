@@ -53,10 +53,6 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		Reflections reflections = new Reflections(Attribute.class.getPackage().getName());
 		for (Class<?> subclass : reflections.getSubTypesOf(Attribute.class)) {
 			
-			if (subclass.isAssignableFrom(NullAttribute.class)) {
-				continue;
-			}
-
 			try {
 				Attribute<?> attribute = (Attribute<?>) subclass.getDeclaredConstructor().newInstance();
 				Class<?> typeParameterClass = attribute.getTypeParameterClass();
