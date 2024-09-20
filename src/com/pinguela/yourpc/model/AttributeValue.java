@@ -2,30 +2,31 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 
-@Embeddable
+@Entity
 public class AttributeValue<E> 
 extends AbstractValueObject 
 implements Cloneable {
 
-	private @Id Long id = null;
-	private @Id E value = null;
+	private @Id Integer id = null;
+	private @Transient E value = null;
 
 	AttributeValue() {
 	}
 	
-	AttributeValue(Long id, E value) {
+	AttributeValue(Integer id, E value) {
 		this.id = id;
 		this.value = value;
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

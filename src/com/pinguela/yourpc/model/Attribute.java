@@ -8,15 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.hibernate.annotations.ManyToAny;
 import org.reflections.Reflections;
 
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
@@ -26,9 +27,10 @@ import jakarta.persistence.Table;
  * @param <E> The attribute's data type
  */
 @SuppressWarnings("serial")
+@Entity
 @Table(name = "ATTRIBUTE_TYPE")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID")
+@DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID", columnDefinition = "CHAR(3)")
 public abstract class Attribute<E>
 extends AbstractValueObject 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
@@ -68,10 +70,10 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 	}
 
-	private @Id Long id;
+	private @Id Integer id;
 	private String name;
 	
-	@ManyToAny
+	@OneToMany(targetEntity = AttributeValue.class)
 	@JoinTable(name = "ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_TYPE_ID"))
 	private List<AttributeValue<E>> values;
 
@@ -117,11 +119,11 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		}
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -169,7 +171,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addValue(Long id, Object value) {
+	public void addValue(Integer id, Object value) {
 
 		if (value != null && !getTypeParameterClass().isInstance(value)) {
 			throw new IllegalArgumentException("Object type does not match type parameter.");

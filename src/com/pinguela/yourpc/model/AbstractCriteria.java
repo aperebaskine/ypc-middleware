@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.model;
 
-public abstract class AbstractCriteria<T>
-implements Criteria<T> { 
+public abstract class AbstractCriteria<T> { 
+	
+	public static final Boolean ASC = Boolean.TRUE;
+	public static final Boolean DESC = Boolean.FALSE;
 	
 	private String orderBy;
 	private Boolean ascDesc;
@@ -10,22 +12,18 @@ implements Criteria<T> {
 		setDefaultOrdering();
 	}
 	
-	@Override
 	public String getOrderBy() {
 		return orderBy;
 	}
 	
-	@Override
 	public void setOrderBy(String orderBy) {
 		this.orderBy = orderBy;
 	}
 	
-	@Override
 	public Boolean getAscDesc() {
 		return ascDesc;
 	}
 	
-	@Override
 	public void setAscDesc(Boolean ascDesc) {
 		this.ascDesc = ascDesc;
 	}

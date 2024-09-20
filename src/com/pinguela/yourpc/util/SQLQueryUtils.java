@@ -3,8 +3,7 @@ package com.pinguela.yourpc.util;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.pinguela.yourpc.model.Criteria;
-import com.pinguela.yourpc.model.EntityCriteria;
+import com.pinguela.yourpc.model.AbstractCriteria;
 
 public class SQLQueryUtils {
 
@@ -161,7 +160,7 @@ public class SQLQueryUtils {
 		}
 		return new StringBuilder(" ORDER BY")
 				.append(columnName)
-				.append(ascDesc == EntityCriteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
+				.append(ascDesc == AbstractCriteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
 	}
 	
 	/**
@@ -171,7 +170,7 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the ORDER BY clause. If any of the required 
 	 * parameters are null, returns an empty StringBuilder.
 	 */
-	public static StringBuilder buildOrderByClause(Criteria<?> criteria) {
+	public static StringBuilder buildOrderByClause(AbstractCriteria<?> criteria) {
 		
 		if (criteria == null || criteria.getOrderBy() == null || criteria.getAscDesc() == null) {
 			return new StringBuilder("");

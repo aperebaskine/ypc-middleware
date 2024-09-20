@@ -31,12 +31,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 	public Long create(CustomerOrder co) 
 			throws ServiceException, DataException {
 		
-		if (co.getCustomerId() == null || co.getTotalPrice() == null
-				|| co.getBillingAddressId() == null || co.getShippingAddressId() == null
-				|| co.getOrderLines() == null || co.getOrderLines().isEmpty()) {
-			throw new IllegalArgumentException("Required parameters missing");
-		}
-		
 		co.setTotalPrice(calculateTotalPrice(co));
 
 		Connection conn = null;

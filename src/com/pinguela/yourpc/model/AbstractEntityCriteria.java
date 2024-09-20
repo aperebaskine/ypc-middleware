@@ -1,8 +1,7 @@
 package com.pinguela.yourpc.model;
 
 public abstract class AbstractEntityCriteria<PK, T>
-extends AbstractCriteria<T>
-implements EntityCriteria<PK, T> {
+extends AbstractCriteria<T> {
 	
 	private PK id;
 	

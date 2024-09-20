@@ -28,9 +28,10 @@ extends AbstractValueObject {
 	@ManyToOne
 	@JoinColumn(name = "REPLACEMENT_ID")
 	private Product replacement;
-
+//
 //	@MapKey(name = "name")
-//	@ManyToMany(mappedBy = "values")
+//	@ManyToMany
+//	@JoinTable(name = "ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
 	@Transient
 	private Map<String, Attribute<?>> attributes;
 

@@ -13,9 +13,15 @@ import com.pinguela.yourpc.model.Country;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
-public class CountryDAOImpl implements CountryDAO {
+public class CountryDAOImpl
+extends AbstractDAO<String, Country>
+implements CountryDAO {
 	
 	private static final Logger logger = LogManager.getLogger(CountryDAOImpl.class);
+	
+	public CountryDAOImpl() {
+		super(Country.class);
+	}
 	
 	@Override
 	public List<Country> findAll(Session session) 

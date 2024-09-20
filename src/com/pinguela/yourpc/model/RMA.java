@@ -23,6 +23,7 @@ extends AbstractValueObject {
 	private Customer customer;
 	
 	@ManyToOne
+	@JoinColumn(name = "RMA_STATE_ID")
 	private RMAState state;
 
 	private @CreationTimestamp Date creationDate;
