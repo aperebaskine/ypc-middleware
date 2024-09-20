@@ -1,7 +1,6 @@
 package com.pinguela.yourpc.model;
 
-@SuppressWarnings("serial")
-public class AbstractStatistics<T> 
+public abstract class AbstractStatistics<T> 
 extends AbstractValueObject {
 
 }
