@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
 
-@SuppressWarnings("serial")
 @MappedSuperclass
 public abstract class AbstractPerson
 extends AbstractValueObject {

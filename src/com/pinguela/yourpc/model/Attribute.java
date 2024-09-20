@@ -24,7 +24,6 @@ import jakarta.persistence.Table;
  * of the subclass' type parameter class name followed by this class' name.</b></p>
  * @param <E> The attribute's data type
  */
-@SuppressWarnings("serial")
 @Entity
 @Table(name = "ATTRIBUTE_TYPE")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

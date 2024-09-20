@@ -1,12 +1,9 @@
 package com.pinguela.yourpc.model;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-@SuppressWarnings("serial")
 public abstract class AbstractValueObject
-implements ValueObject, Serializable {
+implements ValueObject {
 	
 	@Override
 	public String toString() {
