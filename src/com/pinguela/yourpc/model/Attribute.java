@@ -15,8 +15,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -73,8 +71,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	private @Id Integer id;
 	private String name;
 	
-	@OneToMany(targetEntity = AttributeValue.class)
-	@JoinTable(name = "ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_TYPE_ID"))
+	@OneToMany(mappedBy = "id", targetEntity = AttributeValue.class)
 	private List<AttributeValue<E>> values;
 
 	protected Attribute() {

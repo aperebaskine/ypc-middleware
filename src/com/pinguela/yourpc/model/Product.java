@@ -8,8 +8,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.MapKey;
 
 @Entity
 public class Product 
@@ -28,11 +30,10 @@ extends AbstractValueObject {
 	@ManyToOne
 	@JoinColumn(name = "REPLACEMENT_ID")
 	private Product replacement;
-//
-//	@MapKey(name = "name")
-//	@ManyToMany
-//	@JoinTable(name = "ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
-	@Transient
+
+	@ManyToMany
+	@MapKey(name = "name")
+	@JoinTable(name = "PRODUCT_ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
 	private Map<String, Attribute<?>> attributes;
 
 	public Product() {
