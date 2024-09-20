@@ -12,7 +12,7 @@ extends AbstractValueObject
 implements Cloneable {
 
 	private @Id Integer id = null;
-	private @Transient E value = null;
+	private @Transient E value = null; // Persistence is handled by manual queries
 
 	AttributeValue() {
 	}
