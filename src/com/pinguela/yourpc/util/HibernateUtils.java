@@ -2,7 +2,10 @@ package com.pinguela.yourpc.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
@@ -79,8 +82,57 @@ public class HibernateUtils {
 		}
 	}
 
-	public static SessionFactory getSessionFactory() {
-		return sessionFactory;
+	public static Session openSession() {
+		try {
+			Session session = sessionFactory.openSession();
+			logger.info("Hibernate session opened.");
+			return session;
+		} catch (HibernateException e) {
+			logger.error(String.format("Unable to open Hibernate session, exception thrown: %s", e.getMessage()), e);
+			throw e;
+		}
+	}
+	
+	public static void close(Session session) {
+		
+		if (session == null) {
+			return;
+		}
+		
+		try {
+			session.close();
+			logger.info("Session successfully closed.");
+		} catch (HibernateException e) {
+			logger.warn(String.format(
+					"Exception thrown while attempting to close session: %s", e.getMessage()), e);
+		}
+	}
+	
+	public static void close(Transaction transaction, boolean commit) {
+		
+		if (transaction == null || !transaction.isActive()) {
+			return;
+		}
+		
+		try {
+			if (!commit) {
+				transaction.rollback();
+				logger.info("Transaction rolled back.");
+			} else {
+				transaction.commit();
+				logger.info("Transaction successfully commited.");
+			} 
+		} catch (HibernateException e) {
+			logger.error(
+					String.format("Exception thrown while attempting to %s transaction: %s",
+							commit ? "commit" : "roll back", e.getMessage()), e);
+			throw e;
+		}
+	}
+	
+	public static void close(Session session, Transaction transaction, boolean commit) {
+		close(transaction, commit);
+		close(session);
 	}
 
 }
