@@ -22,6 +22,14 @@ extends AbstractValueObject {
 	@Column(unique = true, nullable = false)
 	private String name;
 	
+	public IDType() {
+	}
+	
+	public IDType(String id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
 	public String getId() {
 		return id;
 	}

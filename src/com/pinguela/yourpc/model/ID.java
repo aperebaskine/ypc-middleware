@@ -18,6 +18,15 @@ public class ID extends AbstractValueObject {
 	public IDType getType() {
 		return type;
 	}
+	
+	public ID() {
+		type = new IDType();
+	}
+	
+	public ID(IDType type, String number) {
+		this.type = type;
+		this.number = number;
+	}
 
 	public void setType(IDType type) {
 		this.type = type;

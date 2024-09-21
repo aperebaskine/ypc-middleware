@@ -18,6 +18,12 @@ extends AbstractValueObject {
 	public FullName() {
 	}
 	
+	public FullName(String firstName, String lastName1, String lastName2) {
+		this.firstName = firstName;
+		this.lastName1 = lastName1;
+		this.lastName2 = lastName2;
+	}
+
 	public String getFirstName() {
 		return firstName;
 	}
