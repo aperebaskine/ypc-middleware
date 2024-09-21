@@ -10,7 +10,11 @@ import jakarta.persistence.Id;
 public class Department 
 extends AbstractValueObject {
 	
-	private @Id @Column(columnDefinition = "CHAR(3)") String id;
+	@Id
+	@Column(columnDefinition = "CHAR(3)") 
+	private String id;
+	
+	@Column(unique = true, nullable = false)
 	private String name;
 	
 	public String getId() {

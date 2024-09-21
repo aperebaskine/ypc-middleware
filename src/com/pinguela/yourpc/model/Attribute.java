@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.hibernate.annotations.Immutable;
 import org.reflections.Reflections;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -25,6 +29,7 @@ import jakarta.persistence.Table;
  * @param <E> The attribute's data type
  */
 @Entity
+@Immutable
 @Table(name = "ATTRIBUTE_TYPE")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID", columnDefinition = "CHAR(3)")
@@ -67,7 +72,11 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 	}
 
-	private @Id Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	@Column(unique = true, nullable = false)
 	private String name;
 	
 	@OneToMany(mappedBy = "id", targetEntity = AttributeValue.class)

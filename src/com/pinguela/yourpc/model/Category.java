@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import org.hibernate.annotations.Immutable;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -12,10 +15,14 @@ import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 
 @Entity
+@Immutable
 public class Category 
 extends AbstractValueObject {
 
-	private @Id Short id;
+	@Id
+	private Short id;
+	
+	@Column(unique = true, nullable = false)
 	private String name;
 	
 	@ManyToOne

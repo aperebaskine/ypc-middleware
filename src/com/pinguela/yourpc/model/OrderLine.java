@@ -2,6 +2,8 @@ package com.pinguela.yourpc.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -9,21 +11,28 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class OrderLine 
 extends AbstractValueObject {
-	
-	private @Id Long id;
-	
-	@ManyToOne
-	@JoinColumn(name = "CUSTOMER_ORDER_ID", insertable = false, updatable = false)
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "CUSTOMER_ORDER_ID")
 	private CustomerOrder order;
-	
-	@ManyToOne
+
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "PRODUCT_ID")
 	private Product product;
-	
+
+	@Column(nullable = false)
 	private Short quantity;
-	private @Column(columnDefinition = "DECIMAL(20,8)") Double purchasePrice;
-	private @Column(columnDefinition = "DECIMAL(20,8)") Double salePrice;
-	
+
+	@Column(columnDefinition = "DECIMAL(20,8)", nullable = false) 
+	private Double purchasePrice;
+
+	@Column(columnDefinition = "DECIMAL(20,8)", nullable = false) 
+	private Double salePrice;
+
 	public OrderLine() {
 	}
 

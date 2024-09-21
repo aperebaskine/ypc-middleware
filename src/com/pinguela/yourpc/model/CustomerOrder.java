@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -16,28 +18,33 @@ import jakarta.persistence.OneToMany;
 public class CustomerOrder 
 extends AbstractValueObject {
 	
-	private @Id Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "ORDER_STATE_ID")
 	private OrderState state;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "CUSTOMER_ID")
 	private Customer customer;
 
-	private @CreationTimestamp Date orderDate;
+	@CreationTimestamp 
+	private Date orderDate;
+	
 	private String trackingNumber;
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "BILLING_ADDRESS_ID")
 	private Address billingAddress;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "SHIPPING_ADDRESS_ID")
 	private Address shippingAddress;
 	
-	private @Column(name = "INVOICE_TOTAL", columnDefinition = "DECIMAL(20,8)") Double totalPrice;
+	@Column(name = "INVOICE_TOTAL", columnDefinition = "DECIMAL(20,8)", nullable = false) 
+	private Double totalPrice;
 	
 	@OneToMany(mappedBy = "order")
 	private List<OrderLine> orderLines;

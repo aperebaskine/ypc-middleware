@@ -2,17 +2,26 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Immutable;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 
 @Entity
+@Immutable
 public class AttributeValue<E> 
 extends AbstractValueObject 
 implements Cloneable {
 
-	private @Id Integer id = null;
-	private @Transient E value = null; // Persistence to be handled by manual queries
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id = null;
+	
+	@Transient // Persistence to be handled by manual queries
+	private E value = null; 
 
 	AttributeValue() {
 	}

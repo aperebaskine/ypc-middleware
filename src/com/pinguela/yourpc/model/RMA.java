@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -17,16 +19,20 @@ import jakarta.persistence.ManyToOne;
 public class RMA 
 extends AbstractValueObject {
 	
-	private @Id Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	private Customer customer;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "RMA_STATE_ID")
 	private RMAState state;
 
-	private @CreationTimestamp Date creationDate;
+	@CreationTimestamp 
+	private Date creationDate;
+	
 	private String trackingNumber;
 	
 	@ManyToMany

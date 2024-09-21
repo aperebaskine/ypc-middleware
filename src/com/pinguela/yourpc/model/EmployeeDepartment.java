@@ -3,8 +3,12 @@ package com.pinguela.yourpc.model;
 import java.util.Date;
 import java.util.Objects;
 
+import org.hibernate.annotations.NaturalId;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,22 +17,35 @@ import jakarta.persistence.ManyToOne;
 public class EmployeeDepartment extends AbstractValueObject {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	@NaturalId
 	@ManyToOne
 	@JoinColumn(name = "EMPLOYEE_ID")
 	private Employee employee;
 	
-	@Id
+	@NaturalId
 	@ManyToOne
 	@JoinColumn(name = "DEPARTMENT_ID")
 	private Department department;
 	
-	@Id
+	@NaturalId
 	@Column(columnDefinition = "DATE")
 	private Date startDate;
 	
 	@Column(columnDefinition = "DATE")
 	private Date endDate;
 	
+	public EmployeeDepartment() {	
+	}
+
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	public Employee getEmployee() {
 		return employee;
 	}
@@ -69,7 +86,7 @@ public class EmployeeDepartment extends AbstractValueObject {
 			return false;
 		EmployeeDepartment other = (EmployeeDepartment) obj;
 		return Objects.equals(department, other.department) && Objects.equals(employee, other.employee)
-				&& Objects.equals(endDate, other.endDate);
+				&& Objects.equals(startDate, other.startDate);
 	}
 
 }

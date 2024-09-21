@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne;
 public class City 
 extends AbstractTerritory<Integer> {
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "PROVINCE_ID")
 	private Province province;
 

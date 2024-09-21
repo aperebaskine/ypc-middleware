@@ -3,9 +3,13 @@ package com.pinguela.yourpc.model;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.SoftDelete;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
@@ -14,14 +18,33 @@ import jakarta.persistence.Transient;
 public abstract class AbstractPerson
 extends AbstractValueObject {
 
-	private @Id Integer id;
-	private @Embedded FullName name;
-	private @Embedded ID document;
-	private @Column(name = "PHONE") String phoneNumber;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	@Embedded
+	private FullName name;
+	
+	@Embedded
+	private ID document;
+	
+	@Column(name = "PHONE", nullable = false) 
+	private String phoneNumber;
+	
+	@NaturalId
 	private String email;
-	private @CreationTimestamp Date creationDate;
-	private @Transient String unencryptedPassword;
-	private @Column(name = "PASSWORD") String encryptedPassword;
+	
+	@CreationTimestamp
+	private Date creationDate;
+	
+	@SoftDelete
+	private Date deletionDate;
+	
+	@Transient
+	private String unencryptedPassword;
+	
+	@Column(name = "PASSWORD", nullable = false) 
+	private String encryptedPassword;
 
 	public AbstractPerson() {
 	}
@@ -40,30 +63,6 @@ extends AbstractValueObject {
 
 	public void setName(FullName name) {
 		this.name = name;
-	}
-
-	public String getFirstName() {
-		return name.getFirstName();
-	}
-
-	public void setFirstName(String firstName) {
-		name.setFirstName(firstName);
-	}
-
-	public String getLastName1() {
-		return name.getLastName1();
-	}
-
-	public void setLastName1(String lastName1) {
-		name.setLastName1(lastName1);
-	}
-
-	public String getLastName2() {
-		return name.getLastName2();
-	}
-
-	public void setLastName2(String lastName2) {
-		name.setLastName2(lastName2);
 	}
 
 	public ID getDocument() {
@@ -96,6 +95,14 @@ extends AbstractValueObject {
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	public Date getDeletionDate() {
+		return deletionDate;
+	}
+
+	public void setDeletionDate(Date deletionDate) {
+		this.deletionDate = deletionDate;
 	}
 
 	public String getUnencryptedPassword() {

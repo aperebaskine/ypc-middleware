@@ -4,8 +4,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.annotations.SoftDelete;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -17,15 +21,32 @@ import jakarta.persistence.MapKey;
 public class Product 
 extends AbstractValueObject {
 
-	private @Id Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(nullable = false)
 	private String name;
 
-	private @ManyToOne Category category;
+	@ManyToOne(optional = false)
+	private Category category;
+	
 	private String description;
+	
+	@Column(nullable = false)
 	private Date launchDate;
+	
+	@SoftDelete
+	private Date discontinuationDate;
+	
+	@Column(nullable = false)
 	private Integer stock;
-	private @Column(columnDefinition = "DECIMAL(8,20)") Double purchasePrice;
-	private @Column(columnDefinition = "DECIMAL(8,20)") Double salePrice;
+	
+	@Column(columnDefinition = "DECIMAL(8,20)", nullable = false) 
+	private Double purchasePrice;
+	
+	@Column(columnDefinition = "DECIMAL(8,20)", nullable = false) 
+	private Double salePrice;
 
 	@ManyToOne
 	@JoinColumn(name = "REPLACEMENT_ID")
@@ -78,6 +99,14 @@ extends AbstractValueObject {
 
 	public void setLaunchDate(Date launchDate) {
 		this.launchDate = launchDate;
+	}
+
+	public Date getDiscontinuationDate() {
+		return discontinuationDate;
+	}
+
+	public void setDiscontinuationDate(Date discontinuationDate) {
+		this.discontinuationDate = discontinuationDate;
 	}
 
 	public Integer getStock() {

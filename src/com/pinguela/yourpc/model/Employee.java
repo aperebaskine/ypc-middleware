@@ -1,10 +1,10 @@
 package com.pinguela.yourpc.model;
 
-import java.util.Date;
 import java.util.List;
 
-import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.NaturalId;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -13,12 +13,17 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
+@AttributeOverride(name = "deletionDate", column = @Column(name = "TERMINATION_DATE"))
 public class Employee
 extends AbstractPerson {
 	
-	private @Column(unique = true) String username;
-	private @SoftDelete Date terminationDate;
+	@NaturalId
+	private String username;
+	
+	@Column(nullable = false)
 	private String iban;
+	
+	@Column(nullable = false)
 	private String bic;
 
 	@ManyToOne
@@ -40,14 +45,6 @@ extends AbstractPerson {
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public Date getTerminationDate() {
-		return terminationDate;
-	}
-
-	public void setTerminationDate(Date terminationDate) {
-		this.terminationDate = terminationDate;
 	}
 
 	public String getIban() {

@@ -6,7 +6,10 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -18,30 +21,34 @@ import jakarta.persistence.OneToMany;
 public class Ticket 
 extends AbstractValueObject {
 	
-	private @Id Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "CUSTOMER_ID")
 	private Customer customer;
 	
 	@ManyToOne
 	private Employee employee;
 	
-	private @CreationTimestamp Date creationDate;
+	@CreationTimestamp
+	@Column(nullable = false)
+	private Date creationDate;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "TICKET_STATE_ID")
 	private TicketState state;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "TICKET_TYPE_ID")
 	private TicketType type;
 	
 	@ManyToOne
-	@JoinColumn(name = "PRODUCT_ID")
 	private Product product;
 
+	@Column(nullable = false)
 	private String title;
+	
 	private String description;
 	
 	@ManyToMany

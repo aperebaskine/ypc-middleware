@@ -2,17 +2,22 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Immutable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
+@Immutable
 @MappedSuperclass
 public class EntityType<T> extends AbstractValueObject {
 
-	private @Id @Column(insertable = false, updatable = false, columnDefinition = "CHAR(3)") String id;
-	private @NaturalId @Column(insertable = false, updatable = false) String name;
+	@Id
+	@Column(columnDefinition = "CHAR(3)") 
+	private String id;
+	
+	@Column(unique = true, nullable = false)
+	private String name;
 
 	public String getId() {
 		return id;

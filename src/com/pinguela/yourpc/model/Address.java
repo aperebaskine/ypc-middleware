@@ -2,19 +2,28 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SoftDelete;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
 @Entity
+@Check(constraints = "(CUSTOMER_ID IS NULL AND EMPLOYEE_ID IS NOT NULL)"
+		+ "OR (CUSTOMER_ID IS NOT NULL AND EMPLOYEE_ID IS NULL")
 public class Address
 extends AbstractValueObject {
 	
-	private @Id Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 	
 	@ManyToOne
 	@JoinColumn(name = "CUSTOMER_ID")
@@ -24,19 +33,30 @@ extends AbstractValueObject {
 	@JoinColumn(name = "EMPLOYEE_ID")
 	private Employee employee;
 	
+	@Column(nullable = false)
 	private String streetName;
+	
 	private Short streetNumber;
+	
 	private Short floor;
+	
 	private String door;
+	
+	@Column(nullable = false)
 	private String zipCode;
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "CITY_ID")
 	private City city;
 	
 	private Boolean isDefault;
 	private Boolean isBilling;
-	private @CreationTimestamp Date creationDate;
+	
+	@CreationTimestamp
+	private Date creationDate;
+	
+	@SoftDelete
+	private Date deletionDate;
 	
 	public Address() {
 	}
@@ -135,6 +155,14 @@ extends AbstractValueObject {
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	public Date getDeletionDate() {
+		return deletionDate;
+	}
+
+	public void setDeletionDate(Date deletionDate) {
+		this.deletionDate = deletionDate;
 	}
 	
 }

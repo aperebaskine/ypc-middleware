@@ -2,8 +2,7 @@ package com.pinguela.yourpc.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public abstract class AbstractValueObject
-implements ValueObject {
+public abstract class AbstractValueObject {
 	
 	@Override
 	public String toString() {

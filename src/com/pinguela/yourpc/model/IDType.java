@@ -2,17 +2,24 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
+@Immutable
 @Table(name = "DOCUMENT_TYPE")
 public class IDType 
 extends AbstractValueObject {
 	
-	private @Id @Column(columnDefinition = "CHAR(3)") String id;
+	@Id
+	@Column(columnDefinition = "CHAR(3)")
+	private String id;
+	
+	@Column(unique = true, nullable = false)
 	private String name;
 	
 	public String getId() {

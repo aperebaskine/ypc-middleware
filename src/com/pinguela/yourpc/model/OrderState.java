@@ -4,6 +4,6 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class OrderState 
-extends EntityState<CustomerOrder>{
+extends EntityState<CustomerOrder> {
 
 }

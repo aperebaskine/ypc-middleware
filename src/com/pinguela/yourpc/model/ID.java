@@ -6,13 +6,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Embeddable
-public class ID {
+public class ID extends AbstractValueObject {
 
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "DOCUMENT_TYPE_ID")
 	private IDType type;
 	
-	private @Column(name = "DOCUMENT_NUMBER") String number;
+	@Column(name = "DOCUMENT_NUMBER", nullable = false)
+	private String number;
 
 	public IDType getType() {
 		return type;

@@ -7,9 +7,13 @@ import jakarta.persistence.Embeddable;
 public class FullName 
 extends AbstractValueObject {
 	
-	private @Column String firstName;
-	private @Column String lastName1;
-	private @Column String lastName2;
+	@Column(nullable = false)
+	private String firstName;
+	
+	@Column(nullable = false)
+	private String lastName1;
+	
+	private String lastName2;
 	
 	public FullName() {
 	}
