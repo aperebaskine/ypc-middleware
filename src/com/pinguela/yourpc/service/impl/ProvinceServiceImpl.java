@@ -1,11 +1,11 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -13,7 +13,7 @@ import com.pinguela.yourpc.dao.ProvinceDAO;
 import com.pinguela.yourpc.dao.impl.ProvinceDAOImpl;
 import com.pinguela.yourpc.model.Province;
 import com.pinguela.yourpc.service.ProvinceService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class ProvinceServiceImpl implements ProvinceService {
 	
@@ -25,21 +25,21 @@ public class ProvinceServiceImpl implements ProvinceService {
 	}
 
 	@Override
-	public List<Province> findByCountry(String countryId)  
-			throws ServiceException, DataException {
+	public List<Province> findByCountry(String countryId) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return provinceDAO.findByCountry(conn, countryId);
+	    try {
+	        session = HibernateUtils.openSession();
+	        return provinceDAO.findByCountry(session, countryId);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 }

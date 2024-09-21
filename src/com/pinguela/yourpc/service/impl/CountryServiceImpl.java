@@ -12,9 +12,10 @@ import com.pinguela.yourpc.dao.CountryDAO;
 import com.pinguela.yourpc.dao.impl.CountryDAOImpl;
 import com.pinguela.yourpc.model.Country;
 import com.pinguela.yourpc.service.CountryService;
+import com.pinguela.yourpc.util.HibernateUtils;
+
 
 public class CountryServiceImpl 
-extends AbstractDatabaseService
 implements CountryService {
 	
 	private static Logger logger = LogManager.getLogger(CountryServiceImpl.class);
@@ -31,14 +32,13 @@ implements CountryService {
 		Session session = null;
 
 		try {
-			session = SESSION_FACTORY.openSession();
+			session = HibernateUtils.openSession();
 			return countryDAO.findAll(session);
 		} catch (Exception e) {
 			logger.fatal(e);
 			throw new ServiceException(e);
 		} finally {
-			// TODO : Handle null
-			session.close();
+			HibernateUtils.close(session);
 		}
 	}
 

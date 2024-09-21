@@ -1,11 +1,12 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -14,7 +15,7 @@ import com.pinguela.yourpc.dao.impl.RMADAOImpl;
 import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.model.RMACriteria;
 import com.pinguela.yourpc.service.RMAService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class RMAServiceImpl 
 implements RMAService {
@@ -27,77 +28,80 @@ implements RMAService {
 	}
 
 	@Override
-	public RMA findById(Long rmaId) throws ServiceException, DataException {
+	public RMA findById(Long rmaId) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		
-		try {
-			conn = JDBCUtils.getConnection();
-			return rmaDAO.findById(conn, rmaId);
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    Session session = null;
+
+	    try {
+	        session = HibernateUtils.openSession();
+	        return rmaDAO.findById(session, rmaId);
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
-	public List<RMA> findBy(RMACriteria criteria) throws ServiceException, DataException {
+	public List<RMA> findBy(RMACriteria criteria) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		
-		try {
-			conn = JDBCUtils.getConnection();
-			return rmaDAO.findBy(conn, criteria);
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    Session session = null;
+
+	    try {
+	        session = HibernateUtils.openSession();
+	        return rmaDAO.findBy(session, criteria);
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
-	public Long create(RMA rma) throws ServiceException, DataException {
+	public Long create(RMA rma) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
-		
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			Long id = rmaDAO.create(conn, rma);
-			commit = id != null;
-			return id;
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
+
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        Long id = rmaDAO.create(session, rma);
+	        commit = id != null;
+	        return id;
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 	@Override
-	public Boolean update(RMA rma) throws ServiceException, DataException {
+	public Boolean update(RMA rma) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (rmaDAO.update(conn, rma)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        return rmaDAO.update(session, rma) && (commit = true);
+	        
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
+
 }

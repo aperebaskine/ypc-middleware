@@ -1,20 +1,20 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.dao.impl.AddressDAOImpl;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.service.AddressService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class AddressServiceImpl implements AddressService {
 
@@ -29,16 +29,16 @@ public class AddressServiceImpl implements AddressService {
 	public Address findById(Integer id) 
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
 		
 		try {
-			conn = JDBCUtils.getConnection();
-			return addressDAO.findById(conn, id);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			return addressDAO.findById(session, id);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 
@@ -46,16 +46,16 @@ public class AddressServiceImpl implements AddressService {
 	public Address findByEmployee(Integer employeeId) 
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return addressDAO.findByEmployee(conn, employeeId);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			return addressDAO.findByEmployee(session, employeeId);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 
@@ -63,16 +63,16 @@ public class AddressServiceImpl implements AddressService {
 	public List<Address> findByCustomer(Integer customerId) 
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
 		
 		try {
-			conn = JDBCUtils.getConnection();
-			return addressDAO.findByCustomer(conn, customerId);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			return addressDAO.findByCustomer(session, customerId);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 
@@ -80,53 +80,49 @@ public class AddressServiceImpl implements AddressService {
 	public Integer create(Address a) 
 			throws ServiceException, DataException {
 		
-		if (a == null) {
-			throw new ServiceException(ErrorCodes.NULL_REQUIRED_PARAMETER);
-		}
+		Session session = null;
+		Transaction transaction = null;
 
-		Connection conn = null;
 		Integer id = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
 			
-			id = addressDAO.create(conn, a);
+			id = addressDAO.create(session, a);
 			commit = id != null;
 			return id;
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 
 	@Override
 	public Integer update(Address a) 
 			throws ServiceException, DataException {
-		
-		if (a == null) {
-			throw new ServiceException(ErrorCodes.NULL_REQUIRED_PARAMETER);
-		}
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
+		
 		Integer id = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
 			
-			id = addressDAO.update(conn, a);
+			id = addressDAO.update(session, a);
 			commit = id != null;
 			return id;
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 
@@ -134,24 +130,21 @@ public class AddressServiceImpl implements AddressService {
 	public Boolean delete(Integer id) 
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
 			
-			if (addressDAO.delete(conn, id)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			return addressDAO.delete(session, id) && (commit = true);
+			
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 
@@ -159,24 +152,21 @@ public class AddressServiceImpl implements AddressService {
 	public Boolean deleteByCustomer(Integer customerId) 
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
 			
-			if (addressDAO.deleteByCustomer(conn, customerId)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			return addressDAO.deleteByCustomer(session, customerId) && (commit = true);
+			
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 

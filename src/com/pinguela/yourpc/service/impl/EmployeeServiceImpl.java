@@ -1,11 +1,12 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
 import com.pinguela.DataException;
@@ -16,7 +17,7 @@ import com.pinguela.yourpc.dao.impl.EmployeeDAOImpl;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
 import com.pinguela.yourpc.service.EmployeeService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -31,191 +32,195 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee login(String username, String password) 
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();			
-			Employee e = employeeDAO.findByUsername(conn, username);
-			
-			if (e == null) throw new InvalidLoginCredentialsException();
-			if (!PASSWORD_ENCRYPTOR.checkPassword(password, e.getEncryptedPassword())) {
-				logger.warn("Error de autenticación del usuario: " +e.getUsername());
-				throw new InvalidLoginCredentialsException();
-			}
-			logger.info("Empleado " +e.getUsername() +" autenticado con éxito.");
-			return e;
+	    try {
+	        session = HibernateUtils.openSession();
+	        Employee e = employeeDAO.findByUsername(session, username);
+	        
+	        if (e == null) {
+	        	throw new InvalidLoginCredentialsException();
+	        }
+	        
+	        if (!PASSWORD_ENCRYPTOR.checkPassword(password, e.getEncryptedPassword())) {
+	            logger.warn("Could not authenticate user {}.", e.getUsername());
+	            throw new InvalidLoginCredentialsException();
+	        }
+	        
+	        logger.info("User {} authenticated successfully.", e.getUsername());
+	        return e;
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
 	public Integer register(Employee e) 
-			throws ServiceException, DataException {
-		
-		if (e == null || e.getUsername() == null) {
-			throw new IllegalArgumentException("Required parameters missing");
-		}
-		
-		if (e.getUnencryptedPassword() == null) {
-			e.setUnencryptedPassword(String.valueOf(System.currentTimeMillis()));
-		}
+	        throws ServiceException, DataException {
 
-		e.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(e.getUnencryptedPassword()));
-		e.setUsername(e.getUsername().toLowerCase());
-		Connection conn = null;
-		boolean commit = false;
+	    if (e == null) {
+	        throw new IllegalArgumentException("Employee cannot be null.");
+	    }
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			Integer id = employeeDAO.create(conn, e);
-			commit = id != null;
-			return id;
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    // TODO: Improve password generation
+	    if (e.getUnencryptedPassword() == null) {
+	        e.setUnencryptedPassword(String.valueOf(System.currentTimeMillis()));
+	    }
+
+	    e.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(e.getUnencryptedPassword()));
+	    e.setUsername(e.getUsername().toLowerCase());
+	    
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
+
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        Integer id = employeeDAO.create(session, e);
+	        commit = id != null;
+	        return id;
+	        
+	    } catch (HibernateException he) {
+	        logger.fatal(he.getMessage(), he);
+	        throw new ServiceException(he);
+	    } finally {
+	    	e.setUnencryptedPassword(null);
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 	@Override
 	public Employee findById(Integer employeeId) 
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return employeeDAO.findById(conn, employeeId);
+	    try {
+	        session = HibernateUtils.openSession();
+	        return employeeDAO.findById(session, employeeId);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
 	public Employee findByUsername(String username) 
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return employeeDAO.findByUsername(conn, username);
+	    try {
+	        session = HibernateUtils.openSession();
+	        return employeeDAO.findByUsername(session, username);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
 	public List<Employee> findBy(EmployeeCriteria criteria)  
-			throws ServiceException, DataException {
-		
-		if (criteria == null) {
-			throw new IllegalArgumentException("Criteria cannot be null.");
-		}
+	        throws ServiceException, DataException {
+	    
+	    if (criteria == null) {
+	        throw new IllegalArgumentException("Criteria cannot be null.");
+	    }
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return employeeDAO.findBy(conn, criteria);
+	    try {
+	        session = HibernateUtils.openSession();
+	        return employeeDAO.findBy(session, criteria);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
 	public Boolean update(Employee e)  
-			throws ServiceException, DataException {
-		
-		if (e.getUnencryptedPassword() != null) {
-			e.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(e.getUnencryptedPassword()));
-			e.setUnencryptedPassword(null);	
-		}
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    if (e.getUnencryptedPassword() != null) {
+	        e.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(e.getUnencryptedPassword()));
+	        e.setUnencryptedPassword(null);    
+	    }
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (employeeDAO.update(conn, e)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
+
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        return employeeDAO.update(session, e) && (commit = true);
+	        
+	    } catch (HibernateException he) {
+	        logger.fatal(he.getMessage(), he);
+	        throw new ServiceException(he);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
-	
+
 	@Override
-	public Boolean updatePassword(Integer employeeId, String password) throws ServiceException, DataException {
+	public Boolean updatePassword(Integer employeeId, String password) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			commit = employeeDAO.updatePassword(conn, employeeId, PASSWORD_ENCRYPTOR.encryptPassword(password));
-			return true;
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        return employeeDAO.updatePassword(session, employeeId, 
+	        		PASSWORD_ENCRYPTOR.encryptPassword(password)) && (commit = true);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 	@Override
 	public Boolean delete(Integer employeeId)  
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (employeeDAO.delete(conn, employeeId)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        return employeeDAO.delete(session, employeeId) && (commit = true);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 }

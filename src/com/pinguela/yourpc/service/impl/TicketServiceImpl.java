@@ -1,10 +1,10 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -14,7 +14,7 @@ import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketCriteria;
 import com.pinguela.yourpc.service.TicketService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class TicketServiceImpl 
 implements TicketService {
@@ -28,80 +28,81 @@ implements TicketService {
 
 	@Override
 	public Ticket findById(Long ticketId) 
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return ticketDAO.findById(conn, ticketId);
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    try {
+	        session = HibernateUtils.openSession();
+	        return ticketDAO.findById(session, ticketId);
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
 	public Results<Ticket> findBy(TicketCriteria criteria, int pos, int pageSize) 
-			throws ServiceException, DataException {
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
+	    Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return ticketDAO.findBy(conn, criteria, pos, pageSize);
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn);
-		}
+	    try {
+	        session = HibernateUtils.openSession();
+	        return ticketDAO.findBy(session, criteria, pos, pageSize);
+	        
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session);
+	    }
 	}
 
 	@Override
-	public Long create(Ticket ticket)
-			throws ServiceException, DataException {
+	public Long create(Ticket ticket) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			Long id = ticketDAO.create(conn, ticket);
-			commit = id != null;
-			return id;
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        Long id = ticketDAO.create(session, ticket);
+	        commit = id != null;
+	        return id;
+	        
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 	@Override
-	public Boolean update(Ticket ticket) throws ServiceException, DataException {
+	public Boolean update(Ticket ticket) 
+	        throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
+	    Session session = null;
+	    Transaction transaction = null;
+	    boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (ticketDAO.update(conn, ticket)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException e) {
-			logger.fatal(e);
-			throw new ServiceException(e);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
+	    try {
+	        session = HibernateUtils.openSession();
+	        transaction = session.beginTransaction();
+	        return ticketDAO.update(session, ticket) && (commit = true);
+	        
+	    } catch (HibernateException e) {
+	        logger.fatal(e.getMessage(), e);
+	        throw new ServiceException(e);
+	    } finally {
+	        HibernateUtils.close(session, transaction, commit);
+	    }
 	}
 
 }

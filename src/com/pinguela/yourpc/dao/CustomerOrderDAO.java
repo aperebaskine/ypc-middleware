@@ -1,7 +1,8 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.CustomerOrder;
@@ -10,22 +11,22 @@ import com.pinguela.yourpc.model.CustomerOrderRanges;
 
 public interface CustomerOrderDAO {
 	
-	public Long create(Connection conn, CustomerOrder po)
+	public Long create(Session session, CustomerOrder po)
 			throws DataException;
 	
-	public Boolean update(Connection conn, CustomerOrder po)
+	public Boolean update(Session session, CustomerOrder po)
 			throws DataException;
 	
-	public CustomerOrder findById(Connection conn, Long id)
+	public CustomerOrder findById(Session session, Long id)
 			throws DataException;
 	
-	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId)
+	public List<CustomerOrder> findByCustomer(Session session, Integer customerId)
 			throws DataException;
 	
-	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria)
+	public List<CustomerOrder> findBy(Session session, CustomerOrderCriteria criteria)
 			throws DataException;
 	
-	public CustomerOrderRanges getRanges(Connection conn, CustomerOrderCriteria criteria)
+	public CustomerOrderRanges getRanges(Session session, CustomerOrderCriteria criteria)
 			throws DataException;
 
 }

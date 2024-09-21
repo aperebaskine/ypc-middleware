@@ -1,23 +1,24 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.TicketMessage;
 
 public interface TicketMessageDAO {
 	
-	public List<TicketMessage> findByTicket(Connection conn, Long ticketId)
+	public List<TicketMessage> findByTicket(Session session, Long ticketId)
 			throws DataException;
 	
-	public Long create(Connection conn, TicketMessage ticketMessage)
+	public Long create(Session session, TicketMessage ticketMessage)
 			throws DataException;
 	
-	public Boolean delete(Connection conn, Long messageId)
+	public Boolean delete(Session session, Long messageId)
 			throws DataException;
 	
-	public Boolean deleteByTicket(Connection conn, Long ticketId)
+	public Boolean deleteByTicket(Session session, Long ticketId)
 			throws DataException;
 
 }

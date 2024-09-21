@@ -1,11 +1,12 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -16,145 +17,139 @@ import com.pinguela.yourpc.model.CustomerOrderCriteria;
 import com.pinguela.yourpc.model.CustomerOrderRanges;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.service.CustomerOrderService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class CustomerOrderServiceImpl implements CustomerOrderService {
 
-	private static Logger logger = LogManager.getLogger(CustomerOrderServiceImpl.class);
-	private CustomerOrderDAO customerOrderDAO = null;
+    private static Logger logger = LogManager.getLogger(CustomerOrderServiceImpl.class);
+    private CustomerOrderDAO customerOrderDAO = null;
 
-	public CustomerOrderServiceImpl() {
-		customerOrderDAO = new CustomerOrderDAOImpl();
-	}
+    public CustomerOrderServiceImpl() {
+        customerOrderDAO = new CustomerOrderDAOImpl();
+    }
 
-	@Override
-	public Long create(CustomerOrder co) 
-			throws ServiceException, DataException {
-		
-		co.setTotalPrice(calculateTotalPrice(co));
+    @Override
+    public Long create(CustomerOrder co) 
+            throws ServiceException, DataException {
 
-		Connection conn = null;
-		boolean commit = false;
-		Long id = null;
-		
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			id = customerOrderDAO.create(conn, co);
-			commit = id != null;
-			return id;
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
-	}
-	
-	private double calculateTotalPrice(CustomerOrder co) {
+        co.setTotalPrice(calculateTotalPrice(co));
 
-		double totalPrice = 0.0d;
-		for (OrderLine ol : co.getOrderLines()) {
-			totalPrice += (ol.getSalePrice()*ol.getQuantity());
-		}
-		return totalPrice;
-	}
+        Session session = null;
+        Transaction transaction = null;
+        Long id = null;
+        boolean commit = false;
 
-	@Override
-	public Boolean update(CustomerOrder po) 
-			throws ServiceException, DataException {
-		
-		Connection conn = null;
-		boolean commit = false;
+        try {
+            session = HibernateUtils.openSession();
+            transaction = session.beginTransaction();
+            id = customerOrderDAO.create(session, co);
+            commit = id != null;
+            return id;
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session, transaction, commit);
+        }
+    }
 
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (customerOrderDAO.update(conn, po)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
-	}
+    private double calculateTotalPrice(CustomerOrder co) {
+        double totalPrice = 0.0d;
+        for (OrderLine ol : co.getOrderLines()) {
+            totalPrice += (ol.getSalePrice() * ol.getQuantity());
+        }
+        return totalPrice;
+    }
 
-	@Override
-	public CustomerOrder findById(Long id) 
-			throws ServiceException, DataException {
+    @Override
+    public Boolean update(CustomerOrder po) 
+            throws ServiceException, DataException {
 
-		Connection conn = null;
+        Session session = null;
+        Transaction transaction = null;
+        boolean commit = false;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findById(conn, id);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
-	
-	@Override
-	public List<CustomerOrder> findByCustomer(Integer customerId) 
-			throws ServiceException, DataException {
+        try {
+            session = HibernateUtils.openSession();
+            transaction = session.beginTransaction();
+            return customerOrderDAO.update(session, po) && (commit = true);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session, transaction, commit);
+        }
+    }
 
-		Connection conn = null;
+    @Override
+    public CustomerOrder findById(Long id) 
+            throws ServiceException, DataException {
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findByCustomer(conn, customerId);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
+        Session session = null;
 
+        try {
+            session = HibernateUtils.openSession();
+            return customerOrderDAO.findById(session, id);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session);
+        }
+    }
 
-	@Override
-	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria) 
-			throws ServiceException, DataException {
-		
-		if (criteria == null) {
-			throw new IllegalArgumentException("Required parameter is missing.");
-		}
+    @Override
+    public List<CustomerOrder> findByCustomer(Integer customerId) 
+            throws ServiceException, DataException {
 
-		Connection conn = null;
+        Session session = null;
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findBy(conn, criteria);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
-	
-	@Override
-	public CustomerOrderRanges getRanges(CustomerOrderCriteria criteria) throws ServiceException, DataException {
-		
-		Connection conn = null;
+        try {
+            session = HibernateUtils.openSession();
+            return customerOrderDAO.findByCustomer(session, customerId);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session);
+        }
+    }
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.getRanges(conn, criteria);
+    @Override
+    public List<CustomerOrder> findBy(CustomerOrderCriteria criteria) 
+            throws ServiceException, DataException {
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
+        if (criteria == null) {
+            throw new IllegalArgumentException("Required parameter is missing.");
+        }
 
+        Session session = null;
+
+        try {
+            session = HibernateUtils.openSession();
+            return customerOrderDAO.findBy(session, criteria);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session);
+        }
+    }
+
+    @Override
+    public CustomerOrderRanges getRanges(CustomerOrderCriteria criteria) 
+            throws ServiceException, DataException {
+
+        Session session = null;
+
+        try {
+            session = HibernateUtils.openSession();
+            return customerOrderDAO.getRanges(session, criteria);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session);
+        }
+    }
 }

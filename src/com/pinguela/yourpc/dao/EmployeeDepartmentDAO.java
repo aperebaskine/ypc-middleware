@@ -1,20 +1,21 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.EmployeeDepartment;
 
 public interface EmployeeDepartmentDAO {
 	
-	public List<EmployeeDepartment> findByEmployee(Connection conn, Integer employeeId)
+	public List<EmployeeDepartment> findByEmployee(Session session, Integer employeeId)
 			throws DataException;
 	
-	public Integer assignToEmployee(Connection conn, Integer employeeId, String departmentId)
+	public Integer assignToEmployee(Session session, Integer employeeId, String departmentId)
 			throws DataException;
 	
-	public Boolean unassign(Connection conn, Integer employeeId)
+	public Boolean unassign(Session session, Integer employeeId)
 			throws DataException;
 
 }

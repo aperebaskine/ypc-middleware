@@ -1,11 +1,11 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -13,7 +13,7 @@ import com.pinguela.yourpc.dao.DocumentTypeDAO;
 import com.pinguela.yourpc.dao.impl.DocumentTypeDAOImpl;
 import com.pinguela.yourpc.model.IDType;
 import com.pinguela.yourpc.service.DocumentTypeService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 	
@@ -28,16 +28,18 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
 	@Override
 	public Map<String, IDType> findAll() 
 			throws ServiceException, DataException {
-		Connection conn = null;
-		
+		Session session = null;
+
 		try {
-			conn = JDBCUtils.getConnection();
-			return documentTypeDAO.findAll(conn);
+			session = HibernateUtils.openSession();
+			return documentTypeDAO.findAll(session);
 			
-		} catch (SQLException e) {
+		} catch (HibernateException e) {
 			logger.fatal(e.getMessage(), e);
 			throw new ServiceException(e);
+		} finally {
+			HibernateUtils.close(session);
 		}
 	}
-
+	
 }

@@ -1,7 +1,8 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.Customer;
@@ -9,25 +10,25 @@ import com.pinguela.yourpc.model.CustomerCriteria;
 
 public interface CustomerDAO {
 	
-	public Customer findById(Connection conn, Integer customerId)
+	public Customer findById(Session session, Integer customerId)
 			throws DataException;
 	
-	public Customer findByEmail(Connection conn, String email)
+	public Customer findByEmail(Session session, String email)
 			throws DataException;
 	
-	public List<Customer> findBy(Connection conn, CustomerCriteria criteria)
+	public List<Customer> findBy(Session session, CustomerCriteria criteria)
 			throws DataException;
 	
-	public Integer create(Connection conn, Customer c)
+	public Integer create(Session session, Customer c)
 			throws DataException;
 	
-	public Boolean update(Connection conn, Customer c)
+	public Boolean update(Session session, Customer c)
 			throws DataException;
 	
-	public Boolean updatePassword(Connection conn, Integer customerId, String password)
+	public Boolean updatePassword(Session session, Integer customerId, String password)
 			throws DataException;
 	
-	public Boolean delete(Connection conn, Integer customerId)
+	public Boolean delete(Session session, Integer customerId)
 			throws DataException;
 	
 }

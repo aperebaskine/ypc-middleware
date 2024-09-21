@@ -1,6 +1,6 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.Results;
@@ -9,16 +9,16 @@ import com.pinguela.yourpc.model.TicketCriteria;
 
 public interface TicketDAO {
 	
-	public Ticket findById(Connection conn, Long ticketId)
+	public Ticket findById(Session session, Long ticketId)
 			throws DataException;
 	
-	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, int pos, int pageSize)
+	public Results<Ticket> findBy(Session session, TicketCriteria criteria, int pos, int pageSize)
 			throws DataException;
 	
-	public Long create(Connection conn, Ticket ticket)
+	public Long create(Session session, Ticket ticket)
 			throws DataException;
 	
-	public Boolean update(Connection conn, Ticket ticket)
+	public Boolean update(Session session, Ticket ticket)
 			throws DataException;
 
 }
