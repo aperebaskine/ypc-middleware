@@ -2,28 +2,30 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
-import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.CustomerDAO;
 import com.pinguela.yourpc.dao.EmployeeDAO;
 import com.pinguela.yourpc.dao.TicketMessageDAO;
-import com.pinguela.yourpc.model.Customer;
-import com.pinguela.yourpc.model.Employee;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketMessage;
 import com.pinguela.yourpc.util.JDBCUtils;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+
 public class TicketMessageDAOImpl 
+extends AbstractDAO<TicketMessage>
 implements TicketMessageDAO {	
 
 	private static final String SELECT_COLUMNS =
@@ -65,115 +67,37 @@ implements TicketMessageDAO {
 	private EmployeeDAO employeeDAO;
 	
 	public TicketMessageDAOImpl() {
+		super(TicketMessage.class);
 		customerDAO = new CustomerDAOImpl();
 		employeeDAO = new EmployeeDAOImpl();
 	}
 
 	@Override
-	public List<TicketMessage> findByTicket(Connection conn, Long ticketId) 
+	public List<TicketMessage> findByTicket(Session session, Long ticketId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
 		try {
-			stmt = conn.prepareStatement(FINDBYTICKET_QUERY,
-					ResultSet.TYPE_FORWARD_ONLY,
-					ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, ticketId);
-			rs = stmt.executeQuery();
-			return loadResults(conn, rs);
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<TicketMessage> query = builder.createQuery(getTargetClass());
+			Root<TicketMessage> root = query.from(getTargetClass());
+			
+			Join<TicketMessage, Ticket> joinTicket = root.join("ticket");
+			query.where(builder.equal(joinTicket.get("id"), ticketId));
+			
+			return session.createQuery(query).getResultList();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
-
-	private List<TicketMessage> loadResults(Connection conn, ResultSet rs)
-			throws SQLException, DataException {
-
-		List<TicketMessage> results = new ArrayList<TicketMessage>();
-		while (rs.next()) {
-			results.add(loadNext(conn, rs));
-		}
-		return results;
-	}
-
-	private TicketMessage loadNext(Connection conn, ResultSet rs) 
-			throws SQLException, DataException {
-
-		TicketMessage tm = new TicketMessage();
-		int i = 1;
-
-		tm.setId(rs.getLong(i++));
-		tm.setTicketId(rs.getLong(i++));
-		tm.setCustomerId(JDBCUtils.getNullableInt(rs, i++));
-		tm.setEmployeeId(JDBCUtils.getNullableInt(rs, i++));
-		tm.setTimestamp(rs.getTimestamp(i++));
-		tm.setText(rs.getString(i++));
-		
-		if (tm.getCustomerId() != null) {
-			Customer c = customerDAO.findById(conn, tm.getCustomerId());
-			tm.setFirstName(c.getFirstName());
-			tm.setLastName1(c.getLastName1());
-			tm.setLastName2(c.getLastName2());
-		} else {
-			Employee e = employeeDAO.findById(conn, tm.getEmployeeId());
-			tm.setFirstName(e.getFirstName());
-			tm.setLastName1(e.getLastName1());
-			tm.setLastName2(e.getLastName2());
-		}
-		
-		return tm;
-	}
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<TicketMessage> query,
+			Root<TicketMessage> root, AbstractCriteria<TicketMessage> criteria) {}
 
 	@Override
-	public Long create(Connection conn, TicketMessage ticketMessage)
+	public Long create(Session session, TicketMessage ticketMessage)
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			if (ticketMessage.getTimestamp() == null) {
-				ticketMessage.setTimestamp(new Date());
-			}
-			setInsertValues(stmt, ticketMessage);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				logger.error(LogMessages.INSERT_FAILED, ticketMessage);
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.first();
-				Long id = rs.getLong(JDBCUtils.GENERATED_KEY_INDEX);
-				ticketMessage.setId(id);
-				return id;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-	}
-
-	private static int setInsertValues(PreparedStatement stmt, TicketMessage ticketMessage) 
-			throws SQLException {
-
-		int i = 1;
-		stmt.setLong(i++, ticketMessage.getTicketId());
-		JDBCUtils.setNullable(stmt, ticketMessage.getCustomerId(), i++);
-		JDBCUtils.setNullable(stmt, ticketMessage.getEmployeeId(), i++);
-		stmt.setTimestamp(i++, new java.sql.Timestamp(ticketMessage.getTimestamp().getTime()));
-		stmt.setString(i++, ticketMessage.getText());
-
-		return i;
-
+		return (Long) super.persist(session, ticketMessage);
 	}
 
 	@Override

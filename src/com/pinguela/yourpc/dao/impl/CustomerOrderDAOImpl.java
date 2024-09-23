@@ -6,25 +6,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
-import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.CustomerOrderDAO;
 import com.pinguela.yourpc.dao.OrderLineDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
 import com.pinguela.yourpc.model.CustomerOrderRanges;
-import com.pinguela.yourpc.model.OrderLine;
+import com.pinguela.yourpc.model.OrderState;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-public class CustomerOrderDAOImpl implements CustomerOrderDAO {
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+
+public class CustomerOrderDAOImpl 
+extends AbstractDAO<CustomerOrder>
+implements CustomerOrderDAO {
 
 	private static Logger logger = LogManager.getLogger(CustomerOrderDAOImpl.class);
 	private OrderLineDAO orderLineDAO = null;
@@ -63,55 +72,14 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 					+ " WHERE ID = ?";
 	
 	public CustomerOrderDAOImpl() {
+		super(CustomerOrder.class);
 		orderLineDAO = new OrderLineDAOImpl();
 	}
 
 	@Override
-	public Long create(Connection conn, CustomerOrder co) 
+	public Long create(Session session, CustomerOrder co) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			co.setOrderDate(new Date());
-			setInsertValues(stmt, co);
-
-			long insertedRows = stmt.executeUpdate();
-			
-			if (insertedRows != 1) {
-				
-				logger.error(LogMessages.INSERT_FAILED, co);
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-				
-			} else {
-				
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				co.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				
-				for (OrderLine ol : co.getOrderLines()) {
-					
-					ol.setCustomerOrderId(co.getId());
-				}
-				
-				logger.info(new StringBuilder("Nuevo pedido con ID ")
-							.append(co.getId())
-							.append(" insertado."));
-				orderLineDAO.create(conn, co.getOrderLines());
-				return co.getId();
-			}
-			
-		} catch (SQLException sqle) {
-			
-			logger.error(sqle);
-			throw new DataException(sqle);
-			
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		return (Long) super.persist(session, co);
 	}
 
 	@Override
@@ -133,7 +101,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 			if (updatedRows != 1) {
 				throw new DataException(ErrorCodes.UPDATE_FAILED);
 			} else {
-				orderLineDAO.create(conn, co.getOrderLines());
+				orderLineDAO.persist(conn, co.getOrderLines());
 				return true;
 			}
 		} catch (SQLException sqle) {
@@ -159,106 +127,66 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 	}
 
 	@Override
-	public CustomerOrder findById(Connection conn, Long id) 
+	public CustomerOrder findById(Session session, Long id) 
 			throws DataException {
-		
-		if (id == null) {
-			return null;
-		}
-		
-
-		String query = SELECT_COLUMNS
-				+ FROM_TABLE
-				+ " WHERE ID = ?";
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		CustomerOrder co = null;
-
-		try {
-
-			stmt = conn.prepareStatement(query);
-
-			int index = 1;
-			stmt.setLong(index++, id);
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				co = loadNext(conn, rs);
-			}
-			return co;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return super.findById(session, id);
 	}
 	
 	@Override
-	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId) 
+	public List<CustomerOrder> findByCustomer(Session session, Integer customerId) 
 			throws DataException {
-		
-		if (customerId == null) {
-			return null;
-		}
-		
-
-		String query = SELECT_COLUMNS
-				+ FROM_TABLE
-				+ " WHERE CUSTOMER_ID = ?"
-				+ " ORDER BY ORDER_DATE DESC";
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<CustomerOrder> results = new ArrayList<>();
-
 		try {
-
-			stmt = conn.prepareStatement(query);
-
-			int index = 1;
-			stmt.setLong(index++, customerId);
-
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(conn, rs));
-			}
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<CustomerOrder> query = builder.createQuery(getTargetClass());
+			Root<CustomerOrder> root = query.from(getTargetClass());
+			
+			Join<CustomerOrder, Customer> customerJoin = root.join("customer");
+			query.where(builder.equal(customerJoin.get("id"), customerId));
+			
+			return session.createQuery(query).getResultList();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
 	@Override
-	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria) 
+	public List<CustomerOrder> findBy(Session session, CustomerOrderCriteria criteria) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<CustomerOrder> results = new ArrayList<CustomerOrder>();
-
-		try {
-
-			stmt = conn.prepareStatement(buildFindByQuery(criteria));
-			setQueryValues(stmt, criteria);
-
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(conn, rs));
+		return super.findBy(session, criteria);
+	}
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<CustomerOrder> query,
+			Root<CustomerOrder> root, AbstractCriteria<CustomerOrder> criteria) {
+		CustomerOrderCriteria coc = (CustomerOrderCriteria) criteria;
+		Join<CustomerOrder, Customer> joinCustomer = null;
+		
+		if (coc.getCustomerId() != null) {
+			joinCustomer = root.join("customer");
+			query.where(builder.equal(joinCustomer.get("id"), coc.getCustomerId()));
+		}
+		if (coc.getCustomerEmail() != null) {
+			if (joinCustomer == null) {
+				joinCustomer = root.join("customer");
 			}
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			query.where(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
+		}
+		if (coc.getMinAmount() != null) {
+			query.where(builder.ge(root.get("totalPrice"), coc.getMinAmount()));
+		}
+		if (coc.getMaxAmount() != null) {
+			query.where(builder.le(root.get("totalPrice"), coc.getMaxAmount()));
+		}
+		if (coc.getMinDate() != null) {
+			query.where(builder.greaterThanOrEqualTo(root.get("orderDate"), coc.getMinDate()));
+		}
+		if (coc.getMaxDate() != null) {
+			query.where(builder.lessThanOrEqualTo(root.get("orderDate"), coc.getMaxDate()));
+		}
+		if (coc.getState() != null) {
+			Join<CustomerOrder, OrderState> joinState = root.join("state");
+			query.where(builder.equal(joinState.get("id"), coc.getState()));
 		}
 	}
 	
@@ -296,49 +224,28 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		}
 	}
 
-	private String buildFindByQuery(CustomerOrderCriteria criteria) {
-
-		StringBuilder query = new StringBuilder(SELECT_COLUMNS);
-		
-
-		// SELECT FROM
-		if (criteria.getCustomerEmail() != null) {
-			query.append(", c.EMAIL");
-		}
-		query.append(FROM_TABLE);
-		if (criteria.getCustomerEmail() != null) {
-			query.append(" INNER JOIN CUSTOMER c "
-					+ "ON c.ID = co.CUSTOMER_ID");				
-		}
-
-		return query
-				.append(buildWhereClause(criteria))
-				.append(SQLQueryUtils.buildOrderByClause(criteria))
-				.toString();
-	}
-
-	private StringBuilder buildWhereClause(CustomerOrderCriteria criteria) {
+	private StringBuilder buildWhereClause(CustomerOrderCriteria coc) {
 		List<String> filledCriteria = new ArrayList<String>();
 		
-		if (criteria.getCustomerId() != null) {
+		if (coc.getCustomerId() != null) {
 			filledCriteria.add(" co.CUSTOMER_ID = ?");
 		}
-		if (criteria.getCustomerEmail() != null) {
+		if (coc.getCustomerEmail() != null) {
 			filledCriteria.add(" c.EMAIL = ?");
 		}
-		if (criteria.getMinAmount() != null) {
+		if (coc.getMinAmount() != null) {
 			filledCriteria.add(" co.INVOICE_TOTAL >= ?");
 		}
-		if (criteria.getMaxAmount() != null) {
+		if (coc.getMaxAmount() != null) {
 			filledCriteria.add(" co.INVOICE_TOTAL <= ?");
 		}
-		if (criteria.getMinDate() != null) {
+		if (coc.getMinDate() != null) {
 			filledCriteria.add(" co.ORDER_DATE >= ?");
 		}
-		if (criteria.getMaxDate() != null) {
+		if (coc.getMaxDate() != null) {
 			filledCriteria.add(" co.ORDER_DATE <= ?");
 		}
-		if (criteria.getState() != null) {
+		if (coc.getState() != null) {
 			filledCriteria.add(" co.ORDER_STATE_ID = ?");
 		}
 		return SQLQueryUtils.buildWhereClause(filledCriteria);

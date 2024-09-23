@@ -4,63 +4,30 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.dao.CustomerDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerCriteria;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-public class CustomerDAOImpl implements CustomerDAO {
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
-	private static final String SELECT_COLUMNS =
-			" SELECT"
-					+ " cu.ID,"
-					+ " cu.FIRST_NAME,"
-					+ " cu.LAST_NAME1,"
-					+ " cu.LAST_NAME2,"
-					+ " cu.DOCUMENT_TYPE_ID,"
-					+ " dt.NAME,"
-					+ " cu.DOCUMENT_NUMBER,"
-					+ " cu.PHONE,"
-					+ " cu.EMAIL,"
-					+ " cu.PASSWORD,"
-					+ " cu.CREATION_DATE";
-	private static final String FROM_TABLE =
-			" FROM CUSTOMER cu"
-					+ " INNER JOIN DOCUMENT_TYPE dt"
-					+ " ON dt.ID = cu.DOCUMENT_TYPE_ID";
-	private static final String WHERE_ID =
-			" WHERE cu.ID = ?";
-	private static final String WHERE_EMAIL =
-			" WHERE cu.EMAIL = ?";
-	private static final String WHERE_DELETION_DATE =
-			" AND cu.DELETION_DATE IS NULL";
-
-	private static final String FINDBYID_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_ID +WHERE_DELETION_DATE;
-	private static final String FINDBYEMAIL_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_EMAIL +WHERE_DELETION_DATE;
-
-	private static final String CREATE_QUERY =
-			"INSERT INTO CUSTOMER(FIRST_NAME,"
-					+ " LAST_NAME1,"
-					+ " LAST_NAME2,"
-					+ " DOCUMENT_TYPE_ID,"
-					+ " DOCUMENT_NUMBER,"
-					+ " PHONE,"
-					+ " EMAIL,"
-					+ " PASSWORD,"
-					+ " CREATION_DATE)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+public class CustomerDAOImpl 
+extends AbstractDAO<Customer>
+implements CustomerDAO {
 
 	private static final String UPDATE_QUERY =
 			" UPDATE CUSTOMER"
@@ -87,177 +54,70 @@ public class CustomerDAOImpl implements CustomerDAO {
 	private AddressDAO addressDAO = null;
 
 	public CustomerDAOImpl() {
+		super(Customer.class);
 		addressDAO = new AddressDAOImpl();
 	}
 
 	@Override
-	public Customer findById(Connection conn, Integer customerId) 
+	public Customer findById(Session session, Integer customerId) 
 			throws DataException {
+		return super.findById(session, customerId);
+	}
 
-		if (customerId == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Customer c = null;
-
+	@Override
+	public Customer findByEmail(Session session, String email) throws DataException {
 		try {
-			stmt = conn.prepareStatement(FINDBYID_QUERY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, customerId);
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				c = loadNext(conn, rs);
-			} 
-			return c;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Customer> query = builder.createQuery(getTargetClass());
+			Root<Customer> root = query.from(getTargetClass());
+			
+			query.where(builder.equal(root.get("email"), email));
+			return session.createQuery(query).getSingleResultOrNull();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
 	@Override
-	public Customer findByEmail(Connection conn, String email) throws DataException {
-
-		if (email == null) {
-			return null;
+	public List<Customer> findBy(Session session, CustomerCriteria criteria) 
+			throws DataException {
+		return super.findBy(session, criteria);
+	}
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Customer> query, 
+			Root<Customer> root, AbstractCriteria<Customer> criteria) {
+		
+		CustomerCriteria customerCriteria = (CustomerCriteria) criteria;
+		
+		if (customerCriteria.getEmail() != null) {
+			query.where(builder.equal(root.join("email"), customerCriteria.getEmail()));
 		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Customer c = null;
-
-		try {
-			stmt = conn.prepareStatement(FINDBYEMAIL_QUERY);
-			stmt.setString(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, email.toLowerCase());
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				c = loadNext(conn, rs);
-			} 
-			return c;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+		if (customerCriteria.getFirstName() != null) {
+			query.where(builder.like(root.join("firstName"), 
+					SQLQueryUtils.wrapLike(customerCriteria.getFirstName())));
+		}
+		if (customerCriteria.getLastName1() != null) {
+			query.where(builder.like(root.join("lastName1"), 
+					SQLQueryUtils.wrapLike(customerCriteria.getLastName1())));
+		}
+		if (customerCriteria.getLastName2() != null) {
+			query.where(builder.like(root.join("lastName2"), 
+					SQLQueryUtils.wrapLike(customerCriteria.getLastName2())));
+		}
+		if (customerCriteria.getDocumentNumber() != null) {
+			query.where(builder.equal(root.join("number"), customerCriteria.getDocumentNumber()));
+		}
+		if (customerCriteria.getPhoneNumber() != null) {
+			query.where(builder.equal(root.join("phone"), customerCriteria.getPhoneNumber()));
 		}
 	}
 
 	@Override
-	public List<Customer> findBy(Connection conn, CustomerCriteria criteria) 
+	public Integer create(Session session, Customer c) 
 			throws DataException {
-
-		String query = new StringBuilder(SELECT_COLUMNS)
-				.append(FROM_TABLE)
-				.append(buildWhereClause(criteria))
-				.append(SQLQueryUtils.buildOrderByClause(criteria))
-				.toString();
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<Customer> results = new ArrayList<Customer>();
-
-		try {
-			stmt = conn.prepareStatement(query);
-			setSelectValues(stmt, criteria);
-
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(conn, rs));
-			}
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-	}
-
-	private StringBuilder buildWhereClause(CustomerCriteria criteria) {
-
-		List<String> conditions = new ArrayList<String>();
-
-		if (criteria.getEmail() != null) {
-			conditions.add(" cu.EMAIL = ?");
-		}
-		if (criteria.getFirstName() != null) {
-			conditions.add(" UPPER(cu.FIRST_NAME) LIKE ?");
-		}
-		if (criteria.getLastName1() != null) {
-			conditions.add(" UPPER(cu.LAST_NAME1) LIKE ?");
-		}
-		if (criteria.getLastName2() != null) {
-			conditions.add(" UPPER(cu.LAST_NAME2) LIKE ?");
-		}
-		if (criteria.getDocumentNumber() != null) {
-			conditions.add(" cu.DOCUMENT_NUMBER = ?");
-		}
-		if (criteria.getPhoneNumber() != null) {
-			conditions.add(" cu.PHONE = ?");
-		}
-		conditions.add(" cu.DELETION_DATE IS NULL");
-		return SQLQueryUtils.buildWhereClause(conditions);
-	}
-
-	private void setSelectValues(PreparedStatement stmt, CustomerCriteria criteria) 
-			throws SQLException {
-
-		int i = 1;
-		if (criteria.getEmail() != null) {
-			stmt.setString(i++, criteria.getEmail().toLowerCase());
-		}
-		if (criteria.getFirstName() != null) {
-			stmt.setString(i++, SQLQueryUtils.wrapLike(criteria.getFirstName()));
-		}
-		if (criteria.getLastName1() != null) {
-			stmt.setString(i++, SQLQueryUtils.wrapLike(criteria.getLastName1()));
-		}
-		if (criteria.getLastName2() != null) {
-			stmt.setString(i++, SQLQueryUtils.wrapLike(criteria.getLastName2()));
-		}
-		if (criteria.getDocumentNumber() != null) {
-			stmt.setString(i++, criteria.getDocumentNumber());
-		}
-		if (criteria.getPhoneNumber() != null) {
-			stmt.setString(i++, criteria.getPhoneNumber());
-		}
-	}
-
-	@Override
-	public Integer create(Connection conn, Customer c) 
-			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			c.setCreationDate(new Date());
-			setInsertValues(stmt, c);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				c.setId(rs.getInt(JDBCUtils.GENERATED_KEY_INDEX));
-				return c.getId();
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return (Integer) super.persist(session, c);
 	}
 
 	@Override

@@ -4,21 +4,29 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.model.Address;
+import com.pinguela.yourpc.model.Customer;
+import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.util.JDBCUtils;
 
-public class AddressDAOImpl implements AddressDAO {
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+
+public class AddressDAOImpl
+extends AbstractDAO<Address>
+implements AddressDAO {
 
 	private static final String IS_DEFAULT_COLUMN = "IS_DEFAULT";
 	private static final String IS_BILLING_COLUMN = "IS_BILLING";
@@ -123,133 +131,55 @@ public class AddressDAOImpl implements AddressDAO {
 	private static Logger logger = LogManager.getLogger(AddressDAOImpl.class);
 
 	public AddressDAOImpl() {
+		super(Address.class);
 	}
 
 	@Override
-	public Address findById(Connection conn, Integer id)
+	public Address findById(Session session, Integer id)
 			throws DataException {
+			return super.findById(session, id);
+	}
 
-		if (id == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Address a = null;
-
+	@Override
+	public Address findByEmployee(Session session, Integer employeeId)
+			throws DataException {
 		try {
-			stmt = conn.prepareStatement(FIND_BY_ID_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, id);
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				a = loadNext(rs);
-			}
-			return a;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Address> query = builder.createQuery(getTargetClass());
+			Root<Address> root = query.from(getTargetClass());
+			
+			Join<Address, Employee> employeeJoin = root.join("employee");
+			query.where(builder.equal(employeeJoin.get("id"), employeeId));
+			
+			return session.createQuery(query).getSingleResult();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
 	@Override
-	public Address findByEmployee(Connection conn, Integer employeeId)
+	public List<Address> findByCustomer(Session session, Integer customerId)
 			throws DataException {
-
-		if (employeeId == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Address a = null;
-
 		try {
-			stmt = conn.prepareStatement(FIND_BY_EMPLOYEE_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, employeeId);
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				a = loadNext(rs);
-			}
-			return a;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Address> query = builder.createQuery(getTargetClass());
+			Root<Address> root = query.from(getTargetClass());
+			
+			Join<Address, Customer> employeeJoin = root.join("customer");
+			query.where(builder.equal(employeeJoin.get("id"), customerId));
+			
+			return session.createQuery(query).getResultList();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
 	@Override
-	public List<Address> findByCustomer(Connection conn, Integer customerId)
+	public Integer create(Session session, Address a)
 			throws DataException {
-
-		if (customerId == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<Address> results = new ArrayList<Address>();
-
-		try {
-			stmt = conn.prepareStatement(FIND_BY_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, customerId);
-
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(rs));
-			}
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-	}
-
-	@Override
-	public Integer create(Connection conn, Address a)
-			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			if (a.getEmployeeId() != null) {
-				Address old = findByEmployee(conn, a.getEmployeeId());
-				if (old != null) {
-					delete(conn, old.getId());
-				}
-			}
-
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			a.setCreationDate(new Date());
-			setInsertValues(stmt, a);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				a.setId(rs.getInt(JDBCUtils.GENERATED_KEY_INDEX));
-				updateDefaultAndBilling(conn, a);
-				return a.getId();
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return (Integer) super.persist(session, a);
 	}
 
 	@Override
@@ -259,7 +189,7 @@ public class AddressDAOImpl implements AddressDAO {
 		if (isOrderAddress(conn, a.getId())) { // Perform logical deletion on address linked to order(s)
 			if (!a.equals(findById(conn, a.getId()))) {
 				delete(conn, a.getId());
-				return create(conn, a);
+				return persist(conn, a);
 			}
 		}
 
@@ -298,7 +228,7 @@ public class AddressDAOImpl implements AddressDAO {
 		}
 	}
 
-	private Boolean isOrderAddress(Connection conn, Integer addressId) 
+	private Boolean isOrderAddress(Session session, Integer addressId) 
 			throws DataException {
 
 		PreparedStatement stmt = null;

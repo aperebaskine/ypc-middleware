@@ -4,13 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
@@ -18,35 +15,25 @@ import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.dao.TicketDAO;
 import com.pinguela.yourpc.dao.TicketMessageDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketCriteria;
 import com.pinguela.yourpc.model.TicketMessage;
+import com.pinguela.yourpc.model.TicketState;
+import com.pinguela.yourpc.model.TicketType;
 import com.pinguela.yourpc.util.JDBCUtils;
-import com.pinguela.yourpc.util.SQLQueryUtils;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 
 public class TicketDAOImpl
+extends AbstractDAO<Ticket>
 implements TicketDAO {
-
-	private static final String SELECT_COLUMNS =
-			" SELECT t.ID,"
-					+ " t.CUSTOMER_ID,"
-					+ " t.EMPLOYEE_ID,"
-					+ " t.CREATION_DATE,"
-					+ " t.TICKET_STATE_ID,"
-					+ " t.TICKET_TYPE_ID,"
-					+ " t.PRODUCT_ID,"
-					+ " t.TITLE,"
-					+ " t.DESCRIPTION";
-	private static final String FROM_TABLE =
-			" FROM TICKET t"
-			+ " INNER JOIN CUSTOMER c"
-			+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
-	private static final String ID_FILTER =
-			" WHERE t.ID = ?";
-
-	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE;
-	private static final String FINDBYID_QUERY = FINDBY_QUERY +ID_FILTER;
 
 	private static final String CREATE_QUERY =
 			" INSERT INTO TICKET(CUSTOMER_ID,"
@@ -75,156 +62,59 @@ implements TicketDAO {
 	private OrderLineDAO orderLineDAO = null;
 
 	public TicketDAOImpl() {
+		super(Ticket.class);
 		ticketMessageDAO = new TicketMessageDAOImpl();
 		orderLineDAO = new OrderLineDAOImpl();
 	}
 
 	@Override
-	public Ticket findById(Connection conn, Long ticketId) 
+	public Ticket findById(Session session, Long ticketId) 
 			throws DataException {
-
-		if (ticketId == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Ticket t = null;
-
-		try {
-			stmt = conn.prepareStatement(FINDBYID_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, ticketId);
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				t = loadNext(conn, rs);
-			}
-			return t;
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-
+		return super.findById(session, ticketId);
 	}
 
 	@Override
-	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, int pos, int pageSize)
+	public Results<Ticket> findBy(Session session, TicketCriteria ticketCriteria, int pos, int pageSize)
 			throws DataException {
-
-		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildWhereClause(criteria));
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Results<Ticket> results = null;
-
-		try {
-			stmt = conn.prepareStatement(
-					query.toString(), 
-					ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_READ_ONLY
-					);
-			setSelectValues(stmt, criteria);
-			rs = stmt.executeQuery();
-			results = loadResults(conn, rs, pos, pageSize);
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-
-	}
-
-	private static StringBuilder buildWhereClause(TicketCriteria criteria) {
-
-		List<String> conditions = new ArrayList<String>();
-
-		if (criteria.getCustomerId() != null) {
-			conditions.add(" t.CUSTOMER_ID = ?");
-		}
-		if (criteria.getCustomerEmail() != null) {
-			conditions.add(" c.EMAIL = ?");
-		}
-		if (criteria.getMinDate() != null) {
-			conditions.add(" t.CREATION_DATE >= ?");
-		}
-		if (criteria.getMaxDate() != null) {
-			conditions.add(" t.CREATION_DATE <= ?");
-		}
-		if (criteria.getState() != null) {
-			conditions.add(" t.TICKET_STATE_ID = ?");
-		}
-		if (criteria.getType() != null) {
-			conditions.add(" t.TICKET_TYPE_ID = ?");
-		}
-
-		return SQLQueryUtils.buildWhereClause(conditions);
-	}
-
-	private static int setSelectValues(PreparedStatement stmt, TicketCriteria criteria) 
-			throws SQLException {
-
-		int i = 1;
-
-		if (criteria.getCustomerId() != null) {
-			stmt.setLong(i++, criteria.getCustomerId());
-		}
-		if (criteria.getCustomerEmail() != null) {
-			stmt.setString(i++, criteria.getCustomerEmail().toLowerCase());
-		}
-		if (criteria.getMinDate() != null) {
-			stmt.setTimestamp(i++, new java.sql.Timestamp(criteria.getMinDate().getTime()));
-		}
-		if (criteria.getMaxDate() != null) {
-			stmt.setTimestamp(i++, new java.sql.Timestamp(criteria.getMaxDate().getTime()));
-		}
-		if (criteria.getState() != null) {
-			stmt.setString(i++, criteria.getState());
-		}
-		if (criteria.getType() != null) {
-			stmt.setString(i++, criteria.getType());
-		}
-
-		return i;
-	}
-
-	@Override
-	public Long create(Connection conn, Ticket ticket) 
-			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			ticket.setCreationDate(new Date());
-			setInsertValues(stmt, ticket);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.first();
-				Long id = rs.getLong(JDBCUtils.GENERATED_KEY_INDEX);
-				ticket.setId(id);
-				insertMessages(conn, ticket);
-				return id;
-			}
-
-		} catch (SQLException sqle) {
-			logger.error("Error al insertar " +ticket, sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		return super.findBy(session, ticketCriteria, pos, pageSize);
 	}
 	
 	@Override
-	public Boolean update(Connection conn, Ticket ticket) throws DataException {
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Ticket> query, Root<Ticket> root,
+			AbstractCriteria<Ticket> criteria) {
+		TicketCriteria ticketCriteria = (TicketCriteria) criteria;
+		
+		if (ticketCriteria.getCustomerId() != null) {
+			query.where(builder.equal(root.get("customer"), ticketCriteria.getCustomerId()));
+		}
+		if (ticketCriteria.getCustomerEmail() != null) {
+			Join<Ticket, Customer> customerJoin = root.join("customer", JoinType.INNER);
+			query.where(builder.equal(customerJoin.get("email"), ticketCriteria.getCustomerEmail()));
+		}
+		if (ticketCriteria.getMinDate() != null) {
+			query.where(builder.greaterThanOrEqualTo(root.get("creationDate"), ticketCriteria.getMinDate()));
+		}
+		if (ticketCriteria.getMaxDate() != null) {
+			query.where(builder.lessThanOrEqualTo(root.get("creationDate"), ticketCriteria.getMaxDate()));
+		}
+		if (ticketCriteria.getState() != null) {
+			Join<Ticket, TicketState> ticketStateJoin = root.join("state", JoinType.INNER);
+			query.where(builder.equal(ticketStateJoin.get("id"), ticketCriteria.getState()));
+		}
+		if (ticketCriteria.getType() != null) {
+			Join<Ticket, TicketType> ticketTypeJoin = root.join("type", JoinType.INNER);
+			query.where(builder.equal(ticketTypeJoin.get("id"), ticketCriteria.getType()));
+		}
+	}
+
+	@Override
+	public Long create(Session session, Ticket ticket) 
+			throws DataException {
+		return (Long) super.persist(session, ticket);
+	}
+	
+	@Override
+	public Boolean update(Session session, Ticket ticket) throws DataException {
 
 		PreparedStatement stmt = null;
 
@@ -271,26 +161,8 @@ implements TicketDAO {
 			throws DataException {
 		for (TicketMessage tm : ticket.getMessageList()) {
 			tm.setTicketId(ticket.getId());
-			ticketMessageDAO.create(conn, tm);
+			ticketMessageDAO.persist(conn, tm);
 		}
-	}
-
-	private Results<Ticket> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
-			throws SQLException, DataException {
-
-		Results<Ticket> results = new Results<Ticket>();
-		results.setResultCount(JDBCUtils.getRowCount(rs));
-
-		if (results.getResultCount() != 0 && startPos>0) {
-			int count = 0;
-			rs.absolute(startPos);
-			do {
-				results.getPage().add(loadNext(conn, rs));
-				count++;
-			} while (count<pageSize && rs.next());	
-		}
-
-		return results;
 	}
 
 	private Ticket loadNext(Connection conn, ResultSet rs) 

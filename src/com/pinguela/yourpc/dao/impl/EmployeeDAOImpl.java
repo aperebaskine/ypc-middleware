@@ -4,25 +4,34 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.dao.EmployeeDAO;
 import com.pinguela.yourpc.dao.EmployeeDepartmentDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
+import com.pinguela.yourpc.model.EmployeeDepartment;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-public class EmployeeDAOImpl implements EmployeeDAO {
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+
+public class EmployeeDAOImpl
+extends AbstractDAO<Employee>
+implements EmployeeDAO {
 	
 	private static final String SELECT_COLUMNS =
 			" SELECT e.ID, e.FIRST_NAME, e.LAST_NAME1, e.LAST_NAME2, e.DOCUMENT_TYPE_ID, dt.NAME, e.DOCUMENT_NUMBER, e.PHONE, e.EMAIL,"
@@ -83,204 +92,80 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 	private EmployeeDepartmentDAO employeeDepartmentDAO = null;
 	
 	public EmployeeDAOImpl() {
+		super(Employee.class);
 		addressDAO = new AddressDAOImpl();
 		employeeDepartmentDAO = new EmployeeDepartmentDAOImpl();
 	}
 
 	@Override
-	public Employee findById(Connection conn, Integer employeeId) 
+	public Employee findById(Session session, Integer employeeId) 
 			throws DataException {
+		return super.findById(session, employeeId);
+	}
+
+	@Override
+	public Employee findByUsername(Session session, String username) 
+			throws DataException {	
+		try {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<Employee> query = builder.createQuery(getTargetClass());
+			Root<Employee> root = query.from(getTargetClass());
+
+			query.where(builder.equal(root.get("username"), username));
+			return session.createQuery(query).getSingleResult();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
+		}
+	}
+
+	@Override
+	public List<Employee> findBy(Session session, EmployeeCriteria criteria) 
+			throws DataException {
+		return super.findBy(session, criteria);
+	}
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Employee> query, Root<Employee> root,
+			AbstractCriteria<Employee> criteria) {
 		
-		if (employeeId == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Employee e = null;
-
-		try {
-			stmt = conn.prepareStatement(FINDBYID_QUERY);
-
-			int index = 1;
-			stmt.setLong(index, employeeId);
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				e = loadNext(conn, rs);
-			} 
-			return e;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-
-	}
-
-	@Override
-	public Employee findByUsername(Connection conn, String username) 
-			throws DataException {
+		EmployeeCriteria employeeCriteria = (EmployeeCriteria) criteria;
 		
-		if (username == null) {
-			return null;
+		if (employeeCriteria.getFirstName() != null) {
+			query.where(builder.like(root.join("firstName"), 
+					SQLQueryUtils.wrapLike(employeeCriteria.getFirstName())));
 		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Employee e = null;
-
-		try {
-			stmt = conn.prepareStatement(FINDBYEMAIL_QUERY);
-
-			int index = 1;
-			stmt.setString(index, username.toLowerCase());
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				e = loadNext(conn, rs);
-			} 
-			return e;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+		if (employeeCriteria.getLastName1() != null) {
+			query.where(builder.like(root.join("lastName1"), 
+					SQLQueryUtils.wrapLike(employeeCriteria.getLastName1())));
 		}
-
-	}
-
-	@Override
-	public List<Employee> findBy(Connection conn, EmployeeCriteria criteria) 
-			throws DataException {
-
-		StringBuilder query = new StringBuilder(FINDBY_QUERY);
-		if (criteria.getDepartmentId() != null) {
-			query.append(JOIN_EMPLOYEE_DEPARTMENT);
+		if (employeeCriteria.getLastName2() != null) {
+			query.where(builder.like(root.join("lastName2"), 
+					SQLQueryUtils.wrapLike(employeeCriteria.getLastName2())));
 		}
-		query.append(buildWhereClause(criteria))
-			.append(SQLQueryUtils.buildOrderByClause(criteria));
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<Employee> results = new ArrayList<Employee>();
-
-		try {
-			stmt = conn.prepareStatement(query.toString());
-			setSelectValues(stmt, criteria);
-
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(conn, rs));	
-			}
-			return results;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+		if (employeeCriteria.getDocumentNumber() != null) {
+			query.where(builder.equal(root.join("number"), employeeCriteria.getDocumentNumber()));
 		}
-
-	}
-
-	private StringBuilder buildWhereClause(EmployeeCriteria criteria) {
-
-		List<String> conditions = new ArrayList<String>();
-
-		if (criteria.getFirstName() != null) {
-			conditions.add(" e.FIRST_NAME = ?");
+		if (employeeCriteria.getPhoneNumber() != null) {
+			query.where(builder.equal(root.join("phone"), employeeCriteria.getPhoneNumber()));
 		}
-		if (criteria.getLastName1() != null) {
-			conditions.add(" e.LAST_NAME1 = ?");
+		if (employeeCriteria.getEmail() != null) {
+			query.where(builder.equal(root.join("email"), employeeCriteria.getEmail()));
 		}
-		if (criteria.getLastName2() != null) {
-			conditions.add(" e.LAST_NAME2 = ?");
+		if (employeeCriteria.getUsername() != null) {
+			query.where(builder.equal(root.join("username"), employeeCriteria.getUsername()));
 		}
-		if (criteria.getDocumentNumber() != null) {
-			conditions.add(" e.DOCUMENT_NUMBER = ?");
-		}
-		if (criteria.getPhoneNumber() != null) {
-			conditions.add(" e.PHONE = ?");
-		}
-		if (criteria.getEmail() != null) {
-			conditions.add(" e.EMAIL = ?");
-		}
-		if (criteria.getUsername() != null) {
-			conditions.add(" e.USERNAME = ?");
-		}
-		if (criteria.getDepartmentId() != null) {
-			conditions.add(" ed.DEPARTMENT_ID = ?");
-		}
-		conditions.add(" e.TERMINATION_DATE IS NULL");
-		return SQLQueryUtils.buildWhereClause(conditions);
-	}
-
-	private void setSelectValues(PreparedStatement stmt, EmployeeCriteria criteria) 
-			throws SQLException {
-
-		int index = 1;
-
-		if (criteria.getFirstName() != null) {
-			stmt.setString(index++, criteria.getFirstName());
-		}
-		if (criteria.getLastName1() != null) {
-			stmt.setString(index++, criteria.getLastName1());
-		}
-		if (criteria.getLastName2() != null) {
-			stmt.setString(index++, criteria.getLastName2());
-		}
-		if (criteria.getDocumentNumber() != null) {
-			stmt.setString(index++, criteria.getDocumentNumber());
-		}
-		if (criteria.getPhoneNumber() != null) {
-			stmt.setString(index++, criteria.getPhoneNumber());
-		}
-		if (criteria.getEmail() != null) {
-			stmt.setString(index++, criteria.getEmail().toLowerCase());
-		}
-		if (criteria.getUsername() != null) {
-			stmt.setString(index++, criteria.getUsername().toLowerCase());
-		}
-		if (criteria.getDepartmentId() != null) {
-			stmt.setString(index++, criteria.getDepartmentId());
+		if (employeeCriteria.getDepartmentId() != null) {
+			Join<Employee, EmployeeDepartment> joinDepartment = root.join("departmentHistory");
+			query.where(builder.equal(joinDepartment.get("id"), employeeCriteria.getDepartmentId()));
+			query.where(builder.isNull(joinDepartment.get("endDate")));
 		}
 	}
 
 	@Override
-	public Integer create(Connection conn, Employee e) 
+	public Integer create(Session session, Employee e) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			e.setCreationDate(new Date());
-			setInsertValues(stmt, e);
-
-			int affectedRows = stmt.executeUpdate();
-
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.first();
-				e.setId(rs.getInt(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX));
-				e.getAddress().setEmployeeId(e.getId());
-				addressDAO.create(conn, e.getAddress());
-				return e.getId();
-			}
-			
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return (Integer) super.persist(null, e);
 	}
 
 	@Override

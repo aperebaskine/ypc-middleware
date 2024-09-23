@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
@@ -127,7 +128,8 @@ public abstract class AbstractDAO<T> {
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
 			Results<T> results = new Results<T>();
 			
-			ScrollableResults<T> scrollableResults = session.createQuery(query).scroll();
+			ScrollableResults<T> scrollableResults = 
+					session.createQuery(query).scroll(ScrollMode.SCROLL_INSENSITIVE);
 			results.setResultCount(getResultCount(scrollableResults));
 			results.setPage(getPage(scrollableResults, pos, pageSize));
 
