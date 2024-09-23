@@ -91,17 +91,13 @@ implements RMADAO {
 			AbstractCriteria<RMA> criteria) {
 		
 		RMACriteria rmaCriteria = (RMACriteria) criteria;
-		Join<RMA, Customer> joinCustomer = null;
 		
 		if (rmaCriteria.getCustomerId() != null) {
-			joinCustomer = root.join("customer");
-			query.where(builder.equal(joinCustomer.get("id"), rmaCriteria.getCustomerId()));
+			query.where(builder.equal(root.get("customer").get("id"), rmaCriteria.getCustomerId()));
 		}
 		if (rmaCriteria.getCustomerEmail() != null) {
-			if (joinCustomer == null) {
-				joinCustomer = root.join("customer");
-			}
-			query.where(builder.equal(joinCustomer.get("email"), rmaCriteria.getCustomerEmail()));
+			Join<RMA, Customer> joinCustomer = root.join("customer");
+			joinCustomer.on(builder.equal(joinCustomer.get("email"), rmaCriteria.getCustomerEmail()));
 		}
 		if (rmaCriteria.getState() != null) {
 			Join<RMA, RMAState> joinState = root.join("state");

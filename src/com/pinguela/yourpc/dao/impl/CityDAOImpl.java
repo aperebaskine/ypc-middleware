@@ -11,11 +11,9 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CityDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.City;
-import com.pinguela.yourpc.model.Province;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class CityDAOImpl 
@@ -35,13 +33,10 @@ implements CityDAO {
 			CriteriaBuilder builder = session.getCriteriaBuilder();
 			CriteriaQuery<City> query = builder.createQuery(getTargetClass());
 			Root<City> root = query.from(getTargetClass());
-
-			Join<City, Province> joinProvince = root.join("province");
-			query.where(builder.equal(joinProvince.get("id"), provinceId));
+			
+			query.where(builder.equal(root.get("province").get("id"), provinceId));
 			query.orderBy(builder.asc(root.get("name")));
-
 			return session.createQuery(query).getResultList();
-
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);

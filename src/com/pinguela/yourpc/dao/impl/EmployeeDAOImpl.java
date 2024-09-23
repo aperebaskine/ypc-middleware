@@ -132,33 +132,33 @@ implements EmployeeDAO {
 		EmployeeCriteria employeeCriteria = (EmployeeCriteria) criteria;
 		
 		if (employeeCriteria.getFirstName() != null) {
-			query.where(builder.like(root.join("firstName"), 
+			query.where(builder.like(root.get("name").get("firstName"), 
 					SQLQueryUtils.wrapLike(employeeCriteria.getFirstName())));
 		}
 		if (employeeCriteria.getLastName1() != null) {
-			query.where(builder.like(root.join("lastName1"), 
+			query.where(builder.like(root.get("name").get("lastName1"), 
 					SQLQueryUtils.wrapLike(employeeCriteria.getLastName1())));
 		}
 		if (employeeCriteria.getLastName2() != null) {
-			query.where(builder.like(root.join("lastName2"), 
+			query.where(builder.like(root.get("name").get("lastName2"), 
 					SQLQueryUtils.wrapLike(employeeCriteria.getLastName2())));
 		}
 		if (employeeCriteria.getDocumentNumber() != null) {
-			query.where(builder.equal(root.join("number"), employeeCriteria.getDocumentNumber()));
+			query.where(builder.equal(root.get("document").get("number"), employeeCriteria.getDocumentNumber()));
 		}
 		if (employeeCriteria.getPhoneNumber() != null) {
-			query.where(builder.equal(root.join("phone"), employeeCriteria.getPhoneNumber()));
+			query.where(builder.equal(root.get("phone"), employeeCriteria.getPhoneNumber()));
 		}
 		if (employeeCriteria.getEmail() != null) {
-			query.where(builder.equal(root.join("email"), employeeCriteria.getEmail()));
+			query.where(builder.equal(root.get("email"), employeeCriteria.getEmail()));
 		}
 		if (employeeCriteria.getUsername() != null) {
-			query.where(builder.equal(root.join("username"), employeeCriteria.getUsername()));
+			query.where(builder.equal(root.get("username"), employeeCriteria.getUsername()));
 		}
 		if (employeeCriteria.getDepartmentId() != null) {
 			Join<Employee, EmployeeDepartment> joinDepartment = root.join("departmentHistory");
-			query.where(builder.equal(joinDepartment.get("id"), employeeCriteria.getDepartmentId()));
-			query.where(builder.isNull(joinDepartment.get("endDate")));
+			joinDepartment.on(builder.equal(joinDepartment.get("departmentId"), employeeCriteria.getDepartmentId()));
+			joinDepartment.on(builder.isNull(joinDepartment.get("endDate")));
 		}
 	}
 

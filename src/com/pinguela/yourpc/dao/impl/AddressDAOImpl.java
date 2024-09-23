@@ -16,13 +16,10 @@ import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Address;
-import com.pinguela.yourpc.model.Customer;
-import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class AddressDAOImpl
@@ -149,9 +146,7 @@ implements AddressDAO {
 			CriteriaQuery<Address> query = builder.createQuery(getTargetClass());
 			Root<Address> root = query.from(getTargetClass());
 			
-			Join<Address, Employee> employeeJoin = root.join("employee");
-			query.where(builder.equal(employeeJoin.get("id"), employeeId));
-			
+			query.where(builder.equal(root.get("employee").get("id"), employeeId));
 			return session.createQuery(query).getSingleResult();
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
@@ -167,9 +162,7 @@ implements AddressDAO {
 			CriteriaQuery<Address> query = builder.createQuery(getTargetClass());
 			Root<Address> root = query.from(getTargetClass());
 			
-			Join<Address, Customer> employeeJoin = root.join("customer");
-			query.where(builder.equal(employeeJoin.get("id"), customerId));
-			
+			query.where(builder.equal(root.get("customer").get("id"), customerId));
 			return session.createQuery(query).getResultList();
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);

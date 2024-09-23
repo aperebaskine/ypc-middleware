@@ -22,7 +22,6 @@ import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
 import com.pinguela.yourpc.model.CustomerOrderRanges;
-import com.pinguela.yourpc.model.OrderState;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
@@ -140,9 +139,7 @@ implements CustomerOrderDAO {
 			CriteriaQuery<CustomerOrder> query = builder.createQuery(getTargetClass());
 			Root<CustomerOrder> root = query.from(getTargetClass());
 			
-			Join<CustomerOrder, Customer> customerJoin = root.join("customer");
-			query.where(builder.equal(customerJoin.get("id"), customerId));
-			
+			query.where(builder.equal(root.get("customer").get("id"), customerId));
 			return session.createQuery(query).getResultList();
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
@@ -160,17 +157,13 @@ implements CustomerOrderDAO {
 	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<CustomerOrder> query,
 			Root<CustomerOrder> root, AbstractCriteria<CustomerOrder> criteria) {
 		CustomerOrderCriteria coc = (CustomerOrderCriteria) criteria;
-		Join<CustomerOrder, Customer> joinCustomer = null;
 		
 		if (coc.getCustomerId() != null) {
-			joinCustomer = root.join("customer");
-			query.where(builder.equal(joinCustomer.get("id"), coc.getCustomerId()));
+			query.where(builder.equal(root.get("customer").get("id"), coc.getCustomerId()));
 		}
 		if (coc.getCustomerEmail() != null) {
-			if (joinCustomer == null) {
-				joinCustomer = root.join("customer");
-			}
-			query.where(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
+			Join<CustomerOrder, Customer> joinCustomer = root.join("customer");
+			joinCustomer.on(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
 		}
 		if (coc.getMinAmount() != null) {
 			query.where(builder.ge(root.get("totalPrice"), coc.getMinAmount()));
@@ -185,8 +178,7 @@ implements CustomerOrderDAO {
 			query.where(builder.lessThanOrEqualTo(root.get("orderDate"), coc.getMaxDate()));
 		}
 		if (coc.getState() != null) {
-			Join<CustomerOrder, OrderState> joinState = root.join("state");
-			query.where(builder.equal(joinState.get("id"), coc.getState()));
+			query.where(builder.equal(root.get("state").get("id"), coc.getState()));
 		}
 	}
 	

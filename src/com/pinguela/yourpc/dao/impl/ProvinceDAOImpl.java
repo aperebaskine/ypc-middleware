@@ -10,12 +10,10 @@ import org.hibernate.Session;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.ProvinceDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
-import com.pinguela.yourpc.model.Country;
 import com.pinguela.yourpc.model.Province;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class ProvinceDAOImpl 
@@ -36,8 +34,7 @@ implements ProvinceDAO {
 			CriteriaQuery<Province> query = builder.createQuery(getTargetClass());
 			Root<Province> root = query.from(getTargetClass());
 
-			Join<Province, Country> joinCountry = root.join("country");
-			query.where(builder.equal(joinCountry.get("id"), countryId));
+			query.where(builder.equal(root.get("country").get("id"), countryId));
 			query.orderBy(builder.asc(root.get("name")));
 
 			return session.createQuery(query).getResultList();

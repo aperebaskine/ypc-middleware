@@ -92,25 +92,26 @@ implements CustomerDAO {
 		CustomerCriteria customerCriteria = (CustomerCriteria) criteria;
 		
 		if (customerCriteria.getEmail() != null) {
-			query.where(builder.equal(root.join("email"), customerCriteria.getEmail()));
+			query.where(builder.equal(root.get("email"), customerCriteria.getEmail()));
 		}
 		if (customerCriteria.getFirstName() != null) {
-			query.where(builder.like(root.join("firstName"), 
+			query.where(builder.like(root.get("name").get("firstName"), 
 					SQLQueryUtils.wrapLike(customerCriteria.getFirstName())));
 		}
 		if (customerCriteria.getLastName1() != null) {
-			query.where(builder.like(root.join("lastName1"), 
+			query.where(builder.like(root.get("name").get("lastName1"), 
 					SQLQueryUtils.wrapLike(customerCriteria.getLastName1())));
 		}
 		if (customerCriteria.getLastName2() != null) {
-			query.where(builder.like(root.join("lastName2"), 
+			query.where(builder.like(root.get("name").get("lastName2"), 
 					SQLQueryUtils.wrapLike(customerCriteria.getLastName2())));
 		}
 		if (customerCriteria.getDocumentNumber() != null) {
-			query.where(builder.equal(root.join("number"), customerCriteria.getDocumentNumber()));
+			query.where(builder.equal(root.get("document").get("number"), 
+					customerCriteria.getDocumentNumber()));
 		}
 		if (customerCriteria.getPhoneNumber() != null) {
-			query.where(builder.equal(root.join("phone"), customerCriteria.getPhoneNumber()));
+			query.where(builder.equal(root.get("phone"), customerCriteria.getPhoneNumber()));
 		}
 	}
 
