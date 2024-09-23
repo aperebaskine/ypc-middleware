@@ -127,7 +127,7 @@ public abstract class AbstractDAO<T> {
 		try {
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
 			Results<T> results = new Results<T>();
-			
+
 			ScrollableResults<T> scrollableResults = 
 					session.createQuery(query).scroll(ScrollMode.SCROLL_INSENSITIVE);
 			results.setResultCount(getResultCount(scrollableResults));
@@ -161,10 +161,12 @@ public abstract class AbstractDAO<T> {
 
 		setFindByCriteria(builder, query, root, criteria);
 
-		Path<T> orderBy = root.get(criteria.getOrderBy());
-		query.orderBy(criteria.getAscDesc() == AbstractCriteria.ASC ? 
-				builder.asc(orderBy) : builder.desc(orderBy));
-
+		if (criteria != null) {
+			Path<T> orderBy = root.get(criteria.getOrderBy());
+			query.orderBy(
+					criteria.getAscDesc() == AbstractCriteria.ASC ? 
+							builder.asc(orderBy) : builder.desc(orderBy));
+		}
 		return query;
 	}
 
@@ -172,6 +174,14 @@ public abstract class AbstractDAO<T> {
 		return targetClass;
 	}
 
+	/**
+	 * Specify criteria for the queries performed by the {@link #findBy(Session, AbstractCriteria)} 
+	 * and {@link #findBy(Session, AbstractCriteria, int, int)} methods.
+	 * @param builder CriteriaBuilder object for building Predicates
+	 * @param query The query created by the CriteriaBuilder
+	 * @param root The query's root entity
+	 * @param criteria Criteria object containing the clauses' values
+	 */
 	protected abstract void setFindByCriteria(CriteriaBuilder builder,
 			CriteriaQuery<T> query, Root<T> root, AbstractCriteria<T> criteria);
 
