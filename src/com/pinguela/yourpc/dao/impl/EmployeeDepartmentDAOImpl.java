@@ -5,12 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
@@ -18,7 +19,12 @@ import com.pinguela.yourpc.dao.EmployeeDepartmentDAO;
 import com.pinguela.yourpc.model.EmployeeDepartment;
 import com.pinguela.yourpc.util.JDBCUtils;
 
-public class EmployeeDepartmentDAOImpl 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+public class EmployeeDepartmentDAOImpl
+extends AbstractDAO<EmployeeDepartment>
 implements EmployeeDepartmentDAO {
 	
 	private static Logger logger = LogManager.getLogger(EmployeeDepartmentDAOImpl.class);
@@ -37,42 +43,18 @@ implements EmployeeDepartmentDAO {
 			" UPDATE EMPLOYEE_DEPARTMENT SET END_DATE = ? WHERE EMPLOYEE_ID = ? AND END_DATE IS NULL";
 
 	@Override
-	public List<EmployeeDepartment> findByEmployee(Connection conn, Integer employeeId) throws DataException {
-		
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<EmployeeDepartment> results = new ArrayList<>();
-		
+	public List<EmployeeDepartment> findByEmployee(Session session, Integer employeeId) throws DataException {
 		try {
-			stmt = conn.prepareStatement(FINDBYEMPLOYEE_QUERY);
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaQuery<EmployeeDepartment> query = builder.createQuery(getTargetClass());
+			Root<EmployeeDepartment> root = query.from(getTargetClass());
 			
-			int i = 1;
-			stmt.setInt(i++, employeeId);
-			rs = stmt.executeQuery();
-			
-			while (rs.next()) {
-				results.add(loadNext(rs));
-			}
-			return results;
-			
-		} catch (SQLException e) {
+			query.where(builder.equal(root.get("employee").get("id"), employeeId));
+			return session.createQuery(query).getResultList();
+		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
-		} finally {
-			JDBCUtils.close(stmt, rs);
 		}
-	}
-	
-	private EmployeeDepartment loadNext(ResultSet rs) throws SQLException {
-		
-		EmployeeDepartment ed = new EmployeeDepartment();
-		
-		int i = 1;
-		ed.setDepartmentId(rs.getString(i++));
-		ed.setStartDate(rs.getDate(i++));
-		JDBCUtils.getNullableDate(rs, i++);
-		
-		return ed;
 	}
 	
 	@Override
@@ -109,6 +91,7 @@ implements EmployeeDepartmentDAO {
 		}
 	}
 	
+	@Override
 	public Boolean unassign(Connection conn, Integer employeeId) throws DataException {
 	
 		PreparedStatement stmt = null;
