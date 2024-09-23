@@ -14,6 +14,7 @@ import org.hibernate.Session;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.Employee;
@@ -175,6 +176,10 @@ implements AddressDAO {
 			throw new DataException(e);
 		}
 	}
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Address> query, Root<Address> root,
+			AbstractCriteria<Address> criteria) {}
 
 	@Override
 	public Integer create(Session session, Address a)
