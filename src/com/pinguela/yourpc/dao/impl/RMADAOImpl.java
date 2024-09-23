@@ -15,9 +15,11 @@ import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.dao.RMADAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Customer;
+import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.model.RMACriteria;
 import com.pinguela.yourpc.model.RMAState;
+import com.pinguela.yourpc.model.Ticket;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -92,6 +94,9 @@ implements RMADAO {
 		
 		RMACriteria rmaCriteria = (RMACriteria) criteria;
 		
+		Join<RMA, OrderLine> orderLineJoin = null;
+		boolean groupBy = false;
+		
 		if (rmaCriteria.getCustomerId() != null) {
 			query.where(builder.equal(root.get("customer").get("id"), rmaCriteria.getCustomerId()));
 		}
@@ -105,17 +110,27 @@ implements RMADAO {
 		}
 		if (rmaCriteria.getOrderId() != null) {
 			groupBy = true;
-			clauses.add(" ol.CUSTOMER_ORDER_ID <= ?");
+			orderLineJoin = root.join("orderLines");
+			orderLineJoin.on(builder.equal(
+					orderLineJoin.get("customerOrder").get("id"), rmaCriteria.getOrderId()));
 		}
 		if (rmaCriteria.getTicketId() != null) {
 			groupBy = true;
-			clauses.add(" tol.TICKET_ID = ?");
+			if (orderLineJoin == null) {
+				orderLineJoin = root.join("orderLines");
+			}
+			Join<OrderLine, Ticket> joinTicket = orderLineJoin.join("ticket");
+			joinTicket.on(builder.equal(joinTicket.get("id"), rmaCriteria.getTicketId()));
 		}
 		if (rmaCriteria.getMinDate() != null) {
 			query.where(builder.greaterThanOrEqualTo(root.get("creationDate"), rmaCriteria.getMinDate()));
 		}
 		if (rmaCriteria.getMaxDate() != null) {
 			query.where(builder.lessThanOrEqualTo(root.get("creationDate"), rmaCriteria.getMaxDate()));
+		}
+		
+		if (groupBy) {
+			query.groupBy(root.get("id"));
 		}
 	}
 
