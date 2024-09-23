@@ -1,10 +1,10 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -15,7 +15,7 @@ import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.service.ProductService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class ProductServiceImpl implements ProductService {
 
@@ -26,82 +26,73 @@ public class ProductServiceImpl implements ProductService {
 		productDAO = new ProductDAOImpl();
 	}
 
+	@Override
 	public Long create(Product p)  
 			throws ServiceException, DataException {
-		
-		if (p == null) {
-			throw new IllegalArgumentException("Product cannot be null.");
-		}
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
+		
 		Long id = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			id = productDAO.create(conn, p);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
+			
+			id = productDAO.create(session, p);
 			commit = id != null;
 			return id;
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 
 	@Override
 	public Boolean update(Product p)  
 			throws ServiceException, DataException {
-		
-		if (p == null) {
-			throw new IllegalArgumentException("Product cannot be null.");
-		}
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (productDAO.update(conn, p)) {
-				commit = true;
-				return true;
-			} else {
-				return false;	
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
+			
+			return productDAO.update(session, p) && (commit = true);
+			
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
-	
+
 	@Override
 	public Boolean delete(Long productId)  
 			throws ServiceException, DataException {
-		
-		if (productId == null) {
-			throw new IllegalArgumentException("Product ID cannot be null.");
-		}
 
-		Connection conn = null;
+		Session session = null;
+		Transaction transaction = null;
 		boolean commit = false;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			commit = true;
-			return productDAO.delete(conn, productId);
+			session = HibernateUtils.openSession();
+			transaction = session.beginTransaction();
 			
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			return productDAO.delete(session, productId) && (commit = true);
+			
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn, commit);
+			HibernateUtils.close(session, transaction, commit);
 		}
 	}
 
@@ -109,57 +100,52 @@ public class ProductServiceImpl implements ProductService {
 	public Product findById(Long id)  
 			throws ServiceException, DataException {
 
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return productDAO.findById(conn, id);
+			session = HibernateUtils.openSession();
+			return productDAO.findById(session, id);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 
 	@Override
 	public Results<Product> findBy(ProductCriteria criteria, int startPos, int pageSize)  
 			throws ServiceException, DataException {
-		
-		if (criteria == null) {
-			throw new IllegalArgumentException("Criteria cannot be null.");
-		}
 
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return productDAO.findBy(conn, criteria, startPos, pageSize);
+			session = HibernateUtils.openSession();
+			return productDAO.findBy(session, criteria, startPos, pageSize);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 	
 	@Override
 	public ProductRanges getRanges(ProductCriteria criteria) throws ServiceException, DataException {
 		
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return productDAO.getRanges(conn, criteria);
+			session = HibernateUtils.openSession();
+			return productDAO.getRanges(session, criteria);
 
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
-
 }

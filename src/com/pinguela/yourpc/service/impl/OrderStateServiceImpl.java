@@ -11,8 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.OrderStateDAO;
 import com.pinguela.yourpc.dao.impl.OrderStateDAOImpl;
-import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.EntityState;
+import com.pinguela.yourpc.model.OrderState;
 import com.pinguela.yourpc.service.OrderStateService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -27,7 +26,7 @@ public class OrderStateServiceImpl implements OrderStateService {
 	}
 
 	@Override
-	public Map<String, EntityState<CustomerOrder>> findAll() 
+	public Map<String, OrderState> findAll() 
 	        throws ServiceException, DataException {
 
 	    Session session = null;

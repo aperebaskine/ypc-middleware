@@ -11,8 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.RMAStateDAO;
 import com.pinguela.yourpc.dao.impl.RMAStateDAOImpl;
-import com.pinguela.yourpc.model.EntityState;
-import com.pinguela.yourpc.model.RMA;
+import com.pinguela.yourpc.model.RMAState;
 import com.pinguela.yourpc.service.RMAStateService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -27,7 +26,7 @@ public class RMAStateServiceImpl implements RMAStateService {
 	}
 	
 	@Override
-	public Map<String, EntityState<RMA>> findAll() 
+	public Map<String, RMAState> findAll() 
 	        throws ServiceException, DataException {
 
 	    Session session = null;
