@@ -23,7 +23,7 @@ public class HibernateUtils {
 
 	private static ServiceRegistry serviceRegistry;
 	private static SessionFactory sessionFactory;
-	
+
 	static {
 		try {
 			serviceRegistry = initializeServiceRegistry();
@@ -32,7 +32,7 @@ public class HibernateUtils {
 			scheduleCleanupOnExit();
 		}
 	}
-	
+
 	private static ServiceRegistry initializeServiceRegistry() {
 		try {
 			return new StandardServiceRegistryBuilder().build();
@@ -41,10 +41,10 @@ public class HibernateUtils {
 			throw new IllegalStateException(e);
 		} 
 	}
- 
+
 	private static SessionFactory initializeSessionFactory() {
 		try {
-			Metadata metadata = getMetadata(serviceRegistry);
+			Metadata metadata = getMetadata(serviceRegistry);	
 			return metadata.buildSessionFactory();
 
 		} catch (Exception e) {
@@ -52,11 +52,11 @@ public class HibernateUtils {
 			throw new IllegalStateException(e);
 		} 
 	}
-	
+
 	private static Metadata getMetadata(ServiceRegistry serviceRegistry) {
 		MetadataSources sources = new MetadataSources(serviceRegistry);
 		Reflections reflections = new Reflections(AbstractValueObject.class.getPackage().getName());
-		
+
 		for (Class<?> clazz : reflections.getSubTypesOf(AbstractValueObject.class)) {
 			if (clazz.isAnnotationPresent(Entity.class)) {
 				sources.addAnnotatedClass(clazz);
@@ -66,7 +66,7 @@ public class HibernateUtils {
 		MetadataBuilder builder = sources.getMetadataBuilder();
 		return builder.build();
 	}
-	
+
 	private static void scheduleCleanupOnExit() {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			closeResources();
@@ -82,7 +82,7 @@ public class HibernateUtils {
 		}
 	}
 
-	public static Session openSession() {
+	public static Session openSession() {		
 		try {
 			Session session = sessionFactory.openSession();
 			logger.info("Hibernate session opened.");
@@ -92,13 +92,13 @@ public class HibernateUtils {
 			throw e;
 		}
 	}
-	
+
 	public static void close(Session session) {
-		
+
 		if (session == null) {
 			return;
 		}
-		
+
 		try {
 			session.close();
 			logger.info("Session successfully closed.");
@@ -107,13 +107,13 @@ public class HibernateUtils {
 					"Exception thrown while attempting to close session: %s", e.getMessage()), e);
 		}
 	}
-	
+
 	public static void close(Transaction transaction, boolean commit) {
-		
+
 		if (transaction == null || !transaction.isActive()) {
 			return;
 		}
-		
+
 		try {
 			if (!commit) {
 				transaction.rollback();
@@ -129,7 +129,7 @@ public class HibernateUtils {
 			throw e;
 		}
 	}
-	
+
 	public static void close(Session session, Transaction transaction, boolean commit) {
 		close(transaction, commit);
 		close(session);
