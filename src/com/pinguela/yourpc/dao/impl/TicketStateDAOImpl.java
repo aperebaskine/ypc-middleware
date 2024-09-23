@@ -1,69 +1,41 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.TicketStateDAO;
-import com.pinguela.yourpc.model.EntityState;
-import com.pinguela.yourpc.model.Ticket;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.TicketState;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public class TicketStateDAOImpl 
+extends AbstractDAO<TicketState>
 implements TicketStateDAO {
-
-	private static Logger logger = LogManager.getLogger(TicketStateDAOImpl.class);
-
-	private static final String QUERY =
-			" SELECT ts.ID, ts.NAME"
-					+ " FROM TICKET_STATE ts";
-
+	
+	public TicketStateDAOImpl() {
+		super(TicketState.class);
+	}
+	
 	@Override
-	public Map<String, EntityState<Ticket>> findAll(Connection conn) throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(QUERY);
-
-			rs = stmt.executeQuery();
-			return loadResults(rs);
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+	public Map<String, TicketState> findAll(Session session) throws DataException {
+		List<TicketState> ticketStates = super.findBy(session, null);
+		
+		Map<String, TicketState> ticketStatesById = new LinkedHashMap<String, TicketState>();
+		for (TicketState ticketState : ticketStates) {
+			ticketStatesById.put(ticketState.getId(), ticketState);
 		}
+		return ticketStatesById;
 	}
-
-	private Map<String, EntityState<Ticket>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, EntityState<Ticket>> results = new HashMap<>();
-
-		while (rs.next()) {
-			EntityState<Ticket> next = loadNext(rs);
-			results.put(next.getId(), next);
-		}
-
-		return results;
-	}
-
-	private EntityState<Ticket> loadNext(ResultSet rs) throws SQLException {
-		EntityState<Ticket> state = new EntityState<>();
-
-		int i = 1;
-		state.setId(rs.getString(i++));
-		state.setName(rs.getString(i++));
-
-		return state;
-	}
-
+	
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<TicketState> query, Root<TicketState> root,
+			AbstractCriteria<TicketState> criteria) {}
+	
 }

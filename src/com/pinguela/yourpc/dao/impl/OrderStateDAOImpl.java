@@ -1,69 +1,41 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.OrderStateDAO;
-import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.EntityState;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.OrderState;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public class OrderStateDAOImpl 
+extends AbstractDAO<OrderState>
 implements OrderStateDAO {
 	
-	private static Logger logger = LogManager.getLogger(OrderStateDAOImpl.class);
-	
-	private static final String QUERY =
-			" SELECT os.ID, os.NAME"
-			+ " FROM ORDER_STATE os";
+	public OrderStateDAOImpl() {
+		super(OrderState.class);
+	}
 	
 	@Override
-	public Map<String, EntityState<CustomerOrder>> findAll(Connection conn) throws DataException {
+	public Map<String, OrderState> findAll(Session session) throws DataException {
+		List<OrderState> orderStates = super.findBy(session, null);
 		
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		
-		try {
-			stmt = conn.prepareStatement(QUERY);
-			
-			rs = stmt.executeQuery();
-			return loadResults(rs);
-			
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+		Map<String, OrderState> orderStatesById = new LinkedHashMap<String, OrderState>();
+		for (OrderState orderState : orderStates) {
+			orderStatesById.put(orderState.getId(), orderState);
 		}
+		return orderStatesById;
 	}
 	
-	private Map<String, EntityState<CustomerOrder>> loadResults(ResultSet rs) throws SQLException {
-		Map<String, EntityState<CustomerOrder>> results = new HashMap<>();
-		
-		while (rs.next()) {
-			EntityState<CustomerOrder> next = loadNext(rs);
-			results.put(next.getId(), next);
-		}
-		
-		return results;
-	}
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<OrderState> query, Root<OrderState> root,
+			AbstractCriteria<OrderState> criteria) {}
 	
-	private EntityState<CustomerOrder> loadNext(ResultSet rs) throws SQLException {
-		EntityState<CustomerOrder> state = new EntityState<>();
-		
-		int i = 1;
-		state.setId(rs.getString(i++));
-		state.setName(rs.getString(i++));
-		
-		return state;
-	}
-
 }

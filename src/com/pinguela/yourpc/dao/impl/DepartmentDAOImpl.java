@@ -1,68 +1,42 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.DepartmentDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Department;
-import com.pinguela.yourpc.util.JDBCUtils;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public class DepartmentDAOImpl 
+extends AbstractDAO<Department>
 implements DepartmentDAO {
-
-	private static Logger logger = LogManager.getLogger(DepartmentDAOImpl.class);
-
-	private static final String QUERY =
-			" SELECT d.ID, d.NAME"
-					+ " FROM DEPARTMENT d";
+	
+	public DepartmentDAOImpl() {
+		super(Department.class);
+	}
 
 	@Override
-	public Map<String, Department> findAll(Connection conn) throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(QUERY);
-
-			rs = stmt.executeQuery();
-			return loadResults(rs);
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+	public Map<String, Department> findAll(Session session) throws DataException {
+		List<Department> departments = super.findBy(session, null);
+		Map<String, Department> departmentsById = new LinkedHashMap<String, Department>();
+		
+		for (Department d : departments) {
+			departmentsById.put(d.getId(), d);
 		}
+		
+		return departmentsById;
 	}
 
-	private Map<String, Department> loadResults(ResultSet rs) throws SQLException {
-		Map<String, Department> results = new HashMap<>();
-
-		while (rs.next()) {
-			Department next = loadNext(rs);
-			results.put(next.getId(), next);
-		}
-
-		return results;
-	}
-
-	private Department loadNext(ResultSet rs) throws SQLException {
-		Department department = new Department();
-
-		int i = 1;
-		department.setId(rs.getString(i++));
-		department.setName(rs.getString(i++));
-
-		return department;
-	}
+	@Override
+	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Department> query, Root<Department> root,
+			AbstractCriteria<Department> criteria) {}
 
 }
