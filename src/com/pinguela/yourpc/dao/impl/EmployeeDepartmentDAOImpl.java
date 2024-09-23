@@ -41,6 +41,10 @@ implements EmployeeDepartmentDAO {
 	
 	private static final String UNASSIGN_QUERY =
 			" UPDATE EMPLOYEE_DEPARTMENT SET END_DATE = ? WHERE EMPLOYEE_ID = ? AND END_DATE IS NULL";
+	
+	public EmployeeDepartmentDAOImpl() {
+		super(EmployeeDepartment.class);
+	}
 
 	@Override
 	public List<EmployeeDepartment> findByEmployee(Session session, Integer employeeId) throws DataException {
