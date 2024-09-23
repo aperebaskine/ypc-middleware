@@ -5,12 +5,11 @@ import java.util.Map;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.EntityState;
-import com.pinguela.yourpc.model.RMA;
+import com.pinguela.yourpc.model.RMAState;
 
 public interface RMAStateDAO {
 	
-	public Map<String, EntityState<RMA>> findAll(Session session)
+	public Map<String, RMAState> findAll(Session session)
 			throws DataException;
 
 }

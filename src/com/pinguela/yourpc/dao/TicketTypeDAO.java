@@ -5,12 +5,11 @@ import java.util.Map;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.EntityType;
-import com.pinguela.yourpc.model.Ticket;
+import com.pinguela.yourpc.model.TicketType;
 
 public interface TicketTypeDAO {
 	
-	public Map<String, EntityType<Ticket>> findAll(Session session)
+	public Map<String, TicketType> findAll(Session session)
 			throws DataException;
 
 }

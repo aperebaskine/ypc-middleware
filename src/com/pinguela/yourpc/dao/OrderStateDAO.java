@@ -5,12 +5,11 @@ import java.util.Map;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.CustomerOrder;
-import com.pinguela.yourpc.model.EntityState;
+import com.pinguela.yourpc.model.OrderState;
 
 public interface OrderStateDAO {
 	
-	public Map<String, EntityState<CustomerOrder>> findAll(Session session)
+	public Map<String, OrderState> findAll(Session session)
 			throws DataException;
 
 }
