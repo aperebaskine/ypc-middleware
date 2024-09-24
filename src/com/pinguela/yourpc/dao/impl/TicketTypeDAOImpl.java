@@ -16,11 +16,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class TicketTypeDAOImpl 
-extends AbstractDAO<TicketType>
+extends AbstractDAO<String, TicketType>
 implements TicketTypeDAO {
 
 	public TicketTypeDAOImpl() {
-		super(TicketType.class);
 	}
 	
 	@Override

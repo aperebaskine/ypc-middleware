@@ -23,7 +23,9 @@ import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-public class AttributeDAOImpl implements AttributeDAO {
+public class AttributeDAOImpl 
+extends AbstractDAO<String, Attribute<?>>
+implements AttributeDAO {
 
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
 	private static final String NAME_COLUMN = "NAME";
@@ -82,9 +84,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 
+	@SuppressWarnings("unchecked")
+	public AttributeDAOImpl() {
+	}
+
 	@Override
 	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned) throws DataException {
-
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			query.append(JOIN_PRODUCT);
@@ -221,7 +226,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 		if (currentResults.containsKey(name)) { // Add value to previously retrieved attribute type
 			Attribute<?> attribute = currentResults.get(name);
-			
+
 			for (AttributeValue<?> attributeValue : next.getValues()) {
 				attribute.addValue(attributeValue.getId(), attributeValue.getValue());
 			}
@@ -238,12 +243,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 		// Add value to list
 		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
 		Long id = rs.getLong(VALUE_ID_COLUMN);
-		
+
 		if (!rs.wasNull()) { // Attribute without values
 			Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
 			attribute.addValue(id, value);
 		}
-		
+
 		return attribute;
 	}
 

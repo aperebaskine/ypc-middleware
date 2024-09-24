@@ -16,11 +16,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class DepartmentDAOImpl 
-extends AbstractDAO<Department>
+extends AbstractDAO<String, Department>
 implements DepartmentDAO {
 	
 	public DepartmentDAOImpl() {
-		super(Department.class);
 	}
 
 	@Override

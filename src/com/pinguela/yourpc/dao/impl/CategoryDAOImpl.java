@@ -17,11 +17,10 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 
 public class CategoryDAOImpl
-extends AbstractDAO<Category>
+extends AbstractDAO<Short, Category>
 implements CategoryDAO {
 	
 	public CategoryDAOImpl() {
-		super(Category.class);
 	}
 	
 	@Override

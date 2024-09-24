@@ -27,7 +27,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class RMADAOImpl 
-extends AbstractDAO<RMA>
+extends AbstractDAO<Long, RMA>
 implements RMADAO {
 
 	private static final String SELECT_COLUMNS = 
@@ -73,7 +73,6 @@ implements RMADAO {
 	private OrderLineDAO orderLineDAO = null;
 	
 	public RMADAOImpl() {
-		super(RMA.class);
 		orderLineDAO = new OrderLineDAOImpl();
 	}
 
@@ -136,7 +135,7 @@ implements RMADAO {
 
 	@Override
 	public Long create(Session session, RMA rma) throws DataException {
-		return (Long) super.persist(session, rma);
+		return super.create(session, rma);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class CustomerOrderDAOImpl 
-extends AbstractDAO<CustomerOrder>
+extends AbstractDAO<Long, CustomerOrder>
 implements CustomerOrderDAO {
 
 	private static Logger logger = LogManager.getLogger(CustomerOrderDAOImpl.class);
@@ -71,14 +71,13 @@ implements CustomerOrderDAO {
 					+ " WHERE ID = ?";
 	
 	public CustomerOrderDAOImpl() {
-		super(CustomerOrder.class);
 		orderLineDAO = new OrderLineDAOImpl();
 	}
 
 	@Override
 	public Long create(Session session, CustomerOrder co) 
 			throws DataException {
-		return (Long) super.persist(session, co);
+		return super.create(session, co);
 	}
 
 	@Override
@@ -100,7 +99,7 @@ implements CustomerOrderDAO {
 			if (updatedRows != 1) {
 				throw new DataException(ErrorCodes.UPDATE_FAILED);
 			} else {
-				orderLineDAO.persist(conn, co.getOrderLines());
+				orderLineDAO.create(conn, co.getOrderLines());
 				return true;
 			}
 		} catch (SQLException sqle) {

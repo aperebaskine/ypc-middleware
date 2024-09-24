@@ -28,6 +28,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 public class ProductDAOImpl 
+extends AbstractDAO<Long, Product>
 implements ProductDAO {
 
 	private static final String SELECT_COLUMNS = 

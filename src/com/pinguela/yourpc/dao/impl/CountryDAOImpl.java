@@ -14,11 +14,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class CountryDAOImpl
-extends AbstractDAO<Country>
+extends AbstractDAO<String, Country>
 implements CountryDAO {
 		
 	public CountryDAOImpl() {
-		super(Country.class);
 	}
 	
 	@Override

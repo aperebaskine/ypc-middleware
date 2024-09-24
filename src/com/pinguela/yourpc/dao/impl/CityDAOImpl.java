@@ -17,13 +17,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class CityDAOImpl 
-extends AbstractDAO<City>
+extends AbstractDAO<Integer, City>
 implements CityDAO {
 
 	private static Logger logger = LogManager.getLogger(CityDAOImpl.class);
 
 	public CityDAOImpl() {
-		super(City.class);
 	}
 
 	@Override

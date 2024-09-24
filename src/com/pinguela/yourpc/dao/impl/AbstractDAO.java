@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.dao.impl;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,13 +15,14 @@ import org.hibernate.Session;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.util.ReflectionUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractDAO<T> {
+public abstract class AbstractDAO<PK, T> {
 
 	private static final int BATCH_SIZE = 50;
 
@@ -28,18 +30,26 @@ public abstract class AbstractDAO<T> {
 
 	private Class<T> targetClass;
 
-	protected AbstractDAO(Class<T> targetClass) {
-		this.targetClass = targetClass;
+	protected AbstractDAO() {
+		initialize();
 	}
 
-	protected Object persist(Session session, T entity) 
+	@SuppressWarnings("unchecked")
+	private void initialize() {
+		Type targetClassType = ReflectionUtils.getTypeParameterBounds(this.getClass())[1];
+		targetClass = (Class<T>) ReflectionUtils.getClass(targetClassType);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected PK create(Session session, T entity) 
 			throws DataException {
 		session.persist(entity);
 		session.flush();
-		return session.getIdentifier(entity);
+		return (PK) session.getIdentifier(entity);
 	}
 
-	protected List<Object> persist(Session session, List<T> entities)
+	@SuppressWarnings("unchecked")
+	protected List<PK> persist(Session session, List<T> entities)
 			throws DataException {
 		try {
 			for (int i = 0; i<entities.size(); i++) {
@@ -47,9 +57,9 @@ public abstract class AbstractDAO<T> {
 				processBatchIfFull(session, entities.size(), i);
 			}
 
-			List<Object> identifiers = new ArrayList<Object>();
+			List<PK> identifiers = new ArrayList<PK>();
 			for (T entity : entities) {
-				identifiers.add(session.getIdentifier(entity));
+				identifiers.add((PK) session.getIdentifier(entity));
 			}
 			return identifiers;
 		} catch (HibernateException e) {
@@ -76,22 +86,7 @@ public abstract class AbstractDAO<T> {
 		}
 	}
 
-	protected void remove(Session session, T entity)
-			throws DataException {
-		remove(session, Arrays.asList(entity));
-	}
-
-	protected void remove(Session session, List<T> entities) 
-			throws DataException {
-		try {
-			for (int i = 0; i<entities.size(); i++) {
-				session.remove(entities.get(i));
-				processBatchIfFull(session, entities.size(), i);
-			}
-		} catch (HibernateException e) {
-			logger.error(e.getMessage(), e);
-			throw new DataException(e);
-		}
+	protected boolean softDelete(Session session, PK id) {
 	}
 
 	private static void processBatchIfFull(Session session, int entityCount, int current) {

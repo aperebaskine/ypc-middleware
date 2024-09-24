@@ -16,11 +16,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class DocumentTypeDAOImpl 
-extends AbstractDAO<IDType>
+extends AbstractDAO<String, IDType>
 implements DocumentTypeDAO {
 	
 	public DocumentTypeDAOImpl() {
-		super(IDType.class);
 	}
 	
 	@Override

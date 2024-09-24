@@ -25,7 +25,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class TicketMessageDAOImpl 
-extends AbstractDAO<TicketMessage>
+extends AbstractDAO<Long, TicketMessage>
 implements TicketMessageDAO {	
 
 	private static final String SELECT_COLUMNS =
@@ -67,7 +67,6 @@ implements TicketMessageDAO {
 	private EmployeeDAO employeeDAO;
 	
 	public TicketMessageDAOImpl() {
-		super(TicketMessage.class);
 		customerDAO = new CustomerDAOImpl();
 		employeeDAO = new EmployeeDAOImpl();
 	}
@@ -97,7 +96,7 @@ implements TicketMessageDAO {
 	@Override
 	public Long create(Session session, TicketMessage ticketMessage)
 			throws DataException {
-		return (Long) super.persist(session, ticketMessage);
+		return super.create(session, ticketMessage);
 	}
 
 	@Override

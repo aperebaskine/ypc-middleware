@@ -20,7 +20,9 @@ import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-public class OrderLineDAOImpl implements OrderLineDAO {
+public class OrderLineDAOImpl 
+extends AbstractDAO<Long, OrderLine>
+implements OrderLineDAO {
 
 	private static final String ORDER_LINE_ALIAS = "ol";
 	private static final String TICKET_ORDER_LINE_ALIAS = "tol";
@@ -38,8 +40,8 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 					+ " " +ORDER_LINE_ALIAS +".SALE_PRICE";
 	private static final String FROM_TABLE =
 			" FROM ORDER_LINE ol"
-			+ " INNER JOIN PRODUCT p"
-			+ " ON ol.PRODUCT_ID = p.ID";
+					+ " INNER JOIN PRODUCT p"
+					+ " ON ol.PRODUCT_ID = p.ID";
 	private static final String JOIN_TICKET_ORDER_LINE =
 			" INNER JOIN TICKET_ORDER_LINE tol"
 					+ " ON ol.ID = tol.ORDER_LINE_ID";
@@ -81,6 +83,10 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	private static final int ASSIGN_QUERY_COLUMN_COUNT = 3;
 
 	private static Logger logger = LogManager.getLogger(OrderLineDAOImpl.class);
+
+	public OrderLineDAOImpl() {
+
+	}
 
 	@Override
 	public List<OrderLine> findByCustomerOrder(Connection conn, long orderId) 

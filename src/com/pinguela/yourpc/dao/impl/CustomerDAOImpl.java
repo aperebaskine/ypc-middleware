@@ -26,7 +26,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class CustomerDAOImpl 
-extends AbstractDAO<Customer>
+extends AbstractDAO<Integer, Customer>
 implements CustomerDAO {
 
 	private static final String UPDATE_QUERY =
@@ -54,7 +54,6 @@ implements CustomerDAO {
 	private AddressDAO addressDAO = null;
 
 	public CustomerDAOImpl() {
-		super(Customer.class);
 		addressDAO = new AddressDAOImpl();
 	}
 
@@ -118,7 +117,7 @@ implements CustomerDAO {
 	@Override
 	public Integer create(Session session, Customer c) 
 			throws DataException {
-		return (Integer) super.persist(session, c);
+		return create(session, c);
 	}
 
 	@Override

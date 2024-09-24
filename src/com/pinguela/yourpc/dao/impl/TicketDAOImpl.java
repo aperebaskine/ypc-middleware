@@ -32,7 +32,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 
 public class TicketDAOImpl
-extends AbstractDAO<Ticket>
+extends AbstractDAO<Long, Ticket>
 implements TicketDAO {
 
 	private static final String CREATE_QUERY =
@@ -62,7 +62,6 @@ implements TicketDAO {
 	private OrderLineDAO orderLineDAO = null;
 
 	public TicketDAOImpl() {
-		super(Ticket.class);
 		ticketMessageDAO = new TicketMessageDAOImpl();
 		orderLineDAO = new OrderLineDAOImpl();
 	}
@@ -110,7 +109,7 @@ implements TicketDAO {
 	@Override
 	public Long create(Session session, Ticket ticket) 
 			throws DataException {
-		return (Long) super.persist(session, ticket);
+		return super.create(session, ticket);
 	}
 	
 	@Override
@@ -161,7 +160,7 @@ implements TicketDAO {
 			throws DataException {
 		for (TicketMessage tm : ticket.getMessageList()) {
 			tm.setTicketId(ticket.getId());
-			ticketMessageDAO.persist(conn, tm);
+			ticketMessageDAO.create(conn, tm);
 		}
 	}
 

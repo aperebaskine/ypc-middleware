@@ -16,11 +16,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class RMAStateDAOImpl
-extends AbstractDAO<RMAState>
+extends AbstractDAO<String, RMAState>
 implements RMAStateDAO {
 	
 	public RMAStateDAOImpl() {
-		super(RMAState.class);
 	}
 	
 	@Override

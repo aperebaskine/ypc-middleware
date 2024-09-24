@@ -16,11 +16,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class OrderStateDAOImpl 
-extends AbstractDAO<OrderState>
+extends AbstractDAO<String, OrderState>
 implements OrderStateDAO {
 	
 	public OrderStateDAOImpl() {
-		super(OrderState.class);
 	}
 	
 	@Override

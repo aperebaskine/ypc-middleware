@@ -23,7 +23,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class AddressDAOImpl
-extends AbstractDAO<Address>
+extends AbstractDAO<Integer, Address>
 implements AddressDAO {
 
 	private static final String IS_DEFAULT_COLUMN = "IS_DEFAULT";
@@ -129,7 +129,6 @@ implements AddressDAO {
 	private static Logger logger = LogManager.getLogger(AddressDAOImpl.class);
 
 	public AddressDAOImpl() {
-		super(Address.class);
 	}
 
 	@Override
@@ -177,7 +176,7 @@ implements AddressDAO {
 	@Override
 	public Integer create(Session session, Address a)
 			throws DataException {
-		return (Integer) super.persist(session, a);
+		return super.create(session, a);
 	}
 
 	@Override
@@ -187,7 +186,7 @@ implements AddressDAO {
 		if (isOrderAddress(conn, a.getId())) { // Perform logical deletion on address linked to order(s)
 			if (!a.equals(findById(conn, a.getId()))) {
 				delete(conn, a.getId());
-				return persist(conn, a);
+				return create(conn, a);
 			}
 		}
 

@@ -24,7 +24,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 public class EmployeeDepartmentDAOImpl
-extends AbstractDAO<EmployeeDepartment>
+extends AbstractDAO<Integer, EmployeeDepartment>
 implements EmployeeDepartmentDAO {
 	
 	private static Logger logger = LogManager.getLogger(EmployeeDepartmentDAOImpl.class);
@@ -43,7 +43,6 @@ implements EmployeeDepartmentDAO {
 			" UPDATE EMPLOYEE_DEPARTMENT SET END_DATE = ? WHERE EMPLOYEE_ID = ? AND END_DATE IS NULL";
 	
 	public EmployeeDepartmentDAOImpl() {
-		super(EmployeeDepartment.class);
 	}
 
 	@Override

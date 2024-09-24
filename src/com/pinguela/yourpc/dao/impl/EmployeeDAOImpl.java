@@ -30,7 +30,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 public class EmployeeDAOImpl
-extends AbstractDAO<Employee>
+extends AbstractDAO<Integer, Employee>
 implements EmployeeDAO {
 	
 	private static final String SELECT_COLUMNS =
@@ -92,7 +92,6 @@ implements EmployeeDAO {
 	private EmployeeDepartmentDAO employeeDepartmentDAO = null;
 	
 	public EmployeeDAOImpl() {
-		super(Employee.class);
 		addressDAO = new AddressDAOImpl();
 		employeeDepartmentDAO = new EmployeeDepartmentDAOImpl();
 	}
@@ -165,7 +164,7 @@ implements EmployeeDAO {
 	@Override
 	public Integer create(Session session, Employee e) 
 			throws DataException {
-		return (Integer) super.persist(null, e);
+		return super.create(null, e);
 	}
 
 	@Override
