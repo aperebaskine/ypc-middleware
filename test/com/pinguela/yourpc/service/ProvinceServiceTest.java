@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.service;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -39,14 +39,14 @@ class ProvinceServiceTest {
 				List<Province> provinces = provinceService.findByCountry(c.getId());
 
 				for (Province p : provinces) {
-					assertEquals(c.getId(), p.getCountryId());
+					assertEquals(c.getId(), p.getCountry().getId());
 				}
 			}
 		} catch (YPCException e) {
 			fail(e);
 		} 
 	}
-	
+
 	@Test
 	void testFindByCountryWithUnsupportedCountryCode() {
 		try {
@@ -69,12 +69,9 @@ class ProvinceServiceTest {
 
 	@Test
 	void testFindByCountryWithNullCountryCode() {
-		try {
-			List<Province> provinces = provinceService.findByCountry(null);
-			assertNull(provinces);
-		} catch (YPCException e) {
-			fail(e);
-		}
+		assertThrows(NullPointerException.class, () -> {
+			provinceService.findByCountry(null);
+		});
 	}
 
 }

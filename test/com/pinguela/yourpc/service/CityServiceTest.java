@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.service;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -31,7 +31,7 @@ class CityServiceTest {
 		try {
 			List<City> cities = cityService.findByProvince(1);
 			for (City c : cities) {
-				assertEquals(1, c.getProvinceId());
+				assertEquals(1, c.getProvince().getId());
 			}
 		} catch (YPCException e) {
 			fail(e);
@@ -50,12 +50,9 @@ class CityServiceTest {
 
 	@Test
 	void testFindByProvinceWithNullProvinceId() {
-		try {
-			List<City> cities = cityService.findByProvince(null);
-			assertNull(cities);
-		} catch (YPCException e) {
-			fail(e);
-		}
+		assertThrows(NullPointerException.class, () -> {
+			cityService.findByProvince(null);
+		});
 	}
 
 }

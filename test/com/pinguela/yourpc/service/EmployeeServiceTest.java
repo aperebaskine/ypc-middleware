@@ -22,8 +22,12 @@ import com.pinguela.DataException;
 import com.pinguela.InvalidLoginCredentialsException;
 import com.pinguela.YPCException;
 import com.pinguela.yourpc.model.Address;
+import com.pinguela.yourpc.model.City;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
+import com.pinguela.yourpc.model.FullName;
+import com.pinguela.yourpc.model.ID;
+import com.pinguela.yourpc.model.IDType;
 import com.pinguela.yourpc.service.impl.EmployeeServiceImpl;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -74,10 +78,8 @@ class EmployeeServiceTest {
 		private void initEmployee() {
 			
 			e = new Employee();
-			e.setFirstName("Alexandre");
-			e.setLastName1("Perebaskine");
-			e.setDocumentTypeId("NIE");
-			e.setDocumentNumber("X9876543V");
+			e.setName(new FullName("Alexandre", "Perebaskine", null));
+			e.setDocument(new ID(new IDType("NIE", null), "X9876543V"));
 			e.setPhoneNumber("TEST" +System.currentTimeMillis());
 			e.setEmail(System.currentTimeMillis() +"@gmail.com");
 			e.setUsername("TEST" +System.currentTimeMillis());
@@ -91,7 +93,10 @@ class EmployeeServiceTest {
 			a.setFloor((short) 1);
 			a.setDoor("D");
 			a.setZipCode("12345");
-			a.setCityId(1);
+			
+			City city = new City();
+			city.setId(1);
+			a.setCity(city);
 			
 			e.setAddress(a);
 		}
@@ -114,7 +119,7 @@ class EmployeeServiceTest {
 			for (String documentType : new String[] {"NIE", "NIF", "FOR", "PPT"}) {
 				try {
 					initEmployee();
-					e.setDocumentType(documentType);
+					e.getDocument().getType().setId(documentType);
 					Integer id = employeeService.register(e);
 					Employee f = employeeService.findById(id);
 					assertEquals(e.getPhoneNumber(), f.getPhoneNumber());
@@ -126,13 +131,13 @@ class EmployeeServiceTest {
 		
 		@Test
 		void testWithInvalidFirstName() {
-			e.setFirstName(null);
+			e.getName().setFirstName(null);
 			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		
 		@Test
 		void testWithInvalidLastName() {
-			e.setLastName1(null);
+			e.getName().setLastName1(null);
 			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		

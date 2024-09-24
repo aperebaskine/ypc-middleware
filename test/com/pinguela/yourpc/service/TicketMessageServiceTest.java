@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
+import com.pinguela.yourpc.model.Employee;
+import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketMessage;
 import com.pinguela.yourpc.service.impl.TicketMessageServiceImpl;
 import com.pinguela.yourpc.service.impl.TicketServiceImpl;
@@ -21,10 +23,16 @@ public class TicketMessageServiceTest {
 	public TicketMessageServiceTest() {
 		ticketService = new TicketServiceImpl();
 		tmService = new TicketMessageServiceImpl();
+		
+		Ticket ticket = new Ticket();
+		ticket.setId(1l);
+		
+		Employee employee = new Employee();
+		employee.setId(4);
 
 		testMessage = new TicketMessage();
-		testMessage.setTicketId(1l);
-		testMessage.setEmployeeId(4);
+		testMessage.setTicket(ticket);
+		testMessage.setEmployee(employee);
 		testMessage.setText("TESTCREATE" +System.currentTimeMillis());
 	}
 
@@ -34,7 +42,7 @@ public class TicketMessageServiceTest {
 
 		
 		Long id = tmService.create(testMessage);
-		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId()).getMessageList();
+		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicket().getId()).getMessageList();
 		
 		if (id == null || !testMessage.getText().equals(ticketMessageList.get(ticketMessageList.size()-1).getText())) {
 			logger.error("Error al crear mensaje: {}", testMessage);
@@ -47,7 +55,7 @@ public class TicketMessageServiceTest {
 			throws ServiceException, DataException {
 		
 		Boolean isDeleted = tmService.delete(testMessage.getId());
-		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId()).getMessageList();
+		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicket().getId()).getMessageList();
 		
 		if (!isDeleted
 				|| ticketMessageList.get(ticketMessageList.size()-1).getId() == testMessage.getId()) {

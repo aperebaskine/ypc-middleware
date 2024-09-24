@@ -24,6 +24,9 @@ import com.pinguela.ServiceException;
 import com.pinguela.YPCException;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerCriteria;
+import com.pinguela.yourpc.model.FullName;
+import com.pinguela.yourpc.model.ID;
+import com.pinguela.yourpc.model.IDType;
 import com.pinguela.yourpc.service.impl.CustomerServiceImpl;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -74,10 +77,8 @@ class CustomerServiceTest {
 		
 		private void initCustomer() {
 			c = new Customer();
-			c.setFirstName("Alexandre");
-			c.setLastName1("Perebaskine");
-			c.setDocumentTypeId("NIE");
-			c.setDocumentNumber("X9876543V");
+			c.setName(new FullName("Alexandre", "Perebaskine", null));
+			c.setDocument(new ID(new IDType("NIE", null), "X9876543V"));
 			c.setPhoneNumber("TEST" +System.currentTimeMillis());
 			c.setEmail(System.currentTimeMillis() +"@gmail.com");
 			c.setUnencryptedPassword("abc123.");
@@ -101,12 +102,12 @@ class CustomerServiceTest {
 			for (String documentType : new String[] {"NIF", "FOR", "PPT"}) {
 				try {
 					initCustomer();
-					c.setDocumentTypeId(documentType);
+					c.getDocument().getType().setId(documentType);
 					
 					Integer id = customerService.register(c);
 					Customer d = customerService.findById(id);
 					assertEquals(c.getPhoneNumber(), d.getPhoneNumber());
-					assertEquals(c.getDocumentTypeId(), d.getDocumentTypeId());
+					assertEquals(c.getDocument().getType().getId(), d.getDocument().getType().getId());
 				} catch (YPCException e) {
 					fail(e.getMessage(), e);
 				}
@@ -120,31 +121,31 @@ class CustomerServiceTest {
 
 		@Test
 		void testWithInvalidFirstName() {
-			c.setFirstName(null);
+			c.getName().setFirstName(null);
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
 		@Test
 		void testWithInvalidLastName() {
-			c.setLastName1(null);
+			c.getName().setLastName1(null);
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
 		@Test
 		void testWithInvalidDocumentType() {
-			c.setDocumentTypeId("ABC");
+			c.getDocument().getType().setId("ABC");
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
 		@Test
 		void testWithNullDocumentType() {
-			c.setDocumentTypeId(null);
+			c.getDocument().getType().setId(null);
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
 		@Test
 		void testWithInvalidDocumentNumber() {
-			c.setDocumentNumber(null);
+			c.getDocument().setNumber(null);
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
@@ -263,7 +264,7 @@ class CustomerServiceTest {
 				assertFalse(customers.isEmpty());
 
 				for (Customer c : customers) {
-					assertEquals(criteria.getFirstName(), c.getFirstName());
+					assertEquals(criteria.getFirstName(), c.getName().getFirstName());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -278,7 +279,7 @@ class CustomerServiceTest {
 				assertFalse(customers.isEmpty());
 
 				for (Customer c : customers) {
-					assertEquals(criteria.getLastName1(), c.getLastName1());
+					assertEquals(criteria.getLastName1(), c.getName().getLastName1());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -293,7 +294,7 @@ class CustomerServiceTest {
 				assertFalse(customers.isEmpty());
 
 				for (Customer c : customers) {
-					assertEquals(criteria.getLastName2(), c.getLastName2());
+					assertEquals(criteria.getLastName2(), c.getName().getLastName2());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -308,7 +309,7 @@ class CustomerServiceTest {
 				assertFalse(customers.isEmpty());
 
 				for (Customer c : customers) {
-					assertEquals(criteria.getDocumentNumber(), c.getDocumentNumber());
+					assertEquals(criteria.getDocumentNumber(), c.getDocument().getNumber());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -341,8 +342,8 @@ class CustomerServiceTest {
 				assertFalse(customers.isEmpty());
 
 				for (Customer c : customers) {
-					assertEquals(criteria.getFirstName(), c.getFirstName());
-					assertEquals(criteria.getLastName1(), c.getLastName1());
+					assertEquals(criteria.getFirstName(), c.getName().getFirstName());
+					assertEquals(criteria.getLastName1(), c.getName().getLastName1());
 					assertEquals(criteria.getEmail(), c.getEmail());
 				}
 			} catch (YPCException e) {
@@ -356,11 +357,11 @@ class CustomerServiceTest {
 	void testUpdate() {
 		try {
 			Customer c = customerService.findById(1);
-			c.setLastName2("TEST" +System.currentTimeMillis());
+			c.getName().setLastName2("TEST" +System.currentTimeMillis());
 			assertTrue(customerService.update(c));
 
 			Customer d = customerService.findById(1);
-			assertEquals(c.getLastName2(), d.getLastName2());
+			assertEquals(c.getName().getLastName2(), d.getName().getLastName2());
 		} catch (YPCException e) {
 			fail(e.getMessage(), e);
 		}
