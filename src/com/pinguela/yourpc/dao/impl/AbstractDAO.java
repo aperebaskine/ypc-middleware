@@ -49,7 +49,7 @@ public abstract class AbstractDAO<PK, T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected List<PK> persist(Session session, List<T> entities)
+	protected List<PK> batchCreate(Session session, List<T> entities)
 			throws DataException {
 		try {
 			for (int i = 0; i<entities.size(); i++) {
@@ -68,12 +68,12 @@ public abstract class AbstractDAO<PK, T> {
 		}	
 	}
 
-	protected void merge(Session session, T entity) 
+	protected void update(Session session, T entity) 
 			throws DataException {
-		merge(session, Arrays.asList(entity));
+		batchUpdate(session, Arrays.asList(entity));
 	}
 
-	protected void merge(Session session, List<T> entities)
+	protected void batchUpdate(Session session, List<T> entities)
 			throws DataException {
 		try {
 			for (int i = 0; i<entities.size(); i++) {
@@ -85,16 +85,44 @@ public abstract class AbstractDAO<PK, T> {
 			throw new DataException(e);
 		}
 	}
-
-	protected boolean softDelete(Session session, PK id) {
+	
+	protected boolean delete(Session session, PK id) {
+		T entity = session.find(targetClass, id);
+		if (entity == null) {
+			return false;
+		}
+		
+		session.remove(entity);
+		return true;
+	}
+	
+	protected int batchDelete(Session session, List<PK> ids) {
+		List<T> entities = session.byMultipleIds(targetClass).multiLoad(ids);
+		int deletedEntries = 0;
+		
+		for (int i = 0; i < entities.size(); i++) {
+			T entity = entities.get(i);
+			if (entity == null) {
+				continue;
+			}
+			session.remove(entity);
+			deletedEntries++;
+			
+		}
+	}
+	
+	private static <PK, T> List<PK> processBatchIfFull(Session session, List<T> entities, int current) {
+		
 	}
 
-	private static void processBatchIfFull(Session session, int entityCount, int current) {
+	private static void processBatchIfFull(Session session, int totalEntityCount, int entitiesInBatch, int currentEntity) {
 		if ((current > 0 && current % BATCH_SIZE == 0) || current == entityCount-1) {
 			session.flush();
 			session.clear();
 		}
 	}
+	
+	
 
 	protected T findById(Session session, Object id) 
 			throws DataException {
@@ -168,6 +196,14 @@ public abstract class AbstractDAO<PK, T> {
 	protected Class<T> getTargetClass() {
 		return targetClass;
 	}
+	
+	/**
+	 * When performing a batch operation, store the entities' IDs before clearing the entity cache.
+	 * Implementation required only for calling {@link #batchCreate(Session, List)};
+	 * @param entities List of entities being batch processed
+	 * @return List of identifiers for the above entities
+	 */
+	protected abstract List<PK> storeIdsInBatch(List<T> entities);
 
 	/**
 	 * Specify criteria for the queries performed by the {@link #findBy(Session, AbstractCriteria)} 
