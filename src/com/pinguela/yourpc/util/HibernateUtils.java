@@ -13,7 +13,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 import org.reflections.Reflections;
 
-import com.pinguela.yourpc.model.AbstractValueObject;
+import com.pinguela.yourpc.model.AbstractEntity;
 
 import jakarta.persistence.Entity;
 
@@ -55,9 +55,9 @@ public class HibernateUtils {
 
 	private static Metadata getMetadata(ServiceRegistry serviceRegistry) {
 		MetadataSources sources = new MetadataSources(serviceRegistry);
-		Reflections reflections = new Reflections(AbstractValueObject.class.getPackage().getName());
+		Reflections reflections = new Reflections(AbstractEntity.class.getPackage().getName());
 
-		for (Class<?> clazz : reflections.getSubTypesOf(AbstractValueObject.class)) {
+		for (Class<?> clazz : reflections.getSubTypesOf(AbstractEntity.class)) {
 			if (clazz.isAnnotationPresent(Entity.class)) {
 				sources.addAnnotatedClass(clazz);
 			}
