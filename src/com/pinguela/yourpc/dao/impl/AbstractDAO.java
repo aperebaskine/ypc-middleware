@@ -2,7 +2,6 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -43,9 +42,14 @@ public abstract class AbstractDAO<PK, T> {
 	@SuppressWarnings("unchecked")
 	protected PK create(Session session, T entity) 
 			throws DataException {
-		session.persist(entity);
-		session.flush();
-		return (PK) session.getIdentifier(entity);
+		try {
+			session.persist(entity);
+			session.flush();
+			return (PK) session.getIdentifier(entity);
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,9 +72,21 @@ public abstract class AbstractDAO<PK, T> {
 		}	
 	}
 
-	protected void update(Session session, T entity) 
+	protected boolean update(Session session, T entity) 
 			throws DataException {
-		batchUpdate(session, Arrays.asList(entity));
+		try {
+			T persistedEntity = session.find(targetClass, getEntityId(entity));
+			if (persistedEntity == null) {
+				return false;
+			}
+
+			session.merge(entity);
+			session.flush();
+			return true;
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
+		}
 	}
 
 	protected void batchUpdate(Session session, List<T> entities)
@@ -85,21 +101,28 @@ public abstract class AbstractDAO<PK, T> {
 			throw new DataException(e);
 		}
 	}
-	
-	protected boolean delete(Session session, PK id) {
-		T entity = session.find(targetClass, id);
-		if (entity == null) {
-			return false;
+
+	protected boolean delete(Session session, PK id)
+			throws DataException {
+		try {
+			T entity = session.find(targetClass, id);
+			if (entity == null) {
+				return false;
+			}
+
+			session.remove(entity);
+			session.flush();
+			return true;
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
-		
-		session.remove(entity);
-		return true;
 	}
-	
+
 	protected int batchDelete(Session session, List<PK> ids) {
 		List<T> entities = session.byMultipleIds(targetClass).multiLoad(ids);
 		int deletedEntries = 0;
-		
+
 		for (int i = 0; i < entities.size(); i++) {
 			T entity = entities.get(i);
 			if (entity == null) {
@@ -107,12 +130,12 @@ public abstract class AbstractDAO<PK, T> {
 			}
 			session.remove(entity);
 			deletedEntries++;
-			
+
 		}
 	}
-	
-	private static <PK, T> List<PK> processBatchIfFull(Session session, List<T> entities, int current) {
-		
+
+	private static <PK, T> List<PK> processBatchIfFull(Session session, List<T> entities, 
+			int currentIndex, int currentBatchEntityCount) {
 	}
 
 	private static void processBatchIfFull(Session session, int totalEntityCount, int entitiesInBatch, int currentEntity) {
@@ -121,8 +144,6 @@ public abstract class AbstractDAO<PK, T> {
 			session.clear();
 		}
 	}
-	
-	
 
 	protected T findById(Session session, Object id) 
 			throws DataException {
@@ -153,8 +174,8 @@ public abstract class AbstractDAO<PK, T> {
 
 			ScrollableResults<T> scrollableResults = 
 					session.createQuery(query).scroll(ScrollMode.SCROLL_INSENSITIVE);
-			results.setResultCount(getResultCount(scrollableResults));
 			results.setPage(getPage(scrollableResults, pos, pageSize));
+			results.setResultCount(getResultCount(scrollableResults));
 
 			return results;
 		} catch (HibernateException e) {
@@ -196,14 +217,8 @@ public abstract class AbstractDAO<PK, T> {
 	protected Class<T> getTargetClass() {
 		return targetClass;
 	}
-	
-	/**
-	 * When performing a batch operation, store the entities' IDs before clearing the entity cache.
-	 * Implementation required only for calling {@link #batchCreate(Session, List)};
-	 * @param entities List of entities being batch processed
-	 * @return List of identifiers for the above entities
-	 */
-	protected abstract List<PK> storeIdsInBatch(List<T> entities);
+
+	protected abstract PK getEntityId(T entity);
 
 	/**
 	 * Specify criteria for the queries performed by the {@link #findBy(Session, AbstractCriteria)} 
