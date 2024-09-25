@@ -13,7 +13,7 @@ import jakarta.persistence.Transient;
 @Entity
 @Immutable
 public class AttributeValue<E> 
-extends AbstractValueObject 
+extends AbstractEntity<Integer> 
 implements Cloneable {
 
 	@Id

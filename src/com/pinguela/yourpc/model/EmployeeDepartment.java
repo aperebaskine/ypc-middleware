@@ -14,7 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class EmployeeDepartment extends AbstractValueObject {
+public class EmployeeDepartment 
+extends AbstractEntity<Integer> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

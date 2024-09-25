@@ -19,7 +19,7 @@ import jakarta.persistence.OneToOne;
 @Check(constraints = "(CUSTOMER_ID IS NULL AND EMPLOYEE_ID IS NOT NULL)"
 		+ "OR (CUSTOMER_ID IS NOT NULL AND EMPLOYEE_ID IS NULL")
 public class Address
-extends AbstractValueObject {
+extends AbstractEntity<Integer> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

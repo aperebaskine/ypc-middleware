@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 @Immutable
 @Table(name = "DOCUMENT_TYPE")
 public class IDType 
-extends AbstractValueObject {
+extends AbstractEntity<String> {
 	
 	@Id
 	@Column(columnDefinition = "CHAR(3)")

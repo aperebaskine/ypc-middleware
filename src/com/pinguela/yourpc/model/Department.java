@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Department 
-extends AbstractValueObject {
+extends AbstractEntity<String> {
 	
 	@Id
 	@Column(columnDefinition = "CHAR(3)") 

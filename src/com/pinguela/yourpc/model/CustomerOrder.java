@@ -16,7 +16,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class CustomerOrder 
-extends AbstractValueObject {
+extends AbstractEntity<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

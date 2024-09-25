@@ -17,7 +17,7 @@ import jakarta.persistence.OneToMany;
 @Entity
 @Immutable
 public class Category 
-extends AbstractValueObject {
+extends AbstractEntity<Short> {
 
 	@Id
 	private Short id;

@@ -19,7 +19,7 @@ import jakarta.persistence.MapKey;
 
 @Entity
 public class Product 
-extends AbstractValueObject {
+extends AbstractEntity<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

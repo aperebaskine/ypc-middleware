@@ -16,7 +16,7 @@ import jakarta.persistence.Transient;
 
 @MappedSuperclass
 public abstract class AbstractPerson
-extends AbstractValueObject {
+extends AbstractEntity<Integer> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

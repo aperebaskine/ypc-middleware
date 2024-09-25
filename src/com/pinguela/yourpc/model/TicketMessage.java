@@ -16,7 +16,7 @@ import jakarta.persistence.ManyToOne;
 @Check(constraints = "(CUSTOMER_ID IS NULL AND ADDRESS_ID IS NOT NULL)"
 		+ "OR (CUSTOMER_ID IS NOT NULL AND ADDRESS_ID IS NULL")
 public class TicketMessage
-extends AbstractValueObject {
+extends AbstractEntity<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -11,7 +11,7 @@ import jakarta.persistence.MappedSuperclass;
 @Immutable
 @MappedSuperclass
 public abstract class AbstractTerritory<PK> 
-extends AbstractValueObject {
+extends AbstractEntity<PK> {
 	
 	@Id
 	private PK id;

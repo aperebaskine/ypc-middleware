@@ -34,7 +34,7 @@ import jakarta.persistence.Table;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID", columnDefinition = "CHAR(3)")
 public abstract class Attribute<E>
-extends AbstractValueObject 
+extends AbstractEntity<Integer> 
 implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 	
 	/**

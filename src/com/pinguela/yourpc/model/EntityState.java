@@ -10,7 +10,8 @@ import jakarta.persistence.MappedSuperclass;
 
 @Immutable
 @MappedSuperclass
-public class EntityState<T> extends AbstractValueObject {
+public class EntityState<T>
+extends AbstractEntity<String> {
 	
 	@Id
 	@Column(columnDefinition = "CHAR(3)") 

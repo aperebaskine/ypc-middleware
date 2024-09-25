@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.model;
 
-public abstract class AbstractCriteria<T> { 
+public abstract class AbstractCriteria<T> 
+extends AbstractValueObject { 
 	
 	public static final Boolean ASC = Boolean.TRUE;
 	public static final Boolean DESC = Boolean.FALSE;

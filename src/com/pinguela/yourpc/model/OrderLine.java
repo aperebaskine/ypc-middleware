@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class OrderLine 
-extends AbstractValueObject {
+extends AbstractEntity<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
