@@ -69,6 +69,9 @@ class EmployeeServiceTest {
 	class TestRegister {
 		
 		private Employee e;
+		private FullName name;
+		private ID document;
+		private IDType documentType;
 		
 		@BeforeEach
 		void setUp() {
@@ -78,8 +81,17 @@ class EmployeeServiceTest {
 		private void initEmployee() {
 			
 			e = new Employee();
-			e.setName(new FullName("Alexandre", "Perebaskine", null));
-			e.setDocument(new ID(new IDType("NIE", null), "X9876543V"));
+			name = new FullName("Alexandre", "Perebaskine", null);
+			document = new ID();
+			documentType = new IDType();
+			
+			document.setNumber("X9876543V");
+			documentType.setId("NIE");
+			document.setType(documentType);
+			
+			e.setName(name);
+			e.setDocument(document);
+			
 			e.setPhoneNumber("TEST" +System.currentTimeMillis());
 			e.setEmail(System.currentTimeMillis() +"@gmail.com");
 			e.setUsername("TEST" +System.currentTimeMillis());
@@ -143,19 +155,19 @@ class EmployeeServiceTest {
 		
 		@Test
 		void testWithInvalidDocumentType() {
-			e.setDocumentTypeId("ABC");
+			documentType.setId("ABC");
 			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		
 		@Test
 		void testWithNullDocumentType() {
-			e.setDocumentTypeId(null);
+			documentType.setId(null);
 			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		
 		@Test
 		void testWithInvalidDocumentNumber() {
-			e.setDocumentNumber(null);
+			document.setNumber(null);
 			assertThrows(DataException.class, () -> employeeService.register(e));
 		}
 		
@@ -296,7 +308,7 @@ class EmployeeServiceTest {
 				assertFalse(employees.isEmpty());
 				
 				for (Employee e : employees) {
-					assertEquals(criteria.getFirstName(), e.getFirstName());
+					assertEquals(criteria.getFirstName(), e.getName().getFirstName());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -311,7 +323,7 @@ class EmployeeServiceTest {
 				assertFalse(employees.isEmpty());
 				
 				for (Employee e : employees) {
-					assertEquals(criteria.getLastName1(), e.getLastName1());
+					assertEquals(criteria.getLastName1(), e.getName().getLastName1());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -326,7 +338,7 @@ class EmployeeServiceTest {
 				assertFalse(employees.isEmpty());
 				
 				for (Employee e : employees) {
-					assertEquals(criteria.getLastName2(), e.getLastName2());
+					assertEquals(criteria.getLastName2(), e.getName().getLastName2());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -341,7 +353,7 @@ class EmployeeServiceTest {
 				assertFalse(employees.isEmpty());
 				
 				for (Employee e : employees) {
-					assertEquals(criteria.getDocumentNumber(), e.getDocumentNumber());
+					assertEquals(criteria.getDocumentNumber(), e.getDocument().getNumber());
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -411,11 +423,11 @@ class EmployeeServiceTest {
 	void testUpdate() {
 		try {
 			Employee e = employeeService.findById(1);
-			e.setLastName2("TEST" +System.currentTimeMillis());
+			e.getName().setLastName2("TEST" +System.currentTimeMillis());
 			assertTrue(employeeService.update(e));
 			
 			Employee f = employeeService.findById(1);
-			assertEquals(e.getLastName2(), f.getLastName2());
+			assertEquals(e.getName().getLastName2(), f.getName().getLastName2());
 		} catch (YPCException e) {
 			fail(e.getMessage(), e);
 		}

@@ -219,39 +219,40 @@ class AddressServiceTest {
 
 		@Test
 		void testWithNonNullCustomerAndEmployeeId() {
-			a.setEmployeeId(1);
+			a.setEmployee(e);
 			assertThrows(DataException.class, () -> addressService.create(a));
 		}
 
 		@Test
 		void testWithNullCustomerAndEmployeeId() {
-			a.setCustomerId(null);
+			a.getCustomer().setId(null);
 			assertThrows(DataException.class, () -> addressService.create(a));
 		}
 
 		@Test
 		void testWithInvalidCustomerId() {
-			a.setCustomerId(0);
+			a.getCustomer().setId(0);
 			assertThrows(DataException.class, () -> addressService.create(a));
 		}
 
 		@Test
 		void testWithInvalidEmployeeId() {
-			a.setCustomerId(null);
-			a.setEmployeeId(0);
+			a.setCustomer(null);
+			e.setId(0);
+			a.setEmployee(e);
 			assertThrows(DataException.class, () -> addressService.create(a));
 		}
 
 		@Test
 		void testWithInvalidCityId() {
-			a.setCityId(0);
+			a.getCity().setId(0);
 			assertThrows(DataException.class, () -> addressService.create(a));
 		}
 
 		@Test
 		void testCreateNewDefaultAddress() {
 			try {
-				a.setIsDefault(true);
+				a.setDefault(true);
 				addressService.create(a);
 
 				List<Address> list = addressService.findByCustomer(a.getCustomerId());
@@ -273,7 +274,7 @@ class AddressServiceTest {
 		void testCreateNewBillingAddress() {
 
 			try {
-				a.setIsBilling(true);
+				a.setBilling(true);
 				addressService.create(a);
 
 				List<Address> list = addressService.findByCustomer(a.getCustomerId());
@@ -338,7 +339,7 @@ class AddressServiceTest {
 			try {
 				Address a = addressService.findById(9);
 				assertFalse(a.isBilling());
-				a.setIsBilling(true);
+				a.setBilling(true);
 				
 				int newId = addressService.update(a);
 				assertEquals(9, newId);
@@ -359,7 +360,7 @@ class AddressServiceTest {
 			try {
 				Address a = addressService.findById(10);
 				assertFalse(a.isDefault());
-				a.setIsDefault(true);
+				a.setDefault(true);
 				
 				int newId = addressService.update(a);
 				assertEquals(10, newId);

@@ -415,31 +415,31 @@ class CustomerOrderServiceTest {
 
 		@Test
 		void testWithInvalidCustomerId() {
-			o.setCustomerId(0);
+			c.setId(0);
 			assertThrows(DataException.class, () -> customerOrderService.create(o));
 		}
 
 		@Test
 		void testWithInvalidBillingAddress() {
-			o.setBillingAddressId(0);
+			billingAddress.setId(0);
 			assertThrows(DataException.class, () -> customerOrderService.create(o));
 		}
 
 		@Test
 		void testWithInvalidShippingAddress() {
-			o.setShippingAddressId(0);
+			shippingAddress.setId(0);
 			assertThrows(DataException.class, () -> customerOrderService.create(o));
 		}
 
 		@Test
 		void testWithNullBillingAddress() {
-			o.setBillingAddressId(null);
+			billingAddress.setId(null);
 			assertThrows(IllegalArgumentException.class, () -> customerOrderService.create(o));
 		}
 
 		@Test
 		void testWithNullShippingAddress() {
-			o.setShippingAddressId(null);
+			shippingAddress.setId(null);
 			assertThrows(IllegalArgumentException.class, () -> customerOrderService.create(o));
 		}
 
@@ -455,7 +455,11 @@ class CustomerOrderServiceTest {
 		try {
 			CustomerOrder o = customerOrderService.findById(1l);
 			o.setTrackingNumber("TESTUPDATE" +System.currentTimeMillis());
-			o.setState("SPD");
+			
+			OrderState state = new OrderState();
+			state.setId("SPD");
+			o.setState(state);
+			
 			assertTrue(customerOrderService.update(o));
 
 			CustomerOrder p = customerOrderService.findById(o.getId());
