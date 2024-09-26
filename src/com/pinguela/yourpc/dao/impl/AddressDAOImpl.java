@@ -114,7 +114,7 @@ implements AddressDAO {
 			}
 		}
 
-		super.merge(session, a);
+		super.updateEntity(session, a);
 		return a.getId();
 	}
 	
