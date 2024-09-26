@@ -1,7 +1,8 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.util.comparator;
 
 import java.util.Comparator;
 
+import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.Address;
 
 public class AddressComparator implements Comparator<Address> {
@@ -20,7 +21,7 @@ public class AddressComparator implements Comparator<Address> {
             return customerComparison;
         }
         
-        int employeeComparison = compareNullable(a1.getEmployee().getId(), a2.getEmployee());
+        int employeeComparison = compareNullable(a1.getEmployee(), a2.getEmployee());
         if (employeeComparison != 0) {
             return employeeComparison;
         }
@@ -73,6 +74,13 @@ public class AddressComparator implements Comparator<Address> {
 
         // Finally, compare deletion date
         return compareNullable(a1.getDeletionDate(), a2.getDeletionDate());
+    }
+    
+    private <PK extends Comparable<PK>, T extends AbstractEntity<PK>> int compareNullable(T obj1, T obj2) {
+        if (obj1 == null && obj2 == null) return 0;
+        if (obj1 == null) return -1; // Null comes before non-null
+        if (obj2 == null) return 1; // Non-null comes after null
+        return obj1.getId().compareTo(obj2.getId());
     }
 
     private <T extends Comparable<T>> int compareNullable(T obj1, T obj2) {
