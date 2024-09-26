@@ -23,4 +23,8 @@ extends AbstractTerritory<Integer> {
 		this.province = province;
 	}
 
+	public Integer getProvinceId() {
+		return province.getId();
+	}
+	
 }

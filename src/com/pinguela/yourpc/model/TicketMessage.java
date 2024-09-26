@@ -55,6 +55,10 @@ extends AbstractEntity<Long> {
 	public void setTicket(Ticket ticket) {
 		this.ticket = ticket;
 	}
+	
+	public Long getTicketId() {
+		return ticket.getId();
+	}
 
 	public Customer getCustomer() {
 		return customer;

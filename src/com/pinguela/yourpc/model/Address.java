@@ -76,6 +76,10 @@ extends AbstractEntity<Integer> {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+	
+	public Integer getCustomerId() {
+		return customer == null ? null : customer.getId();
+	}
 
 	public Employee getEmployee() {
 		return employee;
@@ -83,6 +87,10 @@ extends AbstractEntity<Integer> {
 
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
+	}
+	
+	public Integer getEmployeeId() {
+		return employee == null ? null : employee.getId();
 	}
 
 	public String getStreetName() {

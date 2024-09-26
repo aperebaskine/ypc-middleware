@@ -30,6 +30,10 @@ extends AbstractTerritory<Integer> {
 		this.country = country;
 	}
 
+	public String getCountryId() {
+		return country.getId();
+	}
+
 	public List<City> getCities() {
 		return cities;
 	}

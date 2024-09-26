@@ -47,6 +47,10 @@ extends AbstractEntity<Long> {
 	public CustomerOrder getOrder() {
 		return order;
 	}
+	
+	public Long getOrderId() {
+		return order.getId();
+	}
 
 	public void setOrder(CustomerOrder order) {
 		this.order = order;

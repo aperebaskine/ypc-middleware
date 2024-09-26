@@ -16,7 +16,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class CustomerOrder 
-extends AbstractEntity<Long> {
+extends AbstractCustomerOperation<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +25,6 @@ extends AbstractEntity<Long> {
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "ORDER_STATE_ID")
 	private OrderState state;
-	
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "CUSTOMER_ID")
-	private Customer customer;
 
 	@CreationTimestamp 
 	private Date orderDate;
@@ -66,14 +62,6 @@ extends AbstractEntity<Long> {
 
 	public void setState(OrderState state) {
 		this.state = state;
-	}
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
 	}
 
 	public Date getOrderDate() {

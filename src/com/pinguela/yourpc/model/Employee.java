@@ -78,6 +78,10 @@ extends AbstractPerson {
 	public void setAddress(Address address) {
 		this.address = address;
 	}
+	
+	public Integer getAddressId() {
+		return address.getId();
+	}
 
 	public List<EmployeeDepartment> getDepartmentHistory() {
 		return departmentHistory;

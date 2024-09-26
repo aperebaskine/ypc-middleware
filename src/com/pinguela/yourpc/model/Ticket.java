@@ -19,14 +19,11 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class Ticket 
-extends AbstractEntity<Long> {
+extends AbstractCustomerOperation<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@ManyToOne
-	private Customer customer;
 	
 	@ManyToOne
 	private Employee employee;
@@ -69,14 +66,6 @@ extends AbstractEntity<Long> {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
 	}
 
 	public Employee getEmployee() {

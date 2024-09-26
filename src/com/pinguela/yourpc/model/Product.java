@@ -84,6 +84,10 @@ extends AbstractEntity<Long> {
 	public void setCategory(Category category) {
 		this.category = category;
 	}
+	
+	public Short getCategoryId() {
+		return category.getId();
+	}
 
 	public String getDescription() {
 		return description;

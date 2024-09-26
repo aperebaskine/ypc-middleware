@@ -17,14 +17,11 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class RMA 
-extends AbstractEntity<Long> {
+extends AbstractCustomerOperation<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@ManyToOne(optional = false)
-	private Customer customer;
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "RMA_STATE_ID")
@@ -48,12 +45,6 @@ extends AbstractEntity<Long> {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public Customer getCustomer() {
-		return customer;
-	}
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
 	}
 	public RMAState getState() {
 		return state;
