@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
@@ -65,17 +64,9 @@ implements CustomerDAO {
 
 	@Override
 	public Customer findByEmail(Session session, String email) throws DataException {
-		try {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<Customer> query = builder.createQuery(getTargetClass());
-			Root<Customer> root = query.from(getTargetClass());
-			
-			query.where(builder.equal(root.get("email"), email));
-			return session.createQuery(query).getSingleResultOrNull();
-		} catch (HibernateException e) {
-			logger.error(e.getMessage(), e);
-			throw new DataException(e);
-		}
+		CustomerCriteria criteria = new CustomerCriteria();
+		criteria.setEmail(email);
+		return super.findBy(session, criteria).get(0);
 	}
 
 	@Override

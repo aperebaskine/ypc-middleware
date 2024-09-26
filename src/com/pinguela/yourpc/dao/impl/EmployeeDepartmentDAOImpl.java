@@ -29,12 +29,6 @@ implements EmployeeDepartmentDAO {
 	
 	private static Logger logger = LogManager.getLogger(EmployeeDepartmentDAOImpl.class);
 	
-	private static final String FINDBYEMPLOYEE_QUERY = 
-			" SELECT ed.DEPARTMENT_ID, ed.START_DATE, ed.END_DATE"
-			+ " FROM EMPLOYEE_DEPARTMENT ed"
-			+ " WHERE ed.EMPLOYEE_ID = ?"
-			+ " ORDER BY ed.END_DATE IS NULL DESC, ed.END_DATE DESC";
-	
 	private static final String ASSIGNTOEMPLOYEE_QUERY = 
 			" INSERT INTO EMPLOYEE_DEPARTMENT(EMPLOYEE_ID, DEPARTMENT_ID, START_DATE"
 			+ " VALUES (?, ?, ?)";

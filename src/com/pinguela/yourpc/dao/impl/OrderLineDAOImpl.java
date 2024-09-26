@@ -4,15 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.RMA;
@@ -63,10 +62,6 @@ implements OrderLineDAO {
 	private static final String FIND_BY_RMA_QUERY = 
 			String.format(SELECT_COLUMNS, RMA_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_RMA_ORDER_LINE +WHERE_RMA_ID;
 
-	private static final String CREATE_QUERY = 
-			" INSERT INTO ORDER_LINE(CUSTOMER_ORDER_ID, PRODUCT_ID, QUANTITY, PURCHASE_PRICE, SALE_PRICE)";
-	private static final int CREATE_QUERY_COLUMN_COUNT = 5;
-
 	private static final String DELETE_BY_CUSTOMERORDER_QUERY = 
 			" DELETE FROM ORDER_LINE ol WHERE ol.CUSTOMER_ORDER_ID = ?";
 
@@ -89,7 +84,7 @@ implements OrderLineDAO {
 	}
 
 	@Override
-	public List<OrderLine> findByCustomerOrder(Connection conn, long orderId) 
+	public List<OrderLine> findByCustomerOrder(Session session, Long orderId) 
 			throws DataException {
 		return findByKey(conn, FIND_BY_CUSTOMER_ORDER_QUERY, orderId);
 	}
@@ -154,41 +149,9 @@ implements OrderLineDAO {
 	}
 
 	@Override
-	public Boolean create(Connection conn, List<OrderLine> olList) 
+	public Boolean create(Session session, List<OrderLine> olList) 
 			throws DataException {
-
-		if (olList == null || olList.isEmpty()) {
-			return null;
-		}
-
-		String query = new StringBuilder(CREATE_QUERY)
-				.append(SQLQueryUtils.buildPlaceholderValuesClause(olList, CREATE_QUERY_COLUMN_COUNT))
-				.toString();
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			setInsertValues(stmt, olList);
-
-			int affectedRows = stmt.executeUpdate();
-
-			if (affectedRows != olList.size()) {
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				for (int i = 0; rs.next(); i++) {
-					olList.get(i).setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				}
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return !super.batchPersist(session, olList).isEmpty();
 	}
 
 	private int setInsertValues(PreparedStatement stmt, List<OrderLine> olList)

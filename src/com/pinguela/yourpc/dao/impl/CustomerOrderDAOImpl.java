@@ -1,22 +1,17 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.CustomerOrderDAO;
-import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
@@ -35,10 +30,6 @@ extends AbstractDAO<Long, CustomerOrder>
 implements CustomerOrderDAO {
 
 	private static Logger logger = LogManager.getLogger(CustomerOrderDAOImpl.class);
-	private OrderLineDAO orderLineDAO = null;
-	
-	private static final String SELECT_COLUMNS =
-			" SELECT co.ID, co.ORDER_STATE_ID, co.CUSTOMER_ID, co.ORDER_DATE, co.TRACKING_NUMBER, co.BILLING_ADDRESS_ID, co.SHIPPING_ADDRESS_ID, co.INVOICE_TOTAL";
 
 	private static final String SELECT_RANGES =
 			" SELECT MIN(co.INVOICE_TOTAL), MAX(co.INVOICE_TOTAL), MIN(co.ORDER_DATE), MAX(co.ORDER_DATE)";
@@ -48,80 +39,20 @@ implements CustomerOrderDAO {
 	
 	private static final String GET_RANGES_QUERY = 
 			SELECT_RANGES +FROM_TABLE;
-
-	private static final String CREATE_QUERY = 
-			" INSERT INTO CUSTOMER_ORDER(ORDER_STATE_ID,"
-					+ " CUSTOMER_ID,"
-					+ " ORDER_DATE,"
-					+ " TRACKING_NUMBER,"
-					+ " BILLING_ADDRESS_ID,"
-					+ " SHIPPING_ADDRESS_ID,"
-					+ " INVOICE_TOTAL)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String UPDATE_QUERY =
-			" UPDATE CUSTOMER_ORDER"
-					+ " SET ORDER_STATE_ID = ?,"
-					+ " CUSTOMER_ID = ?,"
-					+ " ORDER_DATE = ?,"
-					+ " TRACKING_NUMBER = ?,"
-					+ " BILLING_ADDRESS_ID = ?,"
-					+ " SHIPPING_ADDRESS_ID = ?,"
-					+ " INVOICE_TOTAL = ?"
-					+ " WHERE ID = ?";
 	
 	public CustomerOrderDAOImpl() {
-		orderLineDAO = new OrderLineDAOImpl();
 	}
 
 	@Override
 	public Long create(Session session, CustomerOrder co) 
 			throws DataException {
-		return super.create(session, co);
+		return super.persist(session, co);
 	}
 
 	@Override
-	public Boolean update(Connection conn, CustomerOrder co) 
+	public Boolean update(Session session, CustomerOrder co) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-
-			orderLineDAO.deleteByCustomerOrder(conn, co.getId());
-			stmt = conn.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-
-			int index = 1;
-			index = setInsertValues(stmt, co);
-			stmt.setLong(index, co.getId());
-
-			int updatedRows = stmt.executeUpdate();
-			if (updatedRows != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			} else {
-				orderLineDAO.create(conn, co.getOrderLines());
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
-	}
-
-	private int setInsertValues(PreparedStatement stmt, CustomerOrder co) throws SQLException {
-
-		int index = 1;
-		stmt.setString(index++, co.getState());
-		stmt.setLong(index++, co.getCustomerId());
-		stmt.setTimestamp(index++, new java.sql.Timestamp(co.getOrderDate().getTime()));
-		stmt.setString(index++, co.getTrackingNumber());
-		stmt.setInt(index++, co.getBillingAddressId());
-		stmt.setInt(index++, co.getShippingAddressId());
-		stmt.setDouble(index++, co.getTotalPrice());
-
-		return index;
+		return super.merge(session, co);
 	}
 
 	@Override
@@ -133,17 +64,9 @@ implements CustomerOrderDAO {
 	@Override
 	public List<CustomerOrder> findByCustomer(Session session, Integer customerId) 
 			throws DataException {
-		try {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<CustomerOrder> query = builder.createQuery(getTargetClass());
-			Root<CustomerOrder> root = query.from(getTargetClass());
-			
-			query.where(builder.equal(root.get("customer").get("id"), customerId));
-			return session.createQuery(query).getResultList();
-		} catch (HibernateException e) {
-			logger.error(e.getMessage(), e);
-			throw new DataException(e);
-		}
+		CustomerOrderCriteria criteria = new CustomerOrderCriteria();
+		criteria.setCustomerId(customerId);
+		return super.findBy(session, criteria);
 	}
 
 	@Override
@@ -182,7 +105,7 @@ implements CustomerOrderDAO {
 	}
 	
 	@Override
-	public CustomerOrderRanges getRanges(Connection conn, CustomerOrderCriteria criteria) 
+	public CustomerOrderRanges getRanges(Session session, CustomerOrderCriteria criteria) 
 			throws DataException {
 		
 		CustomerOrderRanges ranges = new CustomerOrderRanges();
@@ -267,24 +190,6 @@ implements CustomerOrderDAO {
 		if (criteria.getState() != null) {
 			stmt.setString(index++, criteria.getState().toString());
 		}
-	}
-
-	private CustomerOrder loadNext(Connection conn, ResultSet rs) 
-			throws SQLException, DataException {
-
-		CustomerOrder co = new CustomerOrder();
-		int i = 1;
-
-		co.setId(rs.getLong(i++));
-		co.setState(rs.getString(i++));
-		co.setCustomerId(rs.getInt(i++));
-		co.setOrderDate(rs.getTimestamp(i++));
-		co.setTrackingNumber(rs.getString(i++));
-		co.setBillingAddressId(rs.getInt(i++));
-		co.setShippingAddressId(rs.getInt(i++));
-		co.setTotalPrice(rs.getDouble(i++));
-		co.setOrderLines(orderLineDAO.findByCustomerOrder(conn, co.getId()));
-		return co;
 	}
 
 }

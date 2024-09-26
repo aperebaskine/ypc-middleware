@@ -13,6 +13,7 @@ import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.util.ReflectionUtils;
 
@@ -21,7 +22,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractDAO<PK, T> {
+public abstract class AbstractDAO<PK, T extends AbstractEntity<PK>> {
 
 	private static final int BATCH_SIZE = 50;
 
@@ -40,7 +41,7 @@ public abstract class AbstractDAO<PK, T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected PK create(Session session, T entity) 
+	protected PK persist(Session session, T entity) 
 			throws DataException {
 		try {
 			session.persist(entity);
@@ -52,19 +53,17 @@ public abstract class AbstractDAO<PK, T> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected List<PK> batchCreate(Session session, List<T> entities)
+	protected List<PK> batchPersist(Session session, List<T> entities)
 			throws DataException {
 		try {
-			for (int i = 0; i<entities.size(); i++) {
+			List<PK> identifiers = new ArrayList<>();
+
+			for (int i = 0, batchStartIndex = 0; i<entities.size(); i++) {
 				session.persist(entities.get(i));
-				processBatchIfFull(session, entities.size(), i);
+				batchStartIndex = processBatchIfFull(
+						session, entities, identifiers, batchStartIndex, i);
 			}
 
-			List<PK> identifiers = new ArrayList<PK>();
-			for (T entity : entities) {
-				identifiers.add((PK) session.getIdentifier(entity));
-			}
 			return identifiers;
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
@@ -72,10 +71,10 @@ public abstract class AbstractDAO<PK, T> {
 		}	
 	}
 
-	protected boolean update(Session session, T entity) 
+	protected boolean merge(Session session, T entity) 
 			throws DataException {
 		try {
-			T persistedEntity = session.find(targetClass, getEntityId(entity));
+			T persistedEntity = session.find(targetClass, entity.getId());
 			if (persistedEntity == null) {
 				return false;
 			}
@@ -89,20 +88,31 @@ public abstract class AbstractDAO<PK, T> {
 		}
 	}
 
-	protected void batchUpdate(Session session, List<T> entities)
+	protected boolean batchMerge(Session session, List<T> entities)
 			throws DataException {
 		try {
-			for (int i = 0; i<entities.size(); i++) {
-				session.merge(entities.get(i));
-				processBatchIfFull(session, entities.size(), i);
+			List<T> persistedEntities = session
+					.byMultipleIds(targetClass)
+					.multiLoad(getIdentifiers(entities));
+
+			if (persistedEntities.isEmpty() ||
+					persistedEntities.size() != entities.size()) {
+				return false;
 			}
+
+			for (int i = 0, batchStartIndex = 0; i<entities.size(); i++) {
+				session.merge(entities.get(i));
+				batchStartIndex = processBatchIfFull(session, entities, batchStartIndex, i);
+			}
+
+			return true;
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
 		}
 	}
 
-	protected boolean delete(Session session, PK id)
+	protected boolean remove(Session session, PK id)
 			throws DataException {
 		try {
 			T entity = session.find(targetClass, id);
@@ -119,30 +129,68 @@ public abstract class AbstractDAO<PK, T> {
 		}
 	}
 
-	protected int batchDelete(Session session, List<PK> ids) {
-		List<T> entities = session.byMultipleIds(targetClass).multiLoad(ids);
-		int deletedEntries = 0;
+	protected boolean batchRemove(Session session, List<PK> ids) 
+			throws DataException {
+		try {
+			List<T> entities = session
+					.byMultipleIds(targetClass)
+					.multiLoad(ids);
 
-		for (int i = 0; i < entities.size(); i++) {
-			T entity = entities.get(i);
-			if (entity == null) {
-				continue;
+			if (entities.isEmpty()) {
+				return false;
 			}
-			session.remove(entity);
-			deletedEntries++;
 
+			for (int i = 0, batchStartIndex = 0; i < entities.size(); i++) {
+				T entity = entities.get(i);
+				if (entity == null) {
+					continue;
+				}
+				session.remove(entity);
+				batchStartIndex = processBatchIfFull(
+						session, entities, batchStartIndex, i);
+			} 
+
+			return true;
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
-	private static <PK, T> List<PK> processBatchIfFull(Session session, List<T> entities, 
-			int currentIndex, int currentBatchEntityCount) {
+	protected List<PK> getIdentifiers(List<T> entities) {
+		return getIdentifiers(null, entities, 0, entities.size());
 	}
 
-	private static void processBatchIfFull(Session session, int totalEntityCount, int entitiesInBatch, int currentEntity) {
-		if ((current > 0 && current % BATCH_SIZE == 0) || current == entityCount-1) {
-			session.flush();
-			session.clear();
+	@SuppressWarnings("unchecked")
+	private List<PK> getIdentifiers(Session session, List<T> entities, int startIndex, int endIndex) {
+		List<PK> identifiers = new ArrayList<>();
+		for (int i = startIndex; i < endIndex; i++) {
+			identifiers.add(session == null ? 
+					entities.get(i).getId() :
+						(PK) session.getIdentifier(entities.get(i)));
 		}
+		return identifiers;
+	}
+
+	private int processBatchIfFull(Session session, List<T> entities, int batchStartIndex, int currentIndex) {
+		return processBatchIfFull(session, entities, null, batchStartIndex, currentIndex);
+	}
+
+	private int processBatchIfFull(Session session, List<T> entities, 
+			List<PK> storedIdentifiers, int batchStartIndex, int currentIndex) {
+
+		if (!(currentIndex == entities.size())
+				&& (!((currentIndex - batchStartIndex) % BATCH_SIZE == 0))) {
+			return batchStartIndex;
+		}
+
+		session.flush();
+		if (storedIdentifiers != null) {
+			storedIdentifiers.addAll(getIdentifiers(session, entities, batchStartIndex, currentIndex));
+		}
+		session.clear();
+
+		return currentIndex +1;
 	}
 
 	protected T findById(Session session, Object id) 
@@ -160,6 +208,18 @@ public abstract class AbstractDAO<PK, T> {
 		try {
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
 			return session.createQuery(query).getResultList();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
+		}
+	}
+	
+	protected T findSingleResultBy(Session session, AbstractCriteria<T> criteria) 
+			throws DataException {
+		try {
+			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
+			List<T> results = session.createQuery(query).getResultList();
+			return results.isEmpty() ? null : results.get(0);
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -217,8 +277,6 @@ public abstract class AbstractDAO<PK, T> {
 	protected Class<T> getTargetClass() {
 		return targetClass;
 	}
-
-	protected abstract PK getEntityId(T entity);
 
 	/**
 	 * Specify criteria for the queries performed by the {@link #findBy(Session, AbstractCriteria)} 
