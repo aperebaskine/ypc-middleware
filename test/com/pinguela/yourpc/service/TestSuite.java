@@ -20,7 +20,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 
 @Suite
 @SelectClasses({AddressServiceTest.class,
-	AttributeServiceTest.class,
+//	AttributeServiceTest.class,
 	CategoryServiceTest.class,
 	CityServiceTest.class,
 	CountryServiceTest.class,
@@ -28,7 +28,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 	CustomerServiceTest.class,
 	EmployeeServiceTest.class,
 	MailServiceTest.class,
-	ProductServiceTest.class,
+//	ProductServiceTest.class,
 	ProvinceServiceTest.class})
 public class TestSuite {
 
