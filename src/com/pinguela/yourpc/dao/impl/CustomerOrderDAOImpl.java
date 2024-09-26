@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CustomerOrderDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
@@ -22,11 +23,13 @@ import com.pinguela.yourpc.util.SQLQueryUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class CustomerOrderDAOImpl 
-extends AbstractDAO<Long, CustomerOrder>
+extends AbstractMutableDAO<Long, CustomerOrder>
 implements CustomerOrderDAO {
 
 	private static Logger logger = LogManager.getLogger(CustomerOrderDAOImpl.class);
@@ -46,13 +49,13 @@ implements CustomerOrderDAO {
 	@Override
 	public Long create(Session session, CustomerOrder co) 
 			throws DataException {
-		return super.persist(session, co);
+		return super.createEntity(session, co);
 	}
 
 	@Override
 	public Boolean update(Session session, CustomerOrder co) 
 			throws DataException {
-		return super.merge(session, co);
+		return super.updateEntity(session, co);
 	}
 
 	@Override
@@ -76,32 +79,47 @@ implements CustomerOrderDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<CustomerOrder> query,
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, 
 			Root<CustomerOrder> root, AbstractCriteria<CustomerOrder> criteria) {
-		CustomerOrderCriteria coc = (CustomerOrderCriteria) criteria;
-		
-		if (coc.getCustomerId() != null) {
-			query.where(builder.equal(root.get("customer").get("id"), coc.getCustomerId()));
-		}
-		if (coc.getCustomerEmail() != null) {
-			Join<CustomerOrder, Customer> joinCustomer = root.join("customer");
-			joinCustomer.on(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
-		}
-		if (coc.getMinAmount() != null) {
-			query.where(builder.ge(root.get("totalPrice"), coc.getMinAmount()));
-		}
-		if (coc.getMaxAmount() != null) {
-			query.where(builder.le(root.get("totalPrice"), coc.getMaxAmount()));
-		}
-		if (coc.getMinDate() != null) {
-			query.where(builder.greaterThanOrEqualTo(root.get("orderDate"), coc.getMinDate()));
-		}
-		if (coc.getMaxDate() != null) {
-			query.where(builder.lessThanOrEqualTo(root.get("orderDate"), coc.getMaxDate()));
-		}
-		if (coc.getState() != null) {
-			query.where(builder.equal(root.get("state").get("id"), coc.getState()));
-		}
+	    CustomerOrderCriteria coc = (CustomerOrderCriteria) criteria;
+	    List<Predicate> predicates = new ArrayList<>();
+
+	    if (coc.getCustomerId() != null) {
+	        predicates.add(builder.equal(root.get("customer").get("id"), coc.getCustomerId()));
+	    }
+
+	    if (coc.getCustomerEmail() != null) {
+	        Join<CustomerOrder, Customer> joinCustomer = root.join("customer");
+	        joinCustomer.on(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
+	    }
+
+	    if (coc.getMinAmount() != null) {
+	        predicates.add(builder.ge(root.get("totalPrice"), coc.getMinAmount()));
+	    }
+
+	    if (coc.getMaxAmount() != null) {
+	        predicates.add(builder.le(root.get("totalPrice"), coc.getMaxAmount()));
+	    }
+
+	    if (coc.getMinDate() != null) {
+	        predicates.add(builder.greaterThanOrEqualTo(root.get("orderDate"), coc.getMinDate()));
+	    }
+
+	    if (coc.getMaxDate() != null) {
+	        predicates.add(builder.lessThanOrEqualTo(root.get("orderDate"), coc.getMaxDate()));
+	    }
+
+	    if (coc.getState() != null) {
+	        predicates.add(builder.equal(root.get("state").get("id"), coc.getState()));
+	    }
+
+	    return predicates;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<CustomerOrder> query,
+			Root<CustomerOrder> root, AbstractCriteria<CustomerOrder> criteria) {
+		// Unused	
 	}
 	
 	@Override
@@ -191,5 +209,11 @@ implements CustomerOrderDAO {
 			stmt.setString(index++, criteria.getState().toString());
 		}
 	}
+
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<CustomerOrder> updateQuery,
+			Root<CustomerOrder> root, AbstractUpdateValues<CustomerOrder> updateValues) {
+		// Unused
+		}
 
 }

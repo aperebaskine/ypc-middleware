@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.OrderState;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class OrderStateDAOImpl 
@@ -34,7 +35,15 @@ implements OrderStateDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<OrderState> query, Root<OrderState> root,
-			AbstractCriteria<OrderState> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<OrderState> root,
+			AbstractCriteria<OrderState> criteria) {
+		return null;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<OrderState> query, Root<OrderState> root,
+			AbstractCriteria<OrderState> criteria) {
+		// Unused	
+	}
 	
 }

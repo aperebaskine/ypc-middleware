@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.TicketState;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class TicketStateDAOImpl 
@@ -34,7 +35,15 @@ implements TicketStateDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<TicketState> query, Root<TicketState> root,
-			AbstractCriteria<TicketState> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<TicketState> root,
+			AbstractCriteria<TicketState> criteria) {
+		return null;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<TicketState> query, Root<TicketState> root,
+			AbstractCriteria<TicketState> criteria) {
+		// Unused	
+	}
 	
 }

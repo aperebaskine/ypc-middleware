@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.Department;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class DepartmentDAOImpl 
@@ -35,7 +36,15 @@ implements DepartmentDAO {
 	}
 
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Department> query, Root<Department> root,
-			AbstractCriteria<Department> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Department> root,
+			AbstractCriteria<Department> criteria) {
+		return null;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Department> query, Root<Department> root,
+			AbstractCriteria<Department> criteria) {
+		// Unused	
+	}
 
 }

@@ -2,7 +2,6 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,57 +12,25 @@ import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.OrderLineDAO;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.OrderLine;
+import com.pinguela.yourpc.model.OrderLineCriteria;
 import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 public class OrderLineDAOImpl 
-extends AbstractDAO<Long, OrderLine>
+extends AbstractMutableDAO<Long, OrderLine>
 implements OrderLineDAO {
-
-	private static final String ORDER_LINE_ALIAS = "ol";
-	private static final String TICKET_ORDER_LINE_ALIAS = "tol";
-	private static final String RMA_ORDER_LINE_ALIAS = "rol";
-	private static final String PRODUCT_ALIAS = "p";
-
-	// Quantity column table alias is a placeholder to be set in the formatted query constants
-	private static final String SELECT_COLUMNS =
-			" SELECT " +ORDER_LINE_ALIAS +".ID,"
-					+ " " +ORDER_LINE_ALIAS +".CUSTOMER_ORDER_ID,"
-					+ " " +ORDER_LINE_ALIAS +".PRODUCT_ID,"
-					+ " " +PRODUCT_ALIAS +".NAME,"
-					+ " %1$s.QUANTITY,"
-					+ " " +ORDER_LINE_ALIAS +".PURCHASE_PRICE,"
-					+ " " +ORDER_LINE_ALIAS +".SALE_PRICE";
-	private static final String FROM_TABLE =
-			" FROM ORDER_LINE ol"
-					+ " INNER JOIN PRODUCT p"
-					+ " ON ol.PRODUCT_ID = p.ID";
-	private static final String JOIN_TICKET_ORDER_LINE =
-			" INNER JOIN TICKET_ORDER_LINE tol"
-					+ " ON ol.ID = tol.ORDER_LINE_ID";
-	private static final String JOIN_RMA_ORDER_LINE =
-			" INNER JOIN RMA_ORDER_LINE rol"
-					+ " ON ol.ID = rol.ORDER_LINE_ID";
-	private static final String WHERE_CUSTOMER_ORDER_ID =
-			" WHERE ol.CUSTOMER_ORDER_ID = ?";
-	private static final String WHERE_TICKET_ID =
-			" WHERE tol.TICKET_ID = ?";
-	private static final String WHERE_RMA_ID =
-			" WHERE rol.RMA_ID = ?";
-
-	// Formatted queries with the quantity column table alias set
-	private static final String FIND_BY_CUSTOMER_ORDER_QUERY = 
-			String.format(SELECT_COLUMNS, ORDER_LINE_ALIAS) +FROM_TABLE +WHERE_CUSTOMER_ORDER_ID;
-	private static final String FIND_BY_TICKET_QUERY = 
-			String.format(SELECT_COLUMNS, TICKET_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_TICKET_ORDER_LINE +WHERE_TICKET_ID;
-	private static final String FIND_BY_RMA_QUERY = 
-			String.format(SELECT_COLUMNS, RMA_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_RMA_ORDER_LINE +WHERE_RMA_ID;
-
-	private static final String DELETE_BY_CUSTOMERORDER_QUERY = 
-			" DELETE FROM ORDER_LINE ol WHERE ol.CUSTOMER_ORDER_ID = ?";
 
 	private static final String ASSIGN_TO_TICKET_QUERY =
 			" INSERT INTO TICKET_ORDER_LINE(TICKET_ID, ORDER_LINE_ID, QUANTITY)";
@@ -80,121 +47,75 @@ implements OrderLineDAO {
 	private static Logger logger = LogManager.getLogger(OrderLineDAOImpl.class);
 
 	public OrderLineDAOImpl() {
-
 	}
 
 	@Override
-	public List<OrderLine> findByCustomerOrder(Session session, Long orderId) 
+	public List<OrderLine> findByCustomerOrder(Session session, long orderId) 
 			throws DataException {
-		return findByKey(conn, FIND_BY_CUSTOMER_ORDER_QUERY, orderId);
+		OrderLineCriteria criteria = new OrderLineCriteria();
+		criteria.setOrderId(orderId);
+		return super.findBy(session, criteria);
 	}
 
 	@Override
-	public List<OrderLine> findByTicket(Connection conn, long ticketId) throws DataException {
-		return findByKey(conn, FIND_BY_TICKET_QUERY, ticketId);
+	public List<OrderLine> findByTicket(Session session, long ticketId) throws DataException {
+		OrderLineCriteria criteria = new OrderLineCriteria();
+		criteria.setTicketId(ticketId);
+		return super.findBy(session, criteria);
 	}
 
 	@Override
-	public List<OrderLine> findByRMA(Connection conn, long rmaId) throws DataException {
-		return findByKey(conn, FIND_BY_RMA_QUERY, rmaId);
+	public List<OrderLine> findByRMA(Session session, long rmaId) throws DataException {
+		OrderLineCriteria criteria = new OrderLineCriteria();
+		criteria.setRmaId(rmaId);
+		return super.findBy(session, criteria);
 	}
 
-	/**
-	 * Execute an SQL SELECT statement from a previously formatted query and a primary key parameter
-	 * that is assumed to be of type long.
-	 * 
-	 * @param conn Connection to use while executing query
-	 * @param formattedQuery Complete query containing a single placeholder character for the primary key
-	 * @param key Primary key to set to the placeholder character within the statement
-	 * @return List of order lines returned by the query
-	 * @throws DataException if an SQLException is thrown by the driver
-	 */
-	private List<OrderLine> findByKey(Connection conn, String formattedQuery, long key) 
-			throws DataException {
+	@Override
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<OrderLine> root, AbstractCriteria<OrderLine> criteria) {
+	    OrderLineCriteria orderLineCriteria = (OrderLineCriteria) criteria;
+	    List<Predicate> predicates = new ArrayList<>();
 
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		List<OrderLine> results = new ArrayList<OrderLine>();	
+	    if (orderLineCriteria.getOrderId() != null) {
+	        predicates.add(builder.equal(root.get("order").get("id"), orderLineCriteria.getOrderId()));
+	    }
 
-		try {
-			stmt = conn.prepareStatement(formattedQuery);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, key);
+	    if (orderLineCriteria.getTicketId() != null) {
+	        Join<OrderLine, Ticket> joinTicket = root.join("ticket");
+	        joinTicket.on(builder.equal(joinTicket.get("ticketId"), orderLineCriteria.getTicketId()));
+	    }
 
-			rs = stmt.executeQuery();
-			while (rs.next()) {
-				results.add(loadNext(rs));
-			}
-			return results;
+	    if (orderLineCriteria.getRmaId() != null) {
+	        Join<OrderLine, Ticket> joinRma = root.join("rma");
+	        joinRma.on(builder.equal(joinRma.get("rmaId"), orderLineCriteria.getRmaId()));
+	    }
 
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+	    return predicates;
 	}
-
-	private OrderLine loadNext(ResultSet rs) throws SQLException {
-		OrderLine ol = new OrderLine();
-		int i = 1;
-
-		ol.setId(rs.getLong(i++));
-		ol.setCustomerOrderId(rs.getLong(i++));
-		ol.setProductId(rs.getInt(i++));
-		ol.setProductName(rs.getString(i++));
-		ol.setQuantity(rs.getShort(i++));
-		ol.setPurchasePrice(rs.getDouble(i++));
-		ol.setSalePrice(rs.getDouble(i++));
-		return ol;
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<OrderLine> query, Root<OrderLine> root,
+			AbstractCriteria<OrderLine> criteria) {
+		// Unused	
 	}
 
 	@Override
 	public Boolean create(Session session, List<OrderLine> olList) 
 			throws DataException {
-		return !super.batchPersist(session, olList).isEmpty();
-	}
-
-	private int setInsertValues(PreparedStatement stmt, List<OrderLine> olList)
-			throws SQLException {
-
-		int index = 1;
-		for (OrderLine ol : olList) {
-			stmt.setLong(index++, ol.getCustomerOrderId());
-			stmt.setLong(index++, ol.getProductId());
-			stmt.setShort(index++, ol.getQuantity());
-			stmt.setDouble(index++, ol.getPurchasePrice());
-			stmt.setDouble(index++, ol.getSalePrice());
-		}
-		return index;
+		List<Long> identifiers = super.createBatch(session, olList);
+		return identifiers.size() == olList.size();
 	}
 
 	@Override
-	public Boolean deleteByCustomerOrder(Connection conn, long orderId) 
+	public Boolean deleteByCustomerOrder(Session session, long orderId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(DELETE_BY_CUSTOMERORDER_QUERY);
-
-			int index = 1;
-			stmt.setLong(index++, orderId);
-
-			if (stmt.executeUpdate() < 1) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}	
+		OrderLineCriteria criteria = new OrderLineCriteria();
+		criteria.setOrderId(orderId);
+		return super.deleteBy(session, criteria);
 	}
 
 	@Override
-	public Boolean assignToTicket(Connection conn, Ticket t) 
+	public Boolean assignToTicket(Session session, Ticket t) 
 			throws DataException {
 		unassign(conn, UNASSIGN_FROM_TICKET_QUERY, t.getId());
 
@@ -222,7 +143,7 @@ implements OrderLineDAO {
 	}
 
 	@Override
-	public Boolean assignToRMA(Connection conn, RMA r)
+	public Boolean assignToRMA(Session session, RMA r)
 			throws DataException {
 
 		unassign(conn, UNASSIGN_FROM_RMA_QUERY, r.getId());
@@ -266,6 +187,12 @@ implements OrderLineDAO {
 		} finally {
 			JDBCUtils.close(stmt);
 		}		
+	}
+	
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<OrderLine> updateQuery, Root<OrderLine> root,
+			AbstractUpdateValues<OrderLine> updateValues) {
+		// Unused	
 	}
 
 }

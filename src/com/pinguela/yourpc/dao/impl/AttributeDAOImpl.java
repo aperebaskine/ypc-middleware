@@ -24,7 +24,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 public class AttributeDAOImpl 
-extends AbstractDAO<Integer, Attribute<?>>
+extends AbstractMutableDAO<Integer, Attribute<?>>
 implements AttributeDAO {
 
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";

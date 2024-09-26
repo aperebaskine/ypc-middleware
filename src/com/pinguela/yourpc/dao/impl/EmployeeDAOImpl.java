@@ -1,38 +1,30 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.EmployeeDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
 import com.pinguela.yourpc.model.EmployeeDepartment;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.model.SimpleUpdateValue;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class EmployeeDAOImpl
-extends AbstractDAO<Integer, Employee>
+extends AbstractMutableDAO<Integer, Employee>
 implements EmployeeDAO {
-		
-	private static final String UPDATE_PASSWORD_QUERY =
-			" UPDATE EMPLOYEE"
-			+ " SET PASSWORD = ?"
-			+ "	WHERE ID = ?";
-
-	private static Logger logger = LogManager.getLogger(EmployeeDAOImpl.class);
 	
 	public EmployeeDAOImpl() {
 	}
@@ -58,83 +50,80 @@ implements EmployeeDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Employee> query, Root<Employee> root,
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Employee> root, AbstractCriteria<Employee> criteria) {
+	    EmployeeCriteria employeeCriteria = (EmployeeCriteria) criteria;
+	    List<Predicate> predicates = new ArrayList<>();
+
+	    if (employeeCriteria.getFirstName() != null) {
+	        predicates.add(builder.like(root.get("name").get("firstName"), 
+	                SQLQueryUtils.wrapLike(employeeCriteria.getFirstName())));
+	    }
+	    if (employeeCriteria.getLastName1() != null) {
+	        predicates.add(builder.like(root.get("name").get("lastName1"), 
+	                SQLQueryUtils.wrapLike(employeeCriteria.getLastName1())));
+	    }
+	    if (employeeCriteria.getLastName2() != null) {
+	        predicates.add(builder.like(root.get("name").get("lastName2"), 
+	                SQLQueryUtils.wrapLike(employeeCriteria.getLastName2())));
+	    }
+	    if (employeeCriteria.getDocumentNumber() != null) {
+	        predicates.add(builder.equal(root.get("document").get("number"), employeeCriteria.getDocumentNumber()));
+	    }
+	    if (employeeCriteria.getPhoneNumber() != null) {
+	        predicates.add(builder.equal(root.get("phone"), employeeCriteria.getPhoneNumber()));
+	    }
+	    if (employeeCriteria.getEmail() != null) {
+	        predicates.add(builder.equal(root.get("email"), employeeCriteria.getEmail()));
+	    }
+	    if (employeeCriteria.getUsername() != null) {
+	        predicates.add(builder.equal(root.get("username"), employeeCriteria.getUsername()));
+	    }
+	    if (employeeCriteria.getDepartmentId() != null) {
+	        Join<Employee, EmployeeDepartment> joinDepartment = root.join("departmentHistory");
+	        joinDepartment.on(builder.equal(joinDepartment.get("departmentId"), employeeCriteria.getDepartmentId()));
+	        joinDepartment.on(builder.isNull(joinDepartment.get("endDate")));
+	    }
+
+	    return predicates;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Employee> query, Root<Employee> root,
 			AbstractCriteria<Employee> criteria) {
-		
-		EmployeeCriteria employeeCriteria = (EmployeeCriteria) criteria;
-		
-		if (employeeCriteria.getFirstName() != null) {
-			query.where(builder.like(root.get("name").get("firstName"), 
-					SQLQueryUtils.wrapLike(employeeCriteria.getFirstName())));
-		}
-		if (employeeCriteria.getLastName1() != null) {
-			query.where(builder.like(root.get("name").get("lastName1"), 
-					SQLQueryUtils.wrapLike(employeeCriteria.getLastName1())));
-		}
-		if (employeeCriteria.getLastName2() != null) {
-			query.where(builder.like(root.get("name").get("lastName2"), 
-					SQLQueryUtils.wrapLike(employeeCriteria.getLastName2())));
-		}
-		if (employeeCriteria.getDocumentNumber() != null) {
-			query.where(builder.equal(root.get("document").get("number"), employeeCriteria.getDocumentNumber()));
-		}
-		if (employeeCriteria.getPhoneNumber() != null) {
-			query.where(builder.equal(root.get("phone"), employeeCriteria.getPhoneNumber()));
-		}
-		if (employeeCriteria.getEmail() != null) {
-			query.where(builder.equal(root.get("email"), employeeCriteria.getEmail()));
-		}
-		if (employeeCriteria.getUsername() != null) {
-			query.where(builder.equal(root.get("username"), employeeCriteria.getUsername()));
-		}
-		if (employeeCriteria.getDepartmentId() != null) {
-			Join<Employee, EmployeeDepartment> joinDepartment = root.join("departmentHistory");
-			joinDepartment.on(builder.equal(joinDepartment.get("departmentId"), employeeCriteria.getDepartmentId()));
-			joinDepartment.on(builder.isNull(joinDepartment.get("endDate")));
-		}
+		// Unused	
 	}
 
 	@Override
 	public Integer create(Session session, Employee e) 
 			throws DataException {
-		return super.persist(session, e);
+		return super.createEntity(session, e);
 	}
 
 	@Override
 	public Boolean update(Session session, Employee e) 
 			throws DataException {
-		return super.merge(session, e);
+		return super.updateEntity(session, e);
 	} 
 	
 	@Override
 	public Boolean updatePassword(Session session, Integer employeeId, String password) throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(UPDATE_PASSWORD_QUERY);
-			int i = 1;
-			stmt.setString(i++, password);
-			stmt.setInt(i++, employeeId);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			} else {
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		EmployeeCriteria criteria = new EmployeeCriteria();
+		criteria.setId(employeeId);
+		SimpleUpdateValue<Employee> values = new SimpleUpdateValue<>(password);
+		
+		return super.updateBy(session, criteria, values);
+	}
+	
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Employee> updateQuery, Root<Employee> root,
+			AbstractUpdateValues<Employee> updateValues) {
+		updateQuery.set(root.get("password"), ((SimpleUpdateValue<Employee>) updateValues).getValue());
 	}
 
 	@Override
 	public Boolean delete(Session session, Integer employeeId) 
 			throws DataException {
-		return super.remove(session, employeeId);
+		return super.deleteEntity(session, employeeId);
 	}
 
 }

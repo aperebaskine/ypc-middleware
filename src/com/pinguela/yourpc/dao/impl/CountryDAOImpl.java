@@ -11,6 +11,7 @@ import com.pinguela.yourpc.model.Country;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class CountryDAOImpl
@@ -26,7 +27,15 @@ implements CountryDAO {
 	}
 
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder,
-			CriteriaQuery<Country> query, Root<Country> root, AbstractCriteria<Country> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Country> root,
+			AbstractCriteria<Country> criteria) {
+		return null;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Country> query, Root<Country> root,
+			AbstractCriteria<Country> criteria) {
+		// Unused	
+	}
 
 }

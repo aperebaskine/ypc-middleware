@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.RMAState;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class RMAStateDAOImpl
@@ -35,7 +36,15 @@ implements RMAStateDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<RMAState> query, Root<RMAState> root,
-			AbstractCriteria<RMAState> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<RMAState> root,
+			AbstractCriteria<RMAState> criteria) {
+		return null;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<RMAState> query, Root<RMAState> root,
+			AbstractCriteria<RMAState> criteria) {
+		// Unused	
+	}
 
 }

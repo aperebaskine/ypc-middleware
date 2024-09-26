@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,37 +12,25 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.AddressCriteria;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class AddressDAOImpl
-extends AbstractDAO<Integer, Address>
+extends AbstractMutableDAO<Integer, Address>
 implements AddressDAO {
 
 	private static final String IS_DEFAULT_COLUMN = "IS_DEFAULT";
 	private static final String IS_BILLING_COLUMN = "IS_BILLING";
-
-	private static final String UPDATE_QUERY =
-			" UPDATE ADDRESS SET CUSTOMER_ID = ?,"
-					+ " EMPLOYEE_ID = ?,"
-					+ " STREET_NAME = ?,"
-					+ " STREET_NUMBER = ?,"
-					+ " FLOOR = ?,"
-					+ " DOOR = ?,"
-					+ " ZIP_CODE = ?,"
-					+ " CITY_ID = ?,"
-					+ " IS_DEFAULT = ?,"
-					+ " IS_BILLING = ?,"
-					+ " CREATION_DATE = ?"
-					+ " WHERE ID = ?";
 
 	private static final String IS_ORDER_ADDRESS_QUERY =
 			" SELECT co.ID"
@@ -72,7 +61,7 @@ implements AddressDAO {
 			throws DataException {
 		AddressCriteria criteria = new AddressCriteria();
 		criteria.setEmployeeId(employeeId);
-		return super.findBy(session, criteria).get(0);
+		return super.findSingleResultBy(session, criteria);
 	}
 
 	@Override
@@ -84,58 +73,49 @@ implements AddressDAO {
 	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<Address> query, Root<Address> root,
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Address> root, 
 			AbstractCriteria<Address> criteria) {
-		
-		AddressCriteria addressCriteria = (AddressCriteria) criteria;
-		
-		if (addressCriteria.getCustomerId() != null) {
-			query.where(builder.equal(root.get("customer").get("id"), addressCriteria.getCustomerId()));
-		}
-		
-		if (addressCriteria.getEmployeeId() != null) {
-			query.where(builder.equal(root.get("employee").get("id"), addressCriteria.getEmployeeId()));
-		}
+	    AddressCriteria addressCriteria = (AddressCriteria) criteria;
+	    List<Predicate> predicates = new ArrayList<>();
+	    
+	    if (addressCriteria.getCustomerId() != null) {
+	        predicates.add(builder.equal(
+	        		root.get("customer").get("id"), addressCriteria.getCustomerId()));
+	    }
+	    
+	    if (addressCriteria.getEmployeeId() != null) {
+	        predicates.add(builder.equal(
+	        		root.get("employee").get("id"), addressCriteria.getEmployeeId()));
+	    }
+	    
+	    return predicates;
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Address> query, Root<Address> root,
+			AbstractCriteria<Address> criteria) {
+		// Unused	
 	}
 
 	@Override
 	public Integer create(Session session, Address a)
 			throws DataException {
-		return super.persist(session, a);
+		return super.createEntity(session, a);
 	}
 
 	@Override
-	public Integer update(Connection conn, Address a)
+	public Integer update(Session session, Address a)
 			throws DataException {
-
-		if (isOrderAddress(conn, a.getId())) { // Perform logical deletion on address linked to order(s)
-			if (!a.equals(findById(conn, a.getId()))) {
-				delete(conn, a.getId());
-				return create(conn, a);
+		
+		if (isOrderAddress(session, a.getId())) { // Perform logical deletion on address linked to order(s)
+			if (!a.equals(findById(session, a.getId()))) {
+				delete(session, a.getId());
+				return create(session, a);
 			}
 		}
 
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(UPDATE_QUERY);
-			int i = setInsertValues(stmt, a);
-			stmt.setInt(i++, a.getId());
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			}
-			updateDefaultAndBilling(conn, a);
-			return a.getId();
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		super.merge(session, a);
+		return a.getId();
 	}
 	
 	private void updateDefaultAndBilling(Connection conn, Address a) throws DataException {
@@ -174,7 +154,7 @@ implements AddressDAO {
 	}
 
 	@Override
-	public void setDefault(Connection conn, Integer addressId) 
+	public void setDefault(Session session, Integer addressId) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -195,7 +175,7 @@ implements AddressDAO {
 	}
 
 	@Override
-	public void setBilling(Connection conn, Integer addressId) 
+	public void setBilling(Session session, Integer addressId) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -218,13 +198,20 @@ implements AddressDAO {
 	@Override
 	public Boolean delete(Session session, Integer id)
 			throws DataException {
-		return super.remove(session, id);
+		return super.deleteEntity(session, id);
 	}
 
 	public Boolean deleteByCustomer(Session session, Integer customerId)
 			throws DataException {
-		List<Address> addresses = findByCustomer(session, customerId);
-		return super.batchRemove(session, getIdentifiers(addresses));
+		AddressCriteria criteria = new AddressCriteria();
+		criteria.setCustomerId(customerId);
+		return super.deleteBy(session, criteria);
+	}
+	
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Address> updateQuery, Root<Address> root,
+			AbstractUpdateValues<Address> updateValues) {
+		// Unused	
 	}
 
 }

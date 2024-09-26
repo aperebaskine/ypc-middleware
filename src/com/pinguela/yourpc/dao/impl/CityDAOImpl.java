@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.dao.impl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,9 +12,11 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CityDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.City;
+import com.pinguela.yourpc.model.SimpleCriteria;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class CityDAOImpl 
@@ -43,7 +46,16 @@ implements CityDAO {
 	}
 
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<City> query, 
-			Root<City> root, AbstractCriteria<City> criteria) {}
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, 
+			Root<City> root, AbstractCriteria<City> criteria) {
+		SimpleCriteria<City> cityCriteria = (SimpleCriteria<City>) criteria; 
+		return Arrays.asList(builder.equal(root.get("province").get("id"), cityCriteria.getValue()));
+	}
+	
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<City> query, Root<City> root,
+			AbstractCriteria<City> criteria) {
+		// Unused	
+	}
 
 }

@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.IDType;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class DocumentTypeDAOImpl 
@@ -33,8 +34,16 @@ implements DocumentTypeDAO {
 		
 		return documentTypesById;
 	}
+
+	@Override
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<IDType> root,
+			AbstractCriteria<IDType> criteria) {
+		return null;
+	}
 	
 	@Override
-	protected void setFindByCriteria(CriteriaBuilder builder, CriteriaQuery<IDType> query, Root<IDType> root,
-			AbstractCriteria<IDType> criteria) {}
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<IDType> query, Root<IDType> root,
+			AbstractCriteria<IDType> criteria) {
+		// Unused	
+	}
 }
