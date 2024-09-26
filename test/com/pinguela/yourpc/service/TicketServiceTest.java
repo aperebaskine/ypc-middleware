@@ -13,6 +13,7 @@ import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketCriteria;
 import com.pinguela.yourpc.model.TicketMessage;
+import com.pinguela.yourpc.model.TicketState;
 import com.pinguela.yourpc.model.TicketType;
 import com.pinguela.yourpc.service.impl.TicketServiceImpl;
 import com.pinguela.yourpc.util.DateUtils;
@@ -122,8 +123,10 @@ public class TicketServiceTest {
 		TicketType type = new TicketType();
 		type.setId("RMA");
 		
-		t.setType("RMA");
-		t.setState("OPN");
+		TicketState state = new TicketState();
+		state.setId("OPN");
+		t.setState(state);
+		
 		t.setTitle("TEST" +System.currentTimeMillis());
 		t.setDescription("TEST" +System.currentTimeMillis());
 		
@@ -133,7 +136,7 @@ public class TicketServiceTest {
 		t.getOrderLines().add(ol);
 
 		TicketMessage tm = new TicketMessage();
-		tm.setCustomerId(7);
+		tm.setCustomer(c);
 		tm.setText("TESTCREATE" +System.currentTimeMillis());
 		t.getMessageList().add(tm);
 
