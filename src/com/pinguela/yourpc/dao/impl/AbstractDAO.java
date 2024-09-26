@@ -23,7 +23,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractDAO<PK, T extends AbstractEntity<PK>> {
+public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractEntity<PK>> {
 
 	private static Logger logger = LogManager.getLogger(AbstractDAO.class);
 

@@ -18,7 +18,7 @@ import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractMutableDAO<PK, T extends AbstractEntity<PK>>
+public abstract class AbstractMutableDAO<PK extends Comparable<PK>, T extends AbstractEntity<PK>>
 extends AbstractDAO<PK, T> {
 
 	private static final int BATCH_SIZE = 50;

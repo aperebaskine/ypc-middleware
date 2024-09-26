@@ -10,7 +10,7 @@ import jakarta.persistence.MappedSuperclass;
 
 @Immutable
 @MappedSuperclass
-public abstract class AbstractTerritory<PK> 
+public abstract class AbstractTerritory<PK extends Comparable<PK>> 
 extends AbstractEntity<PK> {
 	
 	@Id
