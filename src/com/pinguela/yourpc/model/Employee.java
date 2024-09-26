@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.hibernate.annotations.NaturalId;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -13,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
-@AttributeOverride(name = "deletionDate", column = @Column(name = "TERMINATION_DATE"))
 public class Employee
 extends AbstractPerson {
 	

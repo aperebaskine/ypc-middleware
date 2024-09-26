@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.SoftDelete;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -36,10 +35,7 @@ extends AbstractEntity<Integer> {
 	
 	@CreationTimestamp
 	private Date creationDate;
-	
-	@SoftDelete
-	private Date deletionDate;
-	
+		
 	@Transient
 	private String unencryptedPassword;
 	
@@ -95,14 +91,6 @@ extends AbstractEntity<Integer> {
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
-	}
-
-	public Date getDeletionDate() {
-		return deletionDate;
-	}
-
-	public void setDeletionDate(Date deletionDate) {
-		this.deletionDate = deletionDate;
 	}
 
 	public String getUnencryptedPassword() {
