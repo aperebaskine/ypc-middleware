@@ -18,6 +18,7 @@ import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.AddressCriteria;
 import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.comparator.AddressComparator;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -44,7 +45,9 @@ implements AddressDAO {
 					+ "	ON a.CUSTOMER_ID = b.CUSTOMER_ID"
 					+ " SET a.%1$s = (a.ID = ?)"
 					+ " WHERE b.ID = ?";
-
+	
+	private static final AddressComparator COMPARATOR = new AddressComparator();
+	
 	private static Logger logger = LogManager.getLogger(AddressDAOImpl.class);
 
 	public AddressDAOImpl() {
@@ -107,8 +110,9 @@ implements AddressDAO {
 	public Integer update(Session session, Address a)
 			throws DataException {
 		
-		if (isOrderAddress(session, a.getId())) { // Perform logical deletion on address linked to order(s)
-			if (!a.equals(findById(session, a.getId()))) {
+		if (isOrderAddress(session, a.getId())) { // Create new entry in database if necessary
+			Address persistentAddress = findById(session, a.getId());
+			if (COMPARATOR.compare(a, persistentAddress) != 0) {
 				delete(session, a.getId());
 				return create(session, a);
 			}
