@@ -23,9 +23,13 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.pinguela.DataException;
 import com.pinguela.YPCException;
+import com.pinguela.yourpc.model.Address;
+import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
 import com.pinguela.yourpc.model.OrderLine;
+import com.pinguela.yourpc.model.OrderState;
+import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.service.impl.CustomerOrderServiceImpl;
 import com.pinguela.yourpc.service.impl.CustomerServiceImpl;
 import com.pinguela.yourpc.util.DateUtils;
@@ -289,9 +293,16 @@ class CustomerOrderServiceTest {
 	class TestCreate {
 
 		private CustomerOrder o;
+		private Customer c;
+		private Address billingAddress;
+		private Address shippingAddress;
+		private OrderState state;
+		
+		private Product p1;
+		private Product p2;
 		
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTestDatabase();
 		}
 
@@ -299,23 +310,36 @@ class CustomerOrderServiceTest {
 		void setUp() {
 
 			o = new CustomerOrder();
+			billingAddress = new Address();
+			shippingAddress = new Address();
 
-			o.setState("PND");
-			o.setCustomerId(1);
-			o.setBillingAddressId(1);
-			o.setShippingAddressId(1);
+			state.setId("PND");
+			o.setState(state);
+			
+			c.setId(1);
+			o.setCustomer(c);
+			
+			billingAddress.setId(1);
+			o.setBillingAddress(billingAddress);
+			
+			shippingAddress.setId(1);
+			o.setShippingAddress(shippingAddress);
 			o.setTotalPrice((double) System.currentTimeMillis());
 
 			List<OrderLine> olList = new ArrayList<OrderLine>();
 			OrderLine ol = new OrderLine();
-			ol.setProductId(1);
+			
+			p1.setId(1l);
+			ol.setProduct(p1);
 			ol.setQuantity((short) 1);
 			ol.setPurchasePrice(350.00d);
 			ol.setSalePrice(450.00d);
 			olList.add(ol);
 
 			ol = new OrderLine();
-			ol.setProductId(45);
+			
+			p2.setId(45l);
+			ol.setProduct(p2);
 			ol.setQuantity((short) 1);
 			ol.setPurchasePrice(350.00d);
 			ol.setSalePrice(950.00d);
@@ -352,7 +376,9 @@ class CustomerOrderServiceTest {
 
 			for (String state : new String[]{"PND", "PRS", "CAN", "DEL", "SPD"}) {
 				try {
-					o.setState(state);
+					OrderState orderState = new OrderState();
+					orderState.setId(state);
+					o.setState(orderState);
 					Long id = customerOrderService.create(o);
 					CustomerOrder p = customerOrderService.findById(id);
 					assertEquals(id, p.getId());
@@ -376,7 +402,8 @@ class CustomerOrderServiceTest {
 
 		@Test
 		void testWithInvalidState() {
-			o.setState("ABC");
+			OrderState state = new OrderState();
+			state.setId("ABC");
 			assertThrows(DataException.class, () -> customerOrderService.create(o));
 		}
 

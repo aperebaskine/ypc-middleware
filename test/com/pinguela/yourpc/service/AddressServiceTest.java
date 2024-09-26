@@ -22,6 +22,9 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.YPCException;
 import com.pinguela.yourpc.model.Address;
+import com.pinguela.yourpc.model.City;
+import com.pinguela.yourpc.model.Customer;
+import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.service.impl.AddressServiceImpl;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -145,17 +148,29 @@ class AddressServiceTest {
 	class TestCreate {
 
 		private Address a;
+		private Customer c;
+		private Employee e;
+		private City ci;
 
 		@BeforeEach
 		void setUp() throws Exception {
 			a = new Address();
+			c = new Customer();
+			e = new Employee();
 
 			a.setStreetName("TEST" + System.currentTimeMillis());
 			a.setZipCode("1");
-			a.setCustomerId(1);
-			a.setCityId(1);
-			a.setIsDefault(false);
-			a.setIsBilling(false);
+			
+			c.setId(1);
+			a.setCustomer(c);
+			
+			ci.setId(1);
+			a.setCity(ci);
+			
+			a.setDefault(false);
+			a.setBilling(false);
+			
+			e.setId(1);
 		}
 
 		@Test
@@ -173,8 +188,8 @@ class AddressServiceTest {
 		@Test
 		void testWithValidEmployeeData() {
 
-			a.setCustomerId(null);
-			a.setEmployeeId(1);
+			a.setCustomer(null);
+			a.setEmployee(e);
 
 			try {
 				addressService.create(a);

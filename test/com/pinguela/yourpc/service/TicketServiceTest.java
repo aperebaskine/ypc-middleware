@@ -7,11 +7,13 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
+import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketCriteria;
 import com.pinguela.yourpc.model.TicketMessage;
+import com.pinguela.yourpc.model.TicketType;
 import com.pinguela.yourpc.service.impl.TicketServiceImpl;
 import com.pinguela.yourpc.util.DateUtils;
 
@@ -113,7 +115,13 @@ public class TicketServiceTest {
 			throws ServiceException, DataException {
 		
 		Ticket t = new Ticket();
-		t.setCustomerId(7);
+		Customer c = new Customer();
+		c.setId(7);
+		t.setCustomer(c);
+		
+		TicketType type = new TicketType();
+		type.setId("RMA");
+		
 		t.setType("RMA");
 		t.setState("OPN");
 		t.setTitle("TEST" +System.currentTimeMillis());

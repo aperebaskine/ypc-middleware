@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,10 +22,6 @@ class CategoryServiceTest {
 	@BeforeAll
 	void setUpBeforeClass() throws Exception {
 		categoryService = new CategoryServiceImpl();
-	}
-
-	@AfterEach
-	void tearDown() throws Exception {
 	}
 
 	@Test

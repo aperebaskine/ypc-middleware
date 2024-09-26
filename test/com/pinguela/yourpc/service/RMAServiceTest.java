@@ -7,9 +7,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.model.RMACriteria;
+import com.pinguela.yourpc.model.RMAState;
 import com.pinguela.yourpc.service.impl.RMAServiceImpl;
 import com.pinguela.yourpc.util.DateUtils;
 
@@ -25,8 +27,14 @@ public class RMAServiceTest {
 		testRma = new RMA();
 		OrderLine ol = new OrderLine();
 		
-		testRma.setCustomerId(3);
-		testRma.setState("PRS");
+		Customer c = new Customer();
+		c.setId(3);
+		testRma.setCustomer(c);
+		
+		RMAState state = new RMAState();
+		state.setId("PRS");
+		testRma.setState(state);
+		
 		testRma.setTrackingNumber("TEST" +System.currentTimeMillis());
 		
 		ol.setId(35l);

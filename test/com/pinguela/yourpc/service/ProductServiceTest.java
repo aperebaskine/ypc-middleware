@@ -24,6 +24,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import com.pinguela.DataException;
 import com.pinguela.YPCException;
 import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
@@ -79,12 +80,12 @@ class ProductServiceTest {
 	@Nested
 	class TestFindBy {
 		
-		private static Attribute<String> varcharAttribute;
-		private static Attribute<Long> bigintAttribute;
-		private static Attribute<Double> decimalAttribute;
-		private static Attribute<Boolean> booleanAttribute;
+		private Attribute<String> varcharAttribute;
+		private Attribute<Long> bigintAttribute;
+		private Attribute<Double> decimalAttribute;
+		private Attribute<Boolean> booleanAttribute;
 		
-		static {
+		{
 			varcharAttribute = Attribute.getInstance(String.class);
 			varcharAttribute.setName("Brand");
 			varcharAttribute.addValue(null, "AMD");
@@ -463,7 +464,11 @@ class ProductServiceTest {
 			p = new Product();
 
 			p.setName("Intel Core i9-15900k");
-			p.setCategoryId((short) 1);
+			
+			Category c = new Category();
+			c.setId((short) 1);
+			p.setCategory(c);
+
 			p.setDescription("TESTCREATE" +System.currentTimeMillis());
 			p.setLaunchDate(new java.sql.Date(DateUtils.getDate(2020, Calendar.FEBRUARY, 1).getTime()));
 			p.setStock(50);
@@ -472,14 +477,14 @@ class ProductServiceTest {
 
 			Attribute<String> firstAttribute = Attribute.getInstance(String.class);
 			firstAttribute.setName("Memory Type");
-			firstAttribute.addValue(97L, null);
-			firstAttribute.addValue(98L, null);
+			firstAttribute.addValue(97, null);
+			firstAttribute.addValue(98, null);
 
 			p.getAttributes().put(firstAttribute.getName(), firstAttribute);
 
 			Attribute<Double> secondAttribute = Attribute.getInstance(Double.class);
 			secondAttribute.setName("Voltage (V)");
-			secondAttribute.addValue(146L, null);
+			secondAttribute.addValue(146, null);
 
 			p.getAttributes().put(secondAttribute.getName(), secondAttribute);
 
@@ -555,7 +560,7 @@ class ProductServiceTest {
 		
 		@Test
 		void testCreateWithInvalidCategoryId() {
-			p.setCategoryId((short) 0);
+			p.getCategory().setId((short) 0);
 			assertThrows(DataException.class, () -> productService.create(p));
 		}
 		
@@ -581,7 +586,7 @@ class ProductServiceTest {
 	public class TestDelete {
 		
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 		
