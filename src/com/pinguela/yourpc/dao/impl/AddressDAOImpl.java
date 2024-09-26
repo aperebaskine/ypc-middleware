@@ -1,15 +1,15 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.AddressDAO;
@@ -17,34 +17,22 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.AddressCriteria;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.model.AddressUpdateValues;
+import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.util.comparator.AddressComparator;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class AddressDAOImpl
 extends AbstractMutableDAO<Integer, Address>
 implements AddressDAO {
-
-	private static final String IS_DEFAULT_COLUMN = "IS_DEFAULT";
-	private static final String IS_BILLING_COLUMN = "IS_BILLING";
-
-	private static final String IS_ORDER_ADDRESS_QUERY =
-			" SELECT co.ID"
-					+ " FROM CUSTOMER_ORDER co"
-					+ " WHERE BILLING_ADDRESS_ID = ?"
-					+ " OR SHIPPING_ADDRESS_ID = ?";
-
-	private static final String SET_DEFAULT_PLACEHOLDER_QUERY =
-			" UPDATE ADDRESS a"
-					+ "	INNER JOIN ADDRESS b"
-					+ "	ON a.CUSTOMER_ID = b.CUSTOMER_ID"
-					+ " SET a.%1$s = (a.ID = ?)"
-					+ " WHERE b.ID = ?";
 	
 	private static final AddressComparator COMPARATOR = new AddressComparator();
 	
@@ -122,81 +110,76 @@ implements AddressDAO {
 		return a.getId();
 	}
 	
-	private void updateDefaultAndBilling(Connection conn, Address a) throws DataException {
-		if (a.getCustomerId() == null) {
-			return;
+	private boolean updateDefaultAndBilling(Session session, Address a) 
+			throws DataException {
+		
+		if (a.getCustomerId() == null
+				|| (!a.isDefault() && !a.isBilling())) {
+			return false;
 		}			
-		if (a.isDefault()) {
-			setDefault(conn, a.getId());
+		
+		AddressCriteria criteria = new AddressCriteria();
+		criteria.setCustomerId(a.getCustomerId());
+		AddressUpdateValues values = 
+				new AddressUpdateValues(a.getId(), a.isDefault(), a.isBilling());
+		
+		return super.updateBy(session, criteria, values);
+	}
+	
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Address> updateQuery, Root<Address> root,
+			AbstractUpdateValues<Address> updateValues) {
+		AddressUpdateValues values = (AddressUpdateValues) updateValues;
+		
+		if (values.isDefault()) {
+			Path<Expression<Boolean>> isDefault = root.get("isDefault");
+			Expression<Boolean> idEqualsExpression = builder.equal(root.get("id"), values.getAddressId());
+			updateQuery.set(isDefault, idEqualsExpression);
 		}
-		if (a.isBilling()) {
-			setBilling(conn, a.getId());
+		if (values.isBilling()) {
+			Path<Expression<Boolean>> isBilling = root.get("isBilling");
+			Expression<Boolean> idEqualsExpression = builder.equal(root.get("id"), values.getAddressId());
+			updateQuery.set(isBilling, idEqualsExpression);
 		}
 	}
 
 	private Boolean isOrderAddress(Session session, Integer addressId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
+		
 		try {
-			stmt = conn.prepareStatement(IS_ORDER_ADDRESS_QUERY);
-			int i = 1;
-			stmt.setInt(i++, addressId);
-			stmt.setInt(i++, addressId);
-
-			rs = stmt.executeQuery();
-			return rs.next();
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}	
+			HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+			JpaCriteriaQuery<Tuple> query = builder.createTupleQuery();
+			JpaRoot<CustomerOrder> root = query.from(CustomerOrder.class);
+			
+			Predicate condition = builder.or(
+					builder.equal(root.get("billingAddress").get("id"), addressId),
+					builder.equal(root.get("shippingAddress").get("id"), addressId));
+			
+			query.where(condition);
+			
+			return session
+					.createQuery(query.createCountQuery())
+					.getSingleResult() > 0;
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
+		}
 	}
 
 	@Override
 	public void setDefault(Session session, Integer addressId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(String.format(SET_DEFAULT_PLACEHOLDER_QUERY, IS_DEFAULT_COLUMN));
-			int i = 1;
-			stmt.setInt(i++, addressId);
-			stmt.setInt(i++, addressId);
-			stmt.executeUpdate();
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		Address a = session.find(getTargetClass(), addressId);
+		a.setDefault(true);
+		updateDefaultAndBilling(session, a);
 	}
 
 	@Override
 	public void setBilling(Session session, Integer addressId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(String.format(SET_DEFAULT_PLACEHOLDER_QUERY, IS_BILLING_COLUMN));
-			int i = 1;
-			stmt.setInt(i++, addressId);
-			stmt.setInt(i++, addressId);
-			stmt.executeUpdate();
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		Address a = session.find(getTargetClass(), addressId);
+		a.setBilling(true);
+		updateDefaultAndBilling(session, a);
 	}
 
 	@Override
@@ -210,12 +193,6 @@ implements AddressDAO {
 		AddressCriteria criteria = new AddressCriteria();
 		criteria.setCustomerId(customerId);
 		return super.deleteBy(session, criteria);
-	}
-	
-	@Override
-	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Address> updateQuery, Root<Address> root,
-			AbstractUpdateValues<Address> updateValues) {
-		// Unused	
 	}
 
 }

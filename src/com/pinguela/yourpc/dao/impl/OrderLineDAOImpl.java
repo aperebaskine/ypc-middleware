@@ -1,13 +1,8 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
@@ -16,10 +11,7 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.OrderLineCriteria;
-import com.pinguela.yourpc.model.RMA;
 import com.pinguela.yourpc.model.Ticket;
-import com.pinguela.yourpc.util.JDBCUtils;
-import com.pinguela.yourpc.util.SQLQueryUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -31,20 +23,6 @@ import jakarta.persistence.criteria.Root;
 public class OrderLineDAOImpl 
 extends AbstractMutableDAO<Long, OrderLine>
 implements OrderLineDAO {
-
-	private static final String ASSIGN_TO_TICKET_QUERY =
-			" INSERT INTO TICKET_ORDER_LINE(TICKET_ID, ORDER_LINE_ID, QUANTITY)";
-	private static final String ASSIGN_TO_RMA_QUERY =
-			" INSERT INTO RMA_ORDER_LINE(RMA_ID, ORDER_LINE_ID, QUANTITY)";
-
-	private static final String UNASSIGN_FROM_TICKET_QUERY =
-			" DELETE FROM TICKET_ORDER_LINE WHERE TICKET_ID = ?";
-	private static final String UNASSIGN_FROM_RMA_QUERY =
-			" DELETE FROM RMA_ORDER_LINE WHERE RMA_ID = ?";
-
-	private static final int ASSIGN_QUERY_COLUMN_COUNT = 3;
-
-	private static Logger logger = LogManager.getLogger(OrderLineDAOImpl.class);
 
 	public OrderLineDAOImpl() {
 	}
@@ -112,81 +90,6 @@ implements OrderLineDAO {
 		OrderLineCriteria criteria = new OrderLineCriteria();
 		criteria.setOrderId(orderId);
 		return super.deleteBy(session, criteria);
-	}
-
-	@Override
-	public Boolean assignToTicket(Session session, Ticket t) 
-			throws DataException {
-		unassign(conn, UNASSIGN_FROM_TICKET_QUERY, t.getId());
-
-		String query = new StringBuilder(ASSIGN_TO_TICKET_QUERY)
-				.append(SQLQueryUtils.buildPlaceholderValuesClause(t.getOrderLines().size(), ASSIGN_QUERY_COLUMN_COUNT))
-				.toString();
-
-		PreparedStatement stmt = null;	
-
-		try {
-			stmt = conn.prepareStatement(query.toString());
-			int i = 1;
-			for (OrderLine ol : t.getOrderLines()) {
-				stmt.setLong(i++, t.getId());
-				stmt.setLong(i++, ol.getId());
-				stmt.setShort(i++, ol.getQuantity());
-			}
-
-			int affectedRows = stmt.executeUpdate();
-			return affectedRows == t.getOrderLines().size();
-		} catch (SQLException e) {
-			logger.error(e);
-			throw new DataException(e);
-		}
-	}
-
-	@Override
-	public Boolean assignToRMA(Session session, RMA r)
-			throws DataException {
-
-		unassign(conn, UNASSIGN_FROM_RMA_QUERY, r.getId());
-
-		String query = new StringBuilder(ASSIGN_TO_RMA_QUERY)
-				.append(SQLQueryUtils.buildPlaceholderValuesClause(r.getOrderLines().size(), ASSIGN_QUERY_COLUMN_COUNT))
-				.toString();
-
-		PreparedStatement stmt = null;	
-
-		try {
-			stmt = conn.prepareStatement(query.toString());
-			int i = 1;
-			for (OrderLine ol : r.getOrderLines()) {
-				stmt.setLong(i++, r.getId());
-				stmt.setLong(i++, ol.getId());
-				stmt.setShort(i++, ol.getQuantity());
-			}
-
-			int affectedRows = stmt.executeUpdate();
-			return affectedRows == r.getOrderLines().size();
-		} catch (SQLException e) {
-			logger.error(e);
-			throw new DataException(e);
-		}
-	}
-
-	private void unassign(Connection conn, String formattedQuery, Long key)
-			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(formattedQuery);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, key);
-			stmt.executeUpdate();
-
-		} catch (SQLException e) {
-			logger.error(e);
-			throw new DataException(e);
-		} finally {
-			JDBCUtils.close(stmt);
-		}		
 	}
 	
 	@Override

@@ -6,8 +6,6 @@ import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.OrderLine;
-import com.pinguela.yourpc.model.RMA;
-import com.pinguela.yourpc.model.Ticket;
 
 public interface OrderLineDAO {
 	
@@ -24,12 +22,6 @@ public interface OrderLineDAO {
 			throws DataException;
 		
 	public Boolean deleteByCustomerOrder(Session session, long orderId)
-			throws DataException;
-	
-	public Boolean assignToTicket(Session session, Ticket t)
-			throws DataException;
-
-	public Boolean assignToRMA(Session session, RMA r)
 			throws DataException;
 	
 }
