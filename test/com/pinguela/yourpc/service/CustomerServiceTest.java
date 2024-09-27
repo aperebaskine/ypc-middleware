@@ -371,7 +371,7 @@ class CustomerServiceTest {
 	class TestUpdatePassword {
 
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 
@@ -403,7 +403,7 @@ class CustomerServiceTest {
 	class TestDelete {
 
 		@AfterAll
-		static void tearDownAfterClass() throws Exception {
+		void tearDownAfterClass() throws Exception {
 			TestSuite.initializeTransactionTables();
 		}
 
