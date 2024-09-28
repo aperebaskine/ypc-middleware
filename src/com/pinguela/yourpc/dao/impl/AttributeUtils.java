@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.dao.impl;
 
-import static com.pinguela.yourpc.constants.AttributeValueHandlingModes.RANGE;
-import static com.pinguela.yourpc.constants.AttributeValueHandlingModes.SET;
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.RANGE;
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.SET;
 
 import java.lang.reflect.Field;
 import java.sql.Types;
@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.pinguela.yourpc.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 class AttributeUtils {
