@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.model;
 
-import com.pinguela.yourpc.constants.AttributeDataTypes;
-import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
+import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
 import jakarta.persistence.DiscriminatorValue;
 

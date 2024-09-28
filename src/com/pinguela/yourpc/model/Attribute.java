@@ -11,8 +11,8 @@ import java.util.Objects;
 import org.hibernate.annotations.Immutable;
 import org.reflections.Reflections;
 
-import com.pinguela.yourpc.constants.AttributeDataTypes;
-import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
+import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -82,7 +82,7 @@ implements Cloneable {
 	@Column(unique = true, nullable = false)
 	private String name;
 	
-	@OneToMany(mappedBy = "id", targetEntity = AttributeValue.class)
+	@OneToMany(targetEntity = AttributeValue.class)
 	private List<AttributeValue<E>> values;
 
 	protected Attribute() {
