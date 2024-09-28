@@ -1,4 +1,4 @@
-package com.pinguela.yourpc.constants;
+package com.pinguela.yourpc.model.constants;
 
 public final class AttributeValueHandlingModes {
 	

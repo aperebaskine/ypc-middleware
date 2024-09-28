@@ -1,4 +1,4 @@
-package com.pinguela.yourpc.constants;
+package com.pinguela.yourpc.model.constants;
 
 /**
  * Defines the constants corresponding to the SQL database's primary key
