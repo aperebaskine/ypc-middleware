@@ -172,7 +172,7 @@ extends AbstractDAO<PK, T> {
 
 		setUpdateValues(builder, updateQuery, root, updateValues);
 
-		updateQuery.where(getCriteriaArray(builder, root, criteria));
+		updateQuery.where(buildWhereClause(builder, root, criteria));
 		return updateQuery;
 	}
 
@@ -181,7 +181,7 @@ extends AbstractDAO<PK, T> {
 		CriteriaDelete<T> deleteQuery = builder.createCriteriaDelete(getTargetClass());
 		Root<T> root = deleteQuery.from(getTargetClass());
 
-		deleteQuery.where(getCriteriaArray(builder, root, criteria));
+		deleteQuery.where(buildWhereClause(builder, root, criteria));
 		return deleteQuery;
 	}
 

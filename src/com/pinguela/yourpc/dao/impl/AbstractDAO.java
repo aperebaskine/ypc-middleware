@@ -2,6 +2,7 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +20,7 @@ import com.pinguela.yourpc.util.ReflectionUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -110,22 +112,42 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 		Root<T> root = query.from(targetClass);
 
 		if (criteria != null) {
-			query.where(getCriteriaArray(builder, root, criteria));
-
-			Path<T> orderBy = root.get(criteria.getOrderBy());
-			query.orderBy(
-					criteria.getAscDesc() == AbstractCriteria.ASC ? 
-							builder.asc(orderBy) : builder.desc(orderBy));
+			Predicate[] where = buildWhereClause(builder, root, criteria);
+			if (where.length > 0) {
+				query.where(where);
+			}
+			
+			List<Order> orderBy = buildOrderByClause(session, builder, root, criteria);
+			if (!orderBy.isEmpty()) {
+				query.orderBy(orderBy);
+			}
 		}
 
 		return query;
 	}
 	
-	protected final Predicate[] getCriteriaArray(CriteriaBuilder builder,
+	private List<Order> buildOrderByClause(Session session, CriteriaBuilder builder, 
 			Root<T> root, AbstractCriteria<T> criteria) {
-		List<Predicate> criteriaList = 
-				getCriteria(builder, root, criteria);
-		return criteriaList.toArray(new Predicate[criteriaList.size()]);
+		List<Order> orderBy = new LinkedList<>();
+		for (String pathStr : criteria.getOrderBy().keySet()) {
+			Path<?> path = root;
+			for (String component : splitCompositePath(pathStr)) {
+				path = path.get(component);
+			}
+			orderBy.add(criteria.getOrderBy().get(pathStr) == AbstractCriteria.ASC ?
+					builder.asc(path) : builder.desc(path));
+		}
+		return orderBy;
+	}
+	
+	private String[] splitCompositePath(String path) {
+		return path.split(AbstractCriteria.PATH_DELIMITER);
+	}
+	
+	protected final Predicate[] buildWhereClause(CriteriaBuilder builder,
+			Root<T> root, AbstractCriteria<T> criteria) {
+		List<Predicate> predicates = getCriteria(builder, root, criteria);
+		return predicates.toArray(new Predicate[predicates.size()]);
 	}
 
 	protected final Class<T> getTargetClass() {
