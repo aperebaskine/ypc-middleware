@@ -5,7 +5,7 @@ import java.util.Date;
 public class RMACriteria
 extends AbstractCustomerOperationCriteria<Long, RMA> {
 	
-	public static final String ORDER_BY_DATE = " r.CREATION_DATE";
+	public static final String ORDER_BY_DATE = RMA_.CREATION_DATE;
 	
 	private Long orderId;
 	private Long ticketId;
@@ -17,9 +17,8 @@ extends AbstractCustomerOperationCriteria<Long, RMA> {
 	}
 	
 	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy(ORDER_BY_DATE);	
-		setAscDesc(DESC);
+	protected void setDefaultOrder() {
+		orderBy(ORDER_BY_DATE, DESC);
 	}
 	
 	public Long getOrderId() {

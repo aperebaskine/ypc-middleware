@@ -7,10 +7,10 @@ import java.util.TreeMap;
 public class ProductCriteria
 extends AbstractEntityCriteria<Long, Product> {
 	
-	public static final String ORDER_BY_NAME = " p.NAME";
-	public static final String ORDER_BY_LAUNCH_DATE = " p.LAUNCH_DATE";
-	public static final String ORDER_BY_STOCK = " p.STOCK";
-	public static final String ORDER_BY_PRICE = " p.SALE_PRICE";
+	public static final String ORDER_BY_NAME = Product_.NAME;
+	public static final String ORDER_BY_LAUNCH_DATE = Product_.LAUNCH_DATE;
+	public static final String ORDER_BY_STOCK = Product_.STOCK;
+	public static final String ORDER_BY_PRICE = Product_.SALE_PRICE;
 	
 	private String name = null;
 	private Date launchDateMin = null;
@@ -27,9 +27,8 @@ extends AbstractEntityCriteria<Long, Product> {
 	}
 	
 	@Override
-	protected void setDefaultOrdering() {
-		setAscDesc(ASC);
-		setOrderBy(ORDER_BY_NAME);	
+	protected void setDefaultOrder() {
+		orderBy(ORDER_BY_NAME, ASC);
 	}
 
 	public String getName() {

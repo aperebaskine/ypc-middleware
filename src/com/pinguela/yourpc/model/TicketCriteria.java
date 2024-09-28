@@ -5,7 +5,7 @@ import java.util.Date;
 public class TicketCriteria
 extends AbstractCustomerOperationCriteria<Long, Ticket> {
 	
-	public static final String ORDER_BY_DATE = " t.CREATION_DATE";
+	public static final String ORDER_BY_DATE = Ticket_.CREATION_DATE;
 	
 	private Date minDate;
 	private Date maxDate;
@@ -15,9 +15,8 @@ extends AbstractCustomerOperationCriteria<Long, Ticket> {
 	public TicketCriteria() {
 	}
 	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy(ORDER_BY_DATE);
-		setAscDesc(DESC);	
+	protected void setDefaultOrder() {
+		orderBy(ORDER_BY_DATE, DESC);	
 	}
 	
 	public Date getMinDate() {

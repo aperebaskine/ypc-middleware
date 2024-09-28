@@ -3,13 +3,14 @@ package com.pinguela.yourpc.model;
 public class AttributeStatisticsCriteria 
 extends AbstractStatisticsCriteria<Attribute<?>> {
 	
-	// TODO: String[]
-	private static final String ORDER_BY_NAME_AND_VALUES = "at.NAME ASC, av.VALUE_BIGINT ASC, av.VALUE_VARCHAR ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC";
+	// TODO: Generate automatically
+	private static final String[] ORDER_BY_NAME_AND_VALUES = {"name", "value_bigint", "value_varchar", "value_decimal", "value_boolean"};
 
 	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy(ORDER_BY_NAME_AND_VALUES);
-		setAscDesc(ASC);
+	protected void setDefaultOrder() {
+		for (String column : ORDER_BY_NAME_AND_VALUES) {
+			orderBy(column, ASC);
+		}
 	}
 
 }

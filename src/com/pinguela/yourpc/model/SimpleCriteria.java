@@ -15,9 +15,6 @@ extends AbstractCriteria<T> {
 	}
 
 	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy("id");
-		setAscDesc(DESC);
-	}
+	protected void setDefaultOrder() {}
 
 }

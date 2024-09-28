@@ -1,7 +1,10 @@
 package com.pinguela.yourpc.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import com.pinguela.yourpc.model.AbstractCriteria;
 
@@ -163,6 +166,20 @@ public class SQLQueryUtils {
 				.append(ascDesc == AbstractCriteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
 	}
 	
+	public static StringBuilder buildOrderByClause(Map<String, Boolean> orderBy) {
+		if (orderBy == null || orderBy.isEmpty()) {
+			return new StringBuilder("");
+		}
+		List<StringBuilder> clauses = new ArrayList<>();
+		for (String column : orderBy.keySet()) {
+			clauses.add(new StringBuilder(" ").append(column).append(" ")
+					.append(orderBy.get(column) == AbstractCriteria.ASC ? 
+					ASCENDING_ORDER : DESCENDING_ORDER));
+		}
+		return new StringBuilder(" ORDER BY ").append(
+				String.join(", ", clauses.toArray(new StringBuilder[clauses.size()])));
+	}
+	
 	/**
 	 * Builds an ORDER BY clause to append to a query, receiving a Criteria object as parameter.
 	 * 
@@ -172,10 +189,10 @@ public class SQLQueryUtils {
 	 */
 	public static StringBuilder buildOrderByClause(AbstractCriteria<?> criteria) {
 		
-		if (criteria == null || criteria.getOrderBy() == null || criteria.getAscDesc() == null) {
+		if (criteria == null || criteria.getOrderBy() == null) {
 			return new StringBuilder("");
 		}
-		return buildOrderByClause(criteria.getOrderBy(), criteria.getAscDesc());
+		return buildOrderByClause(criteria.getOrderBy());
 	}
 
 	/**

@@ -35,9 +35,8 @@ extends AbstractEntityCriteria<Long, OrderLine> {
 	}
 
 	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy("id");
-		setAscDesc(ASC);
+	protected void setDefaultOrder() {
+		orderBy(ORDER_BY_ID, ASC);
 	}
 
 }
