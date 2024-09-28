@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.model;
 
 public class AddressCriteria 
-extends AbstractCriteria<Address> {
+extends AbstractEntityCriteria<Integer, Address> {
 	
 	private Integer customerId;
 	private Integer employeeId;
