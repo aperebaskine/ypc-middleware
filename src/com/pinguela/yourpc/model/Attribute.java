@@ -11,6 +11,9 @@ import java.util.Objects;
 import org.hibernate.annotations.Immutable;
 import org.reflections.Reflections;
 
+import com.pinguela.yourpc.constants.AttributeDataTypes;
+import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -35,7 +38,7 @@ import jakarta.persistence.Table;
 @DiscriminatorColumn(name = "ATTRIBUTE_DATA_TYPE_ID", columnDefinition = "CHAR(3)")
 public abstract class Attribute<E>
 extends AbstractEntity<Integer> 
-implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
+implements Cloneable {
 	
 	/**
 	 * Maps type parameter classes to their corresponding subclasses.
@@ -153,7 +156,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 		List<AttributeValue<E>> valuesToReturn = null;
 
 		switch (getValueHandlingMode()) {
-		case RANGE:
+		case AttributeValueHandlingModes.RANGE:
 			valuesToReturn = new ArrayList<AttributeValue<E>>();
 
 			AttributeValue<E> min = values.get(0);
@@ -164,7 +167,7 @@ implements Cloneable, AttributeDataTypes, AttributeValueHandlingModes {
 				valuesToReturn.add(max);
 			}
 			break;
-		case SET:
+		case AttributeValueHandlingModes.SET:
 			valuesToReturn = values;
 		}
 

@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.dao.impl;
 
+import static com.pinguela.yourpc.constants.AttributeValueHandlingModes.RANGE;
+import static com.pinguela.yourpc.constants.AttributeValueHandlingModes.SET;
+
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -8,13 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.pinguela.yourpc.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeDataTypes;
-import com.pinguela.yourpc.model.AttributeValueHandlingModes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-class AttributeUtils 
-implements AttributeDataTypes, AttributeValueHandlingModes {
+class AttributeUtils {
 
 	private static final String COLUMN_NAME_PLACEHOLDER = "VALUE_%s";
 

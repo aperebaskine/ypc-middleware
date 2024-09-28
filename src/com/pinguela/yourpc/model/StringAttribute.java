@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.model;
 
+import com.pinguela.yourpc.constants.AttributeDataTypes;
+import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+
 import jakarta.persistence.DiscriminatorValue;
 
 @DiscriminatorValue(value = AttributeDataTypes.VARCHAR)
@@ -11,12 +14,12 @@ public final class StringAttribute extends Attribute<String> {
 
 	@Override
 	public String getDataTypeIdentifier() {
-		return VARCHAR;
+		return AttributeDataTypes.VARCHAR;
 	}
 	
 	@Override
 	public int getValueHandlingMode() {
-		return SET;
+		return AttributeValueHandlingModes.SET;
 	}
 
 	@Override

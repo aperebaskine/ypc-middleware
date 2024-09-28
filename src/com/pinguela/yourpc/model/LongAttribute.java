@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.model;
 
+import com.pinguela.yourpc.constants.AttributeDataTypes;
+import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+
 import jakarta.persistence.DiscriminatorValue;
 
 @DiscriminatorValue(value = AttributeDataTypes.BIGINT)
@@ -11,12 +14,12 @@ public final class LongAttribute extends Attribute<Long> {
 	
 	@Override
 	public String getDataTypeIdentifier() {
-		return BIGINT;
+		return AttributeDataTypes.BIGINT;
 	}
 	
 	@Override
 	public int getValueHandlingMode() {
-		return RANGE;
+		return AttributeValueHandlingModes.RANGE;
 	}
 
 	@Override

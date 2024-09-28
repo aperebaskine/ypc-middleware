@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.model;
 
+import com.pinguela.yourpc.constants.AttributeDataTypes;
+import com.pinguela.yourpc.constants.AttributeValueHandlingModes;
+
 import jakarta.persistence.DiscriminatorValue;
 
 @DiscriminatorValue(value = AttributeDataTypes.BOOLEAN)
@@ -12,12 +15,12 @@ extends Attribute<Boolean> {
 
 	@Override
 	public String getDataTypeIdentifier() {
-		return BOOLEAN;
+		return AttributeDataTypes.BOOLEAN;
 	}
 
 	@Override
 	public int getValueHandlingMode() {
-		return SET;
+		return AttributeValueHandlingModes.SET;
 	}
 
 	@Override
