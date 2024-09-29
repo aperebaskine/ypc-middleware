@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +24,7 @@ extends AbstractCustomerOperation<Long> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "ORDER_STATE_ID")
 	private OrderState state;
 
@@ -31,18 +33,18 @@ extends AbstractCustomerOperation<Long> {
 	
 	private String trackingNumber;
 
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "BILLING_ADDRESS_ID")
 	private Address billingAddress;
 	
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "SHIPPING_ADDRESS_ID")
 	private Address shippingAddress;
 	
 	@Column(name = "INVOICE_TOTAL", columnDefinition = "DECIMAL(20,8)", nullable = false) 
 	private Double totalPrice;
 	
-	@OneToMany(mappedBy = "order")
+	@OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
 	private List<OrderLine> orderLines;
 	
 	public CustomerOrder() {

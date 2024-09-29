@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.model;
 
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
@@ -8,7 +9,7 @@ import jakarta.persistence.MappedSuperclass;
 public abstract class AbstractCustomerOperation<PK extends Comparable<PK>> 
 extends AbstractEntity<PK> {
 	
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "CUSTOMER_ID")
 	private Customer customer;
 

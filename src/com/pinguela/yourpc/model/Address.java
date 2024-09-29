@@ -8,6 +8,7 @@ import org.hibernate.annotations.SoftDelete;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,11 +26,11 @@ extends AbstractEntity<Integer> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CUSTOMER_ID")
 	private Customer customer;
 	
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "EMPLOYEE_ID")
 	private Employee employee;
 	
@@ -45,7 +46,7 @@ extends AbstractEntity<Integer> {
 	@Column(nullable = false)
 	private String zipCode;
 
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "CITY_ID")
 	private City city;
 	
