@@ -46,7 +46,7 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 	protected T findById(Session session, Object id) 
 			throws DataException {
 		try {
-			return session.find(targetClass, id);
+			return id == null ? null : session.find(targetClass, id);
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -82,11 +82,13 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
 			Results<T> results = new Results<T>();
 
-			ScrollableResults<T> scrollableResults = 
-					session.createQuery(query).scroll(ScrollMode.SCROLL_INSENSITIVE);
-			results.setPage(getPage(scrollableResults, pos, pageSize));
-			results.setResultCount(getResultCount(scrollableResults));
-
+			try (ScrollableResults<T> scrollableResults = 
+					session.createQuery(query).scroll(ScrollMode.SCROLL_INSENSITIVE)) {
+				
+				results.setPage(getPage(scrollableResults, pos, pageSize));
+				results.setResultCount(getResultCount(scrollableResults));
+			}
+			
 			return results;
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
@@ -140,14 +142,24 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 			Root<T> root, AbstractCriteria<T> criteria) {
 		List<Order> orderBy = new LinkedList<>();
 		for (String pathStr : criteria.getOrderBy().keySet()) {
-			Path<?> path = root;
-			for (String component : splitCompositePath(pathStr)) {
-				path = path.get(component);
-			}
+			
+			String[] pathComponents = splitCompositePath(pathStr);
+			Path<?> path = pathComponents.length == 0 ?
+					buildPath(root, pathStr) :
+						buildPath(root, pathComponents);
+			
 			orderBy.add(criteria.getOrderBy().get(pathStr) == AbstractCriteria.ASC ?
 					builder.asc(path) : builder.desc(path));
 		}
 		return orderBy;
+	}
+	
+	private Path<?> buildPath(Root<T> root, String... pathComponents) {
+		Path<?> path = root;
+		for (String component : pathComponents) {
+			path = path.get(component);
+		}
+		return path;
 	}
 	
 	private String[] splitCompositePath(String path) {
