@@ -8,8 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
 
 @Entity
@@ -21,10 +19,6 @@ implements Cloneable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id = null;
-	
-	@ManyToOne
-	@JoinColumn(name = "ATTRIBUTE_TYPE_ID")
-	private Attribute<E> attribute;
 	
 	@Transient // Persistence to be handled by manual queries
 	private E value = null; 

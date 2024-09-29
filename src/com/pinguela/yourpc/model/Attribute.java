@@ -22,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -83,6 +84,7 @@ implements Cloneable {
 	private String name;
 	
 	@OneToMany(targetEntity = AttributeValue.class)
+	@JoinColumn(name = "ATTRIBUTE_TYPE_ID")
 	private List<AttributeValue<E>> values;
 
 	protected Attribute() {
