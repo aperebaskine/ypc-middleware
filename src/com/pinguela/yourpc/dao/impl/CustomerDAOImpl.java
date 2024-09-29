@@ -11,6 +11,9 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerCriteria;
+import com.pinguela.yourpc.model.Customer_;
+import com.pinguela.yourpc.model.FullName_;
+import com.pinguela.yourpc.model.ID_;
 import com.pinguela.yourpc.model.SimpleUpdateValue;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
@@ -52,29 +55,29 @@ implements CustomerDAO {
 	    List<Predicate> predicates = new ArrayList<>();
 
 	    if (customerCriteria.getId() != null) {
-	        predicates.add(builder.equal(root.get("id"), customerCriteria.getId()));
+	        predicates.add(builder.equal(root.get(Customer_.id), customerCriteria.getId()));
 	    }
 	    if (customerCriteria.getEmail() != null) {
-	        predicates.add(builder.equal(root.get("email"), customerCriteria.getEmail()));
+	        predicates.add(builder.equal(root.get(Customer_.email), customerCriteria.getEmail()));
 	    }
 	    if (customerCriteria.getFirstName() != null) {
-	        predicates.add(builder.like(root.get("name").get("firstName"), 
+	        predicates.add(builder.like(root.get(Customer_.name).get(FullName_.firstName), 
 	                SQLQueryUtils.wrapLike(customerCriteria.getFirstName())));
 	    }
 	    if (customerCriteria.getLastName1() != null) {
-	        predicates.add(builder.like(root.get("name").get("lastName1"), 
+	        predicates.add(builder.like(root.get(Customer_.name).get(FullName_.lastName1), 
 	                SQLQueryUtils.wrapLike(customerCriteria.getLastName1())));
 	    }
 	    if (customerCriteria.getLastName2() != null) {
-	        predicates.add(builder.like(root.get("name").get("lastName2"), 
+	        predicates.add(builder.like(root.get(Customer_.name).get(FullName_.lastName2), 
 	                SQLQueryUtils.wrapLike(customerCriteria.getLastName2())));
 	    }
 	    if (customerCriteria.getDocumentNumber() != null) {
-	        predicates.add(builder.equal(root.get("document").get("number"), 
+	        predicates.add(builder.equal(root.get(Customer_.document).get(ID_.number), 
 	                customerCriteria.getDocumentNumber()));
 	    }
 	    if (customerCriteria.getPhoneNumber() != null) {
-	        predicates.add(builder.equal(root.get("phone"), customerCriteria.getPhoneNumber()));
+	        predicates.add(builder.equal(root.get(Customer_.phoneNumber), customerCriteria.getPhoneNumber()));
 	    }
 
 	    return predicates;
@@ -110,7 +113,7 @@ implements CustomerDAO {
 	@Override
 	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Customer> updateQuery, Root<Customer> root,
 			AbstractUpdateValues<Customer> updateValues) {
-		updateQuery.set(root.get("password"), ((SimpleUpdateValue<Customer>) updateValues).getValue());
+		updateQuery.set(root.get(Customer_.encryptedPassword), (String) ((SimpleUpdateValue<Customer>) updateValues).getValue());
 	}
 
 	@Override

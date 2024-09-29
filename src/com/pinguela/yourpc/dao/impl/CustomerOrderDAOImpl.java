@@ -17,6 +17,9 @@ import com.pinguela.yourpc.model.Customer;
 import com.pinguela.yourpc.model.CustomerOrder;
 import com.pinguela.yourpc.model.CustomerOrderCriteria;
 import com.pinguela.yourpc.model.CustomerOrderRanges;
+import com.pinguela.yourpc.model.CustomerOrder_;
+import com.pinguela.yourpc.model.Customer_;
+import com.pinguela.yourpc.model.OrderState_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -73,32 +76,32 @@ implements CustomerOrderDAO {
 		List<Predicate> predicates = new ArrayList<>();
 
 		if (coc.getCustomerId() != null) {
-			predicates.add(builder.equal(root.get("customer").get("id"), coc.getCustomerId()));
+			predicates.add(builder.equal(root.get(CustomerOrder_.customer).get(Customer_.id), coc.getCustomerId()));
 		}
 
 		if (coc.getCustomerEmail() != null) {
-			Join<CustomerOrder, Customer> joinCustomer = root.join("customer");
-			joinCustomer.on(builder.equal(joinCustomer.get("email"), coc.getCustomerEmail()));
+			Join<CustomerOrder, Customer> joinCustomer = root.join(CustomerOrder_.customer);
+			joinCustomer.on(builder.equal(joinCustomer.get(Customer_.email), coc.getCustomerEmail()));
 		}
 
 		if (coc.getMinAmount() != null) {
-			predicates.add(builder.ge(root.get("totalPrice"), coc.getMinAmount()));
+			predicates.add(builder.ge(root.get(CustomerOrder_.totalPrice), coc.getMinAmount()));
 		}
 
 		if (coc.getMaxAmount() != null) {
-			predicates.add(builder.le(root.get("totalPrice"), coc.getMaxAmount()));
+			predicates.add(builder.le(root.get(CustomerOrder_.totalPrice), coc.getMaxAmount()));
 		}
 
 		if (coc.getMinDate() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get("orderDate"), coc.getMinDate()));
+			predicates.add(builder.greaterThanOrEqualTo(root.get(CustomerOrder_.orderDate), coc.getMinDate()));
 		}
 
 		if (coc.getMaxDate() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get("orderDate"), coc.getMaxDate()));
+			predicates.add(builder.lessThanOrEqualTo(root.get(CustomerOrder_.orderDate), coc.getMaxDate()));
 		}
 
 		if (coc.getState() != null) {
-			predicates.add(builder.equal(root.get("state").get("id"), coc.getState()));
+			predicates.add(builder.equal(root.get(CustomerOrder_.state).get(OrderState_.id), coc.getState()));
 		}
 
 		return predicates;
@@ -122,10 +125,10 @@ implements CustomerOrderDAO {
 			Root<CustomerOrder> root = query.from(getTargetClass());
 
 			query.multiselect(
-					builder.min(root.get("totalPrice")),
-					builder.max(root.get("totalPrice")),
-					builder.min(root.get("orderDate")),
-					builder.max(root.get("orderDate"))
+					builder.min(root.get(CustomerOrder_.TOTAL_PRICE)),
+					builder.max(root.get(CustomerOrder_.TOTAL_PRICE)),
+					builder.min(root.get(CustomerOrder_.ORDER_DATE)),
+					builder.max(root.get(CustomerOrder_.ORDER_DATE))
 					);
 
 			results = session.createQuery(query).getSingleResult();

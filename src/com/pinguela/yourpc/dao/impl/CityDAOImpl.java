@@ -12,6 +12,7 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CityDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.City;
+import com.pinguela.yourpc.model.City_;
 import com.pinguela.yourpc.model.SimpleCriteria;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -49,7 +50,7 @@ implements CityDAO {
 	protected List<Predicate> getCriteria(CriteriaBuilder builder, 
 			Root<City> root, AbstractCriteria<City> criteria) {
 		SimpleCriteria<City> cityCriteria = (SimpleCriteria<City>) criteria; 
-		return Arrays.asList(builder.equal(root.get("province").get("id"), cityCriteria.getValue()));
+		return Arrays.asList(builder.equal(root.get(City_.province), cityCriteria.getValue()));
 	}
 	
 	@Override

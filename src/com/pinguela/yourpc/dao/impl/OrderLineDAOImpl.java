@@ -9,9 +9,14 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.OrderLineDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
+import com.pinguela.yourpc.model.CustomerOrder_;
 import com.pinguela.yourpc.model.OrderLine;
 import com.pinguela.yourpc.model.OrderLineCriteria;
+import com.pinguela.yourpc.model.OrderLine_;
+import com.pinguela.yourpc.model.RMA;
+import com.pinguela.yourpc.model.RMA_;
 import com.pinguela.yourpc.model.Ticket;
+import com.pinguela.yourpc.model.Ticket_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -49,23 +54,24 @@ implements OrderLineDAO {
 		return super.findBy(session, criteria);
 	}
 
+	// TODO: Extract constants
 	@Override
 	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<OrderLine> root, AbstractCriteria<OrderLine> criteria) {
 	    OrderLineCriteria orderLineCriteria = (OrderLineCriteria) criteria;
 	    List<Predicate> predicates = new ArrayList<>();
 
 	    if (orderLineCriteria.getOrderId() != null) {
-	        predicates.add(builder.equal(root.get("order").get("id"), orderLineCriteria.getOrderId()));
+	        predicates.add(builder.equal(root.get(OrderLine_.order).get(CustomerOrder_.id), orderLineCriteria.getOrderId()));
 	    }
 
 	    if (orderLineCriteria.getTicketId() != null) {
 	        Join<OrderLine, Ticket> joinTicket = root.join("ticket");
-	        joinTicket.on(builder.equal(joinTicket.get("ticketId"), orderLineCriteria.getTicketId()));
+	        joinTicket.on(builder.equal(joinTicket.get(Ticket_.id), orderLineCriteria.getTicketId()));
 	    }
 
 	    if (orderLineCriteria.getRmaId() != null) {
-	        Join<OrderLine, Ticket> joinRma = root.join("rma");
-	        joinRma.on(builder.equal(joinRma.get("rmaId"), orderLineCriteria.getRmaId()));
+	        Join<OrderLine, RMA> joinRma = root.join("rma");
+	        joinRma.on(builder.equal(joinRma.get(RMA_.id), orderLineCriteria.getRmaId()));
 	    }
 
 	    return predicates;

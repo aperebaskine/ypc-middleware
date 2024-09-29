@@ -10,11 +10,13 @@ import com.pinguela.yourpc.dao.TicketDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Customer;
+import com.pinguela.yourpc.model.Customer_;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.model.Ticket;
 import com.pinguela.yourpc.model.TicketCriteria;
-import com.pinguela.yourpc.model.TicketState;
-import com.pinguela.yourpc.model.TicketType;
+import com.pinguela.yourpc.model.TicketState_;
+import com.pinguela.yourpc.model.TicketType_;
+import com.pinguela.yourpc.model.Ticket_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -49,25 +51,23 @@ implements TicketDAO {
 	    List<Predicate> predicates = new ArrayList<>();
 
 	    if (ticketCriteria.getCustomerId() != null) {
-	        predicates.add(builder.equal(root.get("customer"), ticketCriteria.getCustomerId()));
+	        predicates.add(builder.equal(root.get(Ticket_.customer), ticketCriteria.getCustomerId()));
 	    }
 	    if (ticketCriteria.getCustomerEmail() != null) {
-	        Join<Ticket, Customer> customerJoin = root.join("customer", JoinType.INNER);
-	        predicates.add(builder.equal(customerJoin.get("email"), ticketCriteria.getCustomerEmail()));
+	        Join<Ticket, Customer> customerJoin = root.join(Ticket_.customer, JoinType.INNER);
+	        predicates.add(builder.equal(customerJoin.get(Customer_.email), ticketCriteria.getCustomerEmail()));
 	    }
 	    if (ticketCriteria.getMinDate() != null) {
-	        predicates.add(builder.greaterThanOrEqualTo(root.get("creationDate"), ticketCriteria.getMinDate()));
+	        predicates.add(builder.greaterThanOrEqualTo(root.get(Ticket_.creationDate), ticketCriteria.getMinDate()));
 	    }
 	    if (ticketCriteria.getMaxDate() != null) {
-	        predicates.add(builder.lessThanOrEqualTo(root.get("creationDate"), ticketCriteria.getMaxDate()));
+	        predicates.add(builder.lessThanOrEqualTo(root.get(Ticket_.creationDate), ticketCriteria.getMaxDate()));
 	    }
 	    if (ticketCriteria.getState() != null) {
-	        Join<Ticket, TicketState> ticketStateJoin = root.join("state", JoinType.INNER);
-	        predicates.add(builder.equal(ticketStateJoin.get("id"), ticketCriteria.getState()));
+	        predicates.add(builder.equal(root.get(Ticket_.state).get(TicketState_.id), ticketCriteria.getState()));
 	    }
 	    if (ticketCriteria.getType() != null) {
-	        Join<Ticket, TicketType> ticketTypeJoin = root.join("type", JoinType.INNER);
-	        predicates.add(builder.equal(ticketTypeJoin.get("id"), ticketCriteria.getType()));
+	        predicates.add(builder.equal(root.get(Ticket_.type).get(TicketType_.id), ticketCriteria.getType()));
 	    }
 
 	    return predicates;

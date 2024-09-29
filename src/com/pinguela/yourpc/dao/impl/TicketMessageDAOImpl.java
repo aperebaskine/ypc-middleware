@@ -11,6 +11,8 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.SimpleCriteria;
 import com.pinguela.yourpc.model.TicketMessage;
+import com.pinguela.yourpc.model.TicketMessage_;
+import com.pinguela.yourpc.model.Ticket_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -39,7 +41,7 @@ implements TicketMessageDAO {
 	    List<Predicate> predicates = new ArrayList<>();
 
 	    if (simpleCriteria.getValue() != null) {
-	        predicates.add(builder.equal(root.get("ticket").get("id"), simpleCriteria.getValue()));
+	        predicates.add(builder.equal(root.get(TicketMessage_.ticket).get(Ticket_.id), simpleCriteria.getValue()));
 	    }
 
 	    return predicates;

@@ -12,6 +12,8 @@ import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Department;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeDepartment;
+import com.pinguela.yourpc.model.EmployeeDepartment_;
+import com.pinguela.yourpc.model.Employee_;
 import com.pinguela.yourpc.model.SimpleCriteria;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -36,7 +38,7 @@ implements EmployeeDepartmentDAO {
 	@Override
 	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<EmployeeDepartment> root,
 			AbstractCriteria<EmployeeDepartment> criteria) {
-		return Arrays.asList(builder.equal(root.get("employee").get("id"), 
+		return Arrays.asList(builder.equal(root.get(EmployeeDepartment_.employee).get(Employee_.id), 
 				((SimpleCriteria<EmployeeDepartment>) criteria).getValue()));
 	}
 

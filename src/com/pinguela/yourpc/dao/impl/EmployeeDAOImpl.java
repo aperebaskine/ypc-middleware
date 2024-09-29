@@ -9,9 +9,14 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.EmployeeDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
+import com.pinguela.yourpc.model.Department_;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
 import com.pinguela.yourpc.model.EmployeeDepartment;
+import com.pinguela.yourpc.model.EmployeeDepartment_;
+import com.pinguela.yourpc.model.Employee_;
+import com.pinguela.yourpc.model.FullName_;
+import com.pinguela.yourpc.model.ID_;
 import com.pinguela.yourpc.model.SimpleUpdateValue;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
@@ -55,33 +60,33 @@ implements EmployeeDAO {
 	    List<Predicate> predicates = new ArrayList<>();
 
 	    if (employeeCriteria.getFirstName() != null) {
-	        predicates.add(builder.like(root.get("name").get("firstName"), 
+	        predicates.add(builder.like(root.get(Employee_.name).get(FullName_.firstName), 
 	                SQLQueryUtils.wrapLike(employeeCriteria.getFirstName())));
 	    }
 	    if (employeeCriteria.getLastName1() != null) {
-	        predicates.add(builder.like(root.get("name").get("lastName1"), 
+	        predicates.add(builder.like(root.get(Employee_.name).get(FullName_.lastName1), 
 	                SQLQueryUtils.wrapLike(employeeCriteria.getLastName1())));
 	    }
 	    if (employeeCriteria.getLastName2() != null) {
-	        predicates.add(builder.like(root.get("name").get("lastName2"), 
+	        predicates.add(builder.like(root.get(Employee_.name).get(FullName_.lastName2), 
 	                SQLQueryUtils.wrapLike(employeeCriteria.getLastName2())));
 	    }
 	    if (employeeCriteria.getDocumentNumber() != null) {
-	        predicates.add(builder.equal(root.get("document").get("number"), employeeCriteria.getDocumentNumber()));
+	        predicates.add(builder.equal(root.get(Employee_.document).get(ID_.number), employeeCriteria.getDocumentNumber()));
 	    }
 	    if (employeeCriteria.getPhoneNumber() != null) {
-	        predicates.add(builder.equal(root.get("phone"), employeeCriteria.getPhoneNumber()));
+	        predicates.add(builder.equal(root.get(Employee_.phoneNumber), employeeCriteria.getPhoneNumber()));
 	    }
 	    if (employeeCriteria.getEmail() != null) {
-	        predicates.add(builder.equal(root.get("email"), employeeCriteria.getEmail()));
+	        predicates.add(builder.equal(root.get(Employee_.email), employeeCriteria.getEmail()));
 	    }
 	    if (employeeCriteria.getUsername() != null) {
-	        predicates.add(builder.equal(root.get("username"), employeeCriteria.getUsername()));
+	        predicates.add(builder.equal(root.get(Employee_.username), employeeCriteria.getUsername()));
 	    }
 	    if (employeeCriteria.getDepartmentId() != null) {
-	        Join<Employee, EmployeeDepartment> joinDepartment = root.join("departmentHistory");
-	        joinDepartment.on(builder.equal(joinDepartment.get("departmentId"), employeeCriteria.getDepartmentId()));
-	        joinDepartment.on(builder.isNull(joinDepartment.get("endDate")));
+	        Join<Employee, EmployeeDepartment> joinDepartment = root.join(Employee_.departmentHistory);
+	        joinDepartment.on(builder.equal(joinDepartment.get(EmployeeDepartment_.department).get(Department_.id), employeeCriteria.getDepartmentId()));
+	        joinDepartment.on(builder.isNull(joinDepartment.get(EmployeeDepartment_.endDate)));
 	    }
 
 	    return predicates;
@@ -117,7 +122,7 @@ implements EmployeeDAO {
 	@Override
 	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Employee> updateQuery, Root<Employee> root,
 			AbstractUpdateValues<Employee> updateValues) {
-		updateQuery.set(root.get("password"), ((SimpleUpdateValue<Employee>) updateValues).getValue());
+		updateQuery.set(root.get(Employee_.encryptedPassword), (String) ((SimpleUpdateValue<Employee>) updateValues).getValue());
 	}
 
 	@Override
