@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,13 +25,7 @@ implements DocumentTypeDAO {
 	@Override
 	public Map<String, IDType> findAll(Session session) throws DataException {
 		List<IDType> documentTypes = super.findBy(session, null);
-		Map<String, IDType> documentTypesById = new LinkedHashMap<String, IDType>();
-		
-		for (IDType documentType : documentTypes) {
-			documentTypesById.put(documentType.getId(), documentType);
-		}
-		
-		return documentTypesById;
+		return mapByPrimaryKey(documentTypes);
 	}
 
 	@Override

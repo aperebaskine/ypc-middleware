@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +9,7 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Category;
+import com.pinguela.yourpc.model.Category_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -27,20 +27,14 @@ implements CategoryDAO {
 	@Override
 	public Map<Short, Category> findAll(Session session) throws DataException {
 		List<Category> categories = super.findBy(session, null);
-		Map<Short, Category> categoriesById = new LinkedHashMap<>();
-
-		for (Category c : categories) {
-			categoriesById.put(c.getId(), c);
-		}
-
-		return categoriesById;
+		return mapByPrimaryKey(categories);
 	}
 
 	@Override
 	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Category> root,
 			AbstractCriteria<Category> criteria) {
-		root.fetch("parent", JoinType.LEFT);
-		root.fetch("children", JoinType.LEFT);
+		root.fetch(Category_.parent, JoinType.LEFT);
+		root.fetch(Category_.children, JoinType.LEFT);
 		return null;
 	}	
 	

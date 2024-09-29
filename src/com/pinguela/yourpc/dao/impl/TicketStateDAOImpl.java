@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,12 +25,7 @@ implements TicketStateDAO {
 	@Override
 	public Map<String, TicketState> findAll(Session session) throws DataException {
 		List<TicketState> ticketStates = super.findBy(session, null);
-		
-		Map<String, TicketState> ticketStatesById = new LinkedHashMap<String, TicketState>();
-		for (TicketState ticketState : ticketStates) {
-			ticketStatesById.put(ticketState.getId(), ticketState);
-		}
-		return ticketStatesById;
+		return mapByPrimaryKey(ticketStates);
 	}
 	
 	@Override

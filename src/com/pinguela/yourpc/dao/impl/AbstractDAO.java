@@ -2,8 +2,10 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,6 +106,14 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 	private int getResultCount(ScrollableResults<T> results) {
 		results.last();
 		return results.getRowNumber() +1;
+	}
+	
+	protected Map<PK, T> mapByPrimaryKey(List<T> results) {
+		Map<PK, T> map = new LinkedHashMap<>();
+		for (T result : results) {
+			map.put(result.getId(), result);
+		}
+		return map;
 	}
 
 	private CriteriaQuery<T> buildFindByQuery(Session session, AbstractCriteria<T> criteria) {

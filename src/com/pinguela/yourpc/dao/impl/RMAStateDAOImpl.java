@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,13 +25,7 @@ implements RMAStateDAO {
 	@Override
 	public Map<String, RMAState> findAll(Session session) throws DataException {
 		List<RMAState> rmaStates = super.findBy(session, null);
-		Map<String, RMAState> rmaStatesById = new LinkedHashMap<String, RMAState>();
-		
-		for (RMAState rmaState : rmaStates) {
-			rmaStatesById.put(rmaState.getId(), rmaState);
-		}
-		
-		return rmaStatesById;
+		return mapByPrimaryKey(rmaStates);
 	}
 	
 	@Override

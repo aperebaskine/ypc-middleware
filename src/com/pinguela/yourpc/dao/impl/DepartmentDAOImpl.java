@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,13 +25,7 @@ implements DepartmentDAO {
 	@Override
 	public Map<String, Department> findAll(Session session) throws DataException {
 		List<Department> departments = super.findBy(session, null);
-		Map<String, Department> departmentsById = new LinkedHashMap<String, Department>();
-		
-		for (Department d : departments) {
-			departmentsById.put(d.getId(), d);
-		}
-		
-		return departmentsById;
+		return mapByPrimaryKey(departments);
 	}
 
 	@Override

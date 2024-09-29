@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,12 +25,7 @@ implements OrderStateDAO {
 	@Override
 	public Map<String, OrderState> findAll(Session session) throws DataException {
 		List<OrderState> orderStates = super.findBy(session, null);
-		
-		Map<String, OrderState> orderStatesById = new LinkedHashMap<String, OrderState>();
-		for (OrderState orderState : orderStates) {
-			orderStatesById.put(orderState.getId(), orderState);
-		}
-		return orderStatesById;
+		return mapByPrimaryKey(orderStates);
 	}
 	
 	@Override
