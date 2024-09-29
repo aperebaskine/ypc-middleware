@@ -18,7 +18,10 @@ import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Address;
 import com.pinguela.yourpc.model.AddressCriteria;
 import com.pinguela.yourpc.model.AddressUpdateValues;
+import com.pinguela.yourpc.model.Address_;
 import com.pinguela.yourpc.model.CustomerOrder;
+import com.pinguela.yourpc.model.Customer_;
+import com.pinguela.yourpc.model.Employee_;
 import com.pinguela.yourpc.util.comparator.AddressComparator;
 
 import jakarta.persistence.Tuple;
@@ -71,12 +74,12 @@ implements AddressDAO {
 	    
 	    if (addressCriteria.getCustomerId() != null) {
 	        predicates.add(builder.equal(
-	        		root.get("customer").get("id"), addressCriteria.getCustomerId()));
+	        		root.get(Address_.customer).get(Customer_.id), addressCriteria.getCustomerId()));
 	    }
 	    
 	    if (addressCriteria.getEmployeeId() != null) {
 	        predicates.add(builder.equal(
-	        		root.get("employee").get("id"), addressCriteria.getEmployeeId()));
+	        		root.get(Address_.employee).get(Employee_.id), addressCriteria.getEmployeeId()));
 	    }
 	    
 	    return predicates;
