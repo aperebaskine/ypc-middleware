@@ -92,7 +92,7 @@ implements CustomerDAO {
 	@Override
 	public Integer create(Session session, Customer c) 
 			throws DataException {
-		return create(session, c);
+		return super.createEntity(session, c);
 	}
 
 	@Override
