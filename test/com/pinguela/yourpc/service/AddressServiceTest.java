@@ -157,6 +157,7 @@ class AddressServiceTest {
 			a = new Address();
 			c = new Customer();
 			e = new Employee();
+			ci = new City();
 
 			a.setStreetName("TEST" + System.currentTimeMillis());
 			a.setZipCode("1");
@@ -294,6 +295,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestUpdate {
 
 		@Test
@@ -383,6 +385,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestDelete {
 
 		@Test
@@ -420,6 +423,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestDeleteByCustomer {
 
 		@Test

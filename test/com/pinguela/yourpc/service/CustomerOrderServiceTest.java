@@ -254,7 +254,7 @@ class CustomerOrderServiceTest {
 					assertFalse(orders.isEmpty());
 
 					for (CustomerOrder o : orders) {
-						assertEquals(criteria.getState(), o.getState());
+						assertEquals(criteria.getState(), o.getState().getId());
 					}
 				} catch (YPCException e) {
 					fail(e.getMessage(), e);
@@ -280,7 +280,7 @@ class CustomerOrderServiceTest {
 					String email = customerService.findById(o.getCustomerId()).getEmail();
 					assertEquals(criteria.getCustomerEmail(), email);
 
-					assertEquals(criteria.getState(), o.getState());
+					assertEquals(criteria.getState(), o.getState().getId());
 					assertTrue(o.getTotalPrice().compareTo(criteria.getMinAmount()) >= 0);
 				}
 			} catch (YPCException e) {
@@ -290,6 +290,7 @@ class CustomerOrderServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestCreate {
 
 		private CustomerOrder o;
@@ -313,15 +314,19 @@ class CustomerOrderServiceTest {
 			billingAddress = new Address();
 			shippingAddress = new Address();
 
+			state = new OrderState();
 			state.setId("PND");
 			o.setState(state);
 			
+			c = new Customer();
 			c.setId(1);
 			o.setCustomer(c);
 			
+			billingAddress = new Address();
 			billingAddress.setId(1);
 			o.setBillingAddress(billingAddress);
 			
+			shippingAddress = new Address();
 			shippingAddress.setId(1);
 			o.setShippingAddress(shippingAddress);
 			o.setTotalPrice((double) System.currentTimeMillis());
@@ -329,6 +334,7 @@ class CustomerOrderServiceTest {
 			List<OrderLine> olList = new ArrayList<OrderLine>();
 			OrderLine ol = new OrderLine();
 			
+			p1 = new Product();
 			p1.setId(1l);
 			ol.setProduct(p1);
 			ol.setQuantity((short) 1);
@@ -338,6 +344,7 @@ class CustomerOrderServiceTest {
 
 			ol = new OrderLine();
 			
+			p2 = new Product();
 			p2.setId(45l);
 			ol.setProduct(p2);
 			ol.setQuantity((short) 1);
@@ -374,11 +381,9 @@ class CustomerOrderServiceTest {
 		@Test
 		void testAllValidStates() {
 
-			for (String state : new String[]{"PND", "PRS", "CAN", "DEL", "SPD"}) {
+			for (String stateId : new String[]{"PND", "PRS", "CAN", "DEL", "SPD"}) {
 				try {
-					OrderState orderState = new OrderState();
-					orderState.setId(state);
-					o.setState(orderState);
+					state.setId(stateId);
 					Long id = customerOrderService.create(o);
 					CustomerOrder p = customerOrderService.findById(id);
 					assertEquals(id, p.getId());
@@ -402,7 +407,6 @@ class CustomerOrderServiceTest {
 
 		@Test
 		void testWithInvalidState() {
-			OrderState state = new OrderState();
 			state.setId("ABC");
 			assertThrows(DataException.class, () -> customerOrderService.create(o));
 		}
