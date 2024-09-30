@@ -30,12 +30,19 @@ class AttributeUtils {
 	 * corresponding SQL data type names.
 	 */
 	static final Map<String, String> SQL_DATA_TYPE_NAMES;
+	
+	/**
+	 * Mapping of the attribute data type identifier constants to their
+	 * corresponding database columns.
+	 */
+	static final Map<String, String> COLUMN_NAMES;
 
 	static {
 		Map<String, String> dataTypeConstantMap = getDataTypeConstants();
 
 		SQL_TARGET_TYPE_IDENTIFIERS = initializeSqlTypeIdentifierMap(dataTypeConstantMap);
 		SQL_DATA_TYPE_NAMES = initializeSqlTypeNameMap(dataTypeConstantMap);
+		COLUMN_NAMES = initializeColumnNameMap(dataTypeConstantMap);
 	}
 
 	private static final Map<String, String> getDataTypeConstants() {
@@ -72,6 +79,15 @@ class AttributeUtils {
 			sqlTypeNameMap.put(dataTypeConstants.get(dataTypeName), dataTypeName);
 		}
 		return Collections.unmodifiableMap(sqlTypeNameMap);
+	}
+	
+	private static final Map<String, String> initializeColumnNameMap(Map<String, String> dataTypeConstants) {
+		Map<String, String> columnNameMap = new HashMap<String, String>();
+		for (String dataTypeName : dataTypeConstants.keySet()) {
+			columnNameMap.put(dataTypeConstants.get(dataTypeName), 
+					String.format(COLUMN_NAME_PLACEHOLDER, dataTypeName));
+		}
+		return Collections.unmodifiableMap(columnNameMap);
 	}
 	
 	static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
