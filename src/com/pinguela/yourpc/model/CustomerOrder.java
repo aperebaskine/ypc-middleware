@@ -44,7 +44,7 @@ extends AbstractCustomerOperation<Long> {
 	@Column(name = "INVOICE_TOTAL", columnDefinition = "DECIMAL(20,8)", nullable = false) 
 	private Double totalPrice;
 	
-	@OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<OrderLine> orderLines;
 	
 	public CustomerOrder() {
