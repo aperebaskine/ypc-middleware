@@ -8,6 +8,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,19 +24,19 @@ class AttributeUtils {
 	 * Mapping of the attribute data type identifier constants to the
 	 * {@link java.sql.Types} SQL data type identifier constants.
 	 */
-	static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
+	private static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
 
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding SQL data type names.
 	 */
-	static final Map<String, String> SQL_DATA_TYPE_NAMES;
+	private static final Map<String, String> SQL_DATA_TYPE_NAMES;
 	
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding database columns.
 	 */
-	static final Map<String, String> COLUMN_NAMES;
+	private static final Map<String, String> COLUMN_NAMES;
 
 	static {
 		Map<String, String> dataTypeConstantMap = getDataTypeConstants();
@@ -82,7 +83,7 @@ class AttributeUtils {
 	}
 	
 	private static final Map<String, String> initializeColumnNameMap(Map<String, String> dataTypeConstants) {
-		Map<String, String> columnNameMap = new HashMap<String, String>();
+		Map<String, String> columnNameMap = new LinkedHashMap<String, String>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
 			columnNameMap.put(dataTypeConstants.get(dataTypeName), 
 					String.format(COLUMN_NAME_PLACEHOLDER, dataTypeName));
