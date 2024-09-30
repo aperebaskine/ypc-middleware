@@ -1,11 +1,13 @@
 package com.pinguela.yourpc.model;
 
+import com.pinguela.yourpc.util.StringUtils;
+
 public abstract class AbstractPersonCriteria<PK, T> 
 extends AbstractEntityCriteria<PK, T> {
 	
-	public static final String ORDER_BY_FIRST_NAME = compositePath(AbstractPerson_.NAME, FullName_.FIRST_NAME);
-	public static final String ORDER_BY_LAST_NAME = compositePath(AbstractPerson_.NAME, FullName_.LAST_NAME1);
-	public static final String ORDER_BY_DOCUMENT_NUMBER = compositePath(AbstractPerson_.NAME, FullName_.LAST_NAME2);
+	public static final String ORDER_BY_FIRST_NAME = StringUtils.join(AbstractPerson_.NAME, FullName_.FIRST_NAME);
+	public static final String ORDER_BY_LAST_NAME = StringUtils.join(AbstractPerson_.NAME, FullName_.LAST_NAME1);
+	public static final String ORDER_BY_DOCUMENT_NUMBER = StringUtils.join(AbstractPerson_.NAME, FullName_.LAST_NAME2);
 	public static final String ORDER_BY_PHONE_NUMBER = AbstractPerson_.PHONE_NUMBER;
 	public static final String ORDER_BY_EMAIL = AbstractPerson_.EMAIL;
 	

@@ -5,18 +5,12 @@ import java.util.Map;
 
 public abstract class AbstractCriteria<T> 
 extends AbstractValueObject { 
-	
-	public static final String PATH_DELIMITER = ".";
-	
+		
 	public static final Boolean ASC = Boolean.TRUE;
 	public static final Boolean DESC = Boolean.FALSE;
 	
 	private Map<String, Boolean> orderBy;
 	private boolean isDefaultOrderSet;
-	
-	protected static final String compositePath(String... components) {
-		return String.join(PATH_DELIMITER, components);
-	}
 	
 	public AbstractCriteria() {
 		orderBy = new LinkedHashMap<>();

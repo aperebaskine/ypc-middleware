@@ -19,6 +19,7 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.util.ReflectionUtils;
+import com.pinguela.yourpc.util.StringUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -52,24 +53,23 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 			throw new DataException(e);
 		}
 	}
-
-	protected List<T> findBy(Session session, AbstractCriteria<T> criteria) 
+	
+	protected T findSingleResultBy(Session session, AbstractCriteria<T> criteria) 
 			throws DataException {
 		try {
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
-			return session.createQuery(query).getResultList();
+			return session.createQuery(query).getSingleResultOrNull();
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
 		}
 	}
 
-	protected T findSingleResultBy(Session session, AbstractCriteria<T> criteria) 
+	protected List<T> findBy(Session session, AbstractCriteria<T> criteria) 
 			throws DataException {
 		try {
 			CriteriaQuery<T> query = buildFindByQuery(session, criteria);
-			List<T> results = session.createQuery(query).getResultList();
-			return results.isEmpty() ? null : results.get(0);
+			return session.createQuery(query).getResultList();
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -143,10 +143,8 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 		List<Order> orderBy = new LinkedList<>();
 		for (String pathStr : criteria.getOrderBy().keySet()) {
 			
-			String[] pathComponents = splitCompositePath(pathStr);
-			Path<?> path = pathComponents.length == 0 ?
-					buildPath(root, pathStr) :
-						buildPath(root, pathComponents);
+			String[] pathComponents = StringUtils.split(pathStr);
+			Path<?> path = buildPath(root, pathComponents);
 			
 			orderBy.add(criteria.getOrderBy().get(pathStr) == AbstractCriteria.ASC ?
 					builder.asc(path) : builder.desc(path));
@@ -160,10 +158,6 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 			path = path.get(component);
 		}
 		return path;
-	}
-	
-	private String[] splitCompositePath(String path) {
-		return path.split(AbstractCriteria.PATH_DELIMITER);
 	}
 	
 	protected final Predicate[] buildWhereClause(CriteriaBuilder builder,
