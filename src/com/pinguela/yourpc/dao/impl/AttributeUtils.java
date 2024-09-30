@@ -107,7 +107,7 @@ class AttributeUtils {
 	}
 
 	static final String getValueColumnName(String dataTypeIdentifier) {
-		return String.format(COLUMN_NAME_PLACEHOLDER, getTargetSqlTypeName(dataTypeIdentifier));
+		return COLUMN_NAMES.get(dataTypeIdentifier);
 	}
 
 	static final String getValueColumnName(Attribute<?> attribute) {
