@@ -2,12 +2,14 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.annotations.SoftDelete;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,7 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKey;
+import jakarta.persistence.Transient;
 
 @Entity
 public class Product 
@@ -24,27 +26,27 @@ extends AbstractEntity<Long> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(nullable = false)
 	private String name;
 
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Category category;
-	
+
 	private String description;
-	
+
 	@Column(nullable = false)
 	private Date launchDate;
-	
+
 	@SoftDelete
 	private Date discontinuationDate;
-	
+
 	@Column(nullable = false)
 	private Integer stock;
-	
+
 	@Column(columnDefinition = "DECIMAL(8,20)", nullable = false) 
 	private Double purchasePrice;
-	
+
 	@Column(columnDefinition = "DECIMAL(8,20)", nullable = false) 
 	private Double salePrice;
 
@@ -52,10 +54,12 @@ extends AbstractEntity<Long> {
 	@JoinColumn(name = "REPLACEMENT_ID")
 	private Product replacement;
 
-	@ManyToMany
-	@MapKey(name = "name")
-	@JoinTable(name = "PRODUCT_ATTRIBUTE_VALUE", inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
+	@Transient
 	private Map<String, Attribute<?>> attributes;
+	
+	@ManyToMany(targetEntity = AttributeValue.class, fetch = FetchType.LAZY)
+	@JoinTable(inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
+	private List<AttributeValue<?>> values;
 
 	public Product() {
 		this.attributes = new HashMap<String, Attribute<?>>();
@@ -84,7 +88,7 @@ extends AbstractEntity<Long> {
 	public void setCategory(Category category) {
 		this.category = category;
 	}
-	
+
 	public Short getCategoryId() {
 		return category.getId();
 	}
@@ -152,10 +156,10 @@ extends AbstractEntity<Long> {
 	public void setAttributes(Map<String, Attribute<?>> attributes) {
 		this.attributes = attributes;
 	}
-	
+
 	public void addAttribute(Attribute<?> attribute) {
 		this.attributes.put(attribute.getName(), attribute);
 	}
-	
+
 }
 
