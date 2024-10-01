@@ -10,10 +10,14 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 
 public class SQLQueryUtils {
 
+	private static final String COLUMN_DELIMITER = ", ";
+	private static final String TABLE_ALIAS_DELIMITER = ".";
+	private static final String COLUMN_ALIAS_DELMITER = "_";
+
 	private static final String IS_NULL_CONDITION = " IS NULL";
 	private static final String EQUALS_CONDITION = " = ?";
 	private static final String IN_VALUES_CONDITION = " IN ()";
-	
+
 	private static final String ASCENDING_ORDER = " ASC";
 	private static final String DESCENDING_ORDER = " DESC";
 
@@ -31,7 +35,7 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the clause with placeholder values
 	 */
 	public static StringBuilder buildPlaceholderComparisonClause(int size) {
-		
+
 		if (size < 1) {
 			return new StringBuilder(IS_NULL_CONDITION);
 		}
@@ -57,7 +61,7 @@ public class SQLQueryUtils {
 	public static StringBuilder buildPlaceholderComparisonClause(Collection<?> values) {
 		return buildPlaceholderComparisonClause(values == null ? 0 : values.size());
 	}
-	
+
 	/** 
 	 * Dynamically creates a VALUES clause to append to a SQL INSERT query containing placeholder characters.
 	 * 
@@ -68,19 +72,19 @@ public class SQLQueryUtils {
 	 * with no rows to insert.
 	 */
 	public static StringBuilder buildPlaceholderValuesClause(int rows, int columns) {
-		
+
 		if (rows < 1) {
 			throw new IllegalArgumentException("No rows to insert.");
 		}
 
 		StringBuilder values = new StringBuilder(" VALUES ");
-		
+
 		for (int i = 0; i<rows; i++)  {
 			values.append("(").append(buildPlaceholderValueSequence(columns)).append("), ");
 		}
 		return values.delete(values.length()-2, values.length());
 	}
-	
+
 	/** 
 	 * Creates a VALUES clause to append to a SQL INSERT query containing placeholder characters.
 	 * 
@@ -91,13 +95,13 @@ public class SQLQueryUtils {
 	 * with no rows to insert.
 	 */
 	public static StringBuilder buildPlaceholderValuesClause(Collection<?> values, int columns) {
-		
+
 		if (values == null || values.isEmpty()) {
 			throw new IllegalArgumentException("No rows to insert.");
 		}
 		return buildPlaceholderValuesClause(values.size(), columns);
 	}
-	
+
 	/**
 	 * Creates a sequence of PreparedStatement placeholder characters to insert into a query.
 	 * 
@@ -105,15 +109,15 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the sequence of placeholder characters of the desired length
 	 */
 	private static StringBuilder buildPlaceholderValueSequence(int size) {
-		
+
 		StringBuilder sequence = new StringBuilder();
-		
+
 		for (int i = 0; i<size; i++) {
 			sequence.append("?, ");
 		}
 		return sequence.delete(sequence.length()-2, sequence.length());
 	}
-	
+
 	/**
 	 * Null-safe method that creates an SQL WHERE clause from a list of conditions.
 	 * 
@@ -125,7 +129,7 @@ public class SQLQueryUtils {
 				? new StringBuilder()
 						:buildWhereClause(String.join(" AND", conditions));
 	}
-	
+
 	/**
 	 * Null-safe method that creates an SQL WHERE clause from a list of conditions.
 	 * 
@@ -165,7 +169,7 @@ public class SQLQueryUtils {
 				.append(columnName)
 				.append(ascDesc == AbstractCriteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
 	}
-	
+
 	public static StringBuilder buildOrderByClause(Map<String, Boolean> orderBy) {
 		if (orderBy == null || orderBy.isEmpty()) {
 			return new StringBuilder("");
@@ -174,12 +178,12 @@ public class SQLQueryUtils {
 		for (String column : orderBy.keySet()) {
 			clauses.add(new StringBuilder(" ").append(column).append(" ")
 					.append(orderBy.get(column) == AbstractCriteria.ASC ? 
-					ASCENDING_ORDER : DESCENDING_ORDER));
+							ASCENDING_ORDER : DESCENDING_ORDER));
 		}
 		return new StringBuilder(" ORDER BY ").append(
 				String.join(", ", clauses.toArray(new StringBuilder[clauses.size()])));
 	}
-	
+
 	/**
 	 * Builds an ORDER BY clause to append to a query, receiving a Criteria object as parameter.
 	 * 
@@ -188,7 +192,7 @@ public class SQLQueryUtils {
 	 * parameters are null, returns an empty StringBuilder.
 	 */
 	public static StringBuilder buildOrderByClause(AbstractCriteria<?> criteria) {
-		
+
 		if (criteria == null || criteria.getOrderBy() == null) {
 			return new StringBuilder("");
 		}
@@ -204,5 +208,38 @@ public class SQLQueryUtils {
 	public static String wrapLike(String str) {
 		return new StringBuilder().append("%").append(str.toUpperCase()).append("%").toString();
 	}
-	
+
+	public static String applyAlias(String tableAlias, String columnName) {
+//		return String.format(
+//				"%1$s%2$s%3$s AS %1$s%4$s%3$s", 
+//				tableAlias,
+//				TABLE_ALIAS_DELIMITER,
+//				columnName,
+//				COLUMN_ALIAS_DELMITER
+//				);
+		return String.join(TABLE_ALIAS_DELIMITER, tableAlias, columnName);
+	}
+
+	public static String[] applyAlias(String alias, String... columnNames) {
+		String[] columnNamesWithAlias = new String[columnNames.length];
+
+		for (int i = 0; i < columnNames.length; i++) {
+			columnNamesWithAlias[i] = applyAlias(alias, columnNames[i]);
+		}
+
+		return columnNamesWithAlias;
+	}
+
+	public static String getColumnClause(String... columnNames) {
+		return String.join(COLUMN_DELIMITER, columnNames);
+	}
+
+	public static String getColumnClause(String[]... columnNames) {
+		String[] clauses = new String[columnNames.length];
+		for (int i = 0; i < columnNames.length; i++) {
+			clauses[i] = getColumnClause(columnNames[i]);
+		}
+		return String.join(COLUMN_DELIMITER, clauses);
+	}
+
 }
