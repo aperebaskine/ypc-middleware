@@ -1,4 +1,4 @@
-package com.pinguela.yourpc.dao.impl;
+package com.pinguela.yourpc.dao.util;
 
 import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.RANGE;
 import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.SET;
@@ -16,7 +16,7 @@ import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-class AttributeUtils {
+public class AttributeUtils {
 
 	private static final String COLUMN_NAME_PLACEHOLDER = "VALUE_%s";
 
@@ -91,31 +91,31 @@ class AttributeUtils {
 		return Collections.unmodifiableMap(columnNameMap);
 	}
 	
-	static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
+	public static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
 		return SQL_TARGET_TYPE_IDENTIFIERS.get(dataTypeIdentifier);
 	}
 
-	static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
+	public static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
 		return getTargetSqlTypeIdentifier(attribute.getDataTypeIdentifier());
 	}
 
-	static final String getTargetSqlTypeName(String dataTypeIdentifier) {
+	public static final String getTargetSqlTypeName(String dataTypeIdentifier) {
 		return SQL_DATA_TYPE_NAMES.get(dataTypeIdentifier);
 	}
 
-	static final String getTargetSqlTypeName(Attribute<?> attribute) {
+	public static final String getTargetSqlTypeName(Attribute<?> attribute) {
 		return getTargetSqlTypeName(attribute.getDataTypeIdentifier());
 	}
 
-	static final String getValueColumnName(String dataTypeIdentifier) {
+	public static final String getValueColumnName(String dataTypeIdentifier) {
 		return COLUMN_NAMES.get(dataTypeIdentifier);
 	}
 
-	static final String getValueColumnName(Attribute<?> attribute) {
+	public static final String getValueColumnName(Attribute<?> attribute) {
 		return getValueColumnName(attribute.getDataTypeIdentifier());
 	}
 
-	static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
+	public static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
 
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
