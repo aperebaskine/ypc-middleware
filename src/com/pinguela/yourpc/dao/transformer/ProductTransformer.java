@@ -8,7 +8,7 @@ import org.hibernate.query.TupleTransformer;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.Product;
 
-class ProductTransformer 
+public class ProductTransformer 
 implements TupleTransformer<Product> {
 	
 	private AttributeTransformer attributeTransformer;
