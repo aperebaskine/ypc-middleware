@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,6 +29,25 @@ import com.pinguela.yourpc.util.SQLQueryUtils;
 public class AttributeDAOImpl 
 extends AbstractMutableDAO<Integer, Attribute<?>>
 implements AttributeDAO {
+
+	static final String ATTRIBUTE_ALIAS = "a";
+	static final String ATTRIBUTE_VALUE_ALIAS = "av";
+
+	static final String[] ATTRIBUTE_COLUMN_NAMES = {
+			"ID AS ATTRIBUTE_TYPE_ID",
+			"ATTRIBUTE_DATA_TYPE_ID",
+			"NAME"
+	};
+
+	static final String[] ATTRIBUTE_VALUE_COLUMN_NAMES = getAttributeValueColumnNames();
+
+	private static final String[] getAttributeValueColumnNames() {
+		List<String> columnNames = new ArrayList<String>();
+		columnNames.add("ID AS ATTRIBUTE_VALUE_ID");
+		columnNames.add("ATTRIBUTE_TYPE_ID");
+		columnNames.addAll(AttributeUtils.ATTRIBUTE_VALUE_COLUMN_NAMES.values());
+		return columnNames.toArray(new String[columnNames.size()]);
+	}
 
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
 	private static final String NAME_COLUMN = "NAME";

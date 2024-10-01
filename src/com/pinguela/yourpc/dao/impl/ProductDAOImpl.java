@@ -1,5 +1,7 @@
 package com.pinguela.yourpc.dao.impl;
 
+import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
