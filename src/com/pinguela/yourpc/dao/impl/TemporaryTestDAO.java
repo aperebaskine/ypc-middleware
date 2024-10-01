@@ -84,19 +84,22 @@ public class TemporaryTestDAO {
 		String queryStr = BASE_QUERY
 				+ " WHERE p.NAME LIKE :name";
 
-		NativeQuery<Tuple> query = session.createNativeQuery(queryStr, Tuple.class);
-		query.addEntity(PRODUCT_ALIAS, Product.class);
+		NativeQuery<Object[]> query = session.createNativeQuery(queryStr, Object[].class);
 		
 		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
 			query.addScalar(AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
 		}
 
-		List<Tuple> list = query
+		List<Object[]> list = query
 				.setParameter("name", "%Ryzen%")
 				.getResultList();
+		
+		System.out.println(list);
 
-		for (Tuple tuple : list) {
-			System.out.println(tuple);
+		for (Object[] tuple : list) {
+			for (Object o : tuple) {
+				System.out.println(o);
+			}
 		}
 	}
 
