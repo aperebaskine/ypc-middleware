@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AttributeDAO;
+import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Category;

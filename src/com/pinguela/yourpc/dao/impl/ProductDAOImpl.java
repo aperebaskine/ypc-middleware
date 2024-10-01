@@ -17,6 +17,8 @@ import com.pinguela.ErrorCodes;
 import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
+import com.pinguela.yourpc.dao.util.AttributeUtils;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Product;
@@ -26,6 +28,10 @@ import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class ProductDAOImpl 
 extends AbstractDAO<Long, Product>
@@ -288,6 +294,15 @@ implements ProductDAO {
 		} finally {
 			JDBCUtils.close(stmt, rs);
 		}
+	}
+	
+	@Override
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Product> root,
+			AbstractCriteria<Product> criteria) {
+		// TODO Auto-generated method stub
+		Predicate predicate = builder.equal(root.get("id"), criteria);
+		predicate.
+		return null;
 	}
 
 	private static StringBuilder buildQueryClauses(ProductCriteria criteria) {
