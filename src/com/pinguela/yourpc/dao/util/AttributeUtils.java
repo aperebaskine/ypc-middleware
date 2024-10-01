@@ -24,26 +24,26 @@ public class AttributeUtils {
 	 * Mapping of the attribute data type identifier constants to the
 	 * {@link java.sql.Types} SQL data type identifier constants.
 	 */
-	private static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
+	public static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
 
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding SQL data type names.
 	 */
-	private static final Map<String, String> SQL_DATA_TYPE_NAMES;
+	public static final Map<String, String> SQL_DATA_TYPE_NAMES;
 	
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding database columns.
 	 */
-	private static final Map<String, String> COLUMN_NAMES;
+	public static final Map<String, String> ATTRIBUTE_VALUE_COLUMN_NAMES;
 
 	static {
 		Map<String, String> dataTypeConstantMap = getDataTypeConstants();
 
 		SQL_TARGET_TYPE_IDENTIFIERS = initializeSqlTypeIdentifierMap(dataTypeConstantMap);
 		SQL_DATA_TYPE_NAMES = initializeSqlTypeNameMap(dataTypeConstantMap);
-		COLUMN_NAMES = initializeColumnNameMap(dataTypeConstantMap);
+		ATTRIBUTE_VALUE_COLUMN_NAMES = initializeColumnNameMap(dataTypeConstantMap);
 	}
 
 	private static final Map<String, String> getDataTypeConstants() {
@@ -108,7 +108,7 @@ public class AttributeUtils {
 	}
 
 	public static final String getValueColumnName(String dataTypeIdentifier) {
-		return COLUMN_NAMES.get(dataTypeIdentifier);
+		return ATTRIBUTE_VALUE_COLUMN_NAMES.get(dataTypeIdentifier);
 	}
 
 	public static final String getValueColumnName(Attribute<?> attribute) {
