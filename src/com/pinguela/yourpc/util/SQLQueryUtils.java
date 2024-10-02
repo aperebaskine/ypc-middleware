@@ -3,6 +3,9 @@ package com.pinguela.yourpc.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +16,8 @@ public class SQLQueryUtils {
 	private static final String COLUMN_DELIMITER = ", ";
 	private static final String TABLE_ALIAS_DELIMITER = ".";
 	private static final String COLUMN_ALIAS_DELMITER = "_";
+	
+	private static final String AS_CLAUSE = " AS ";
 
 	private static final String IS_NULL_CONDITION = " IS NULL";
 	private static final String EQUALS_CONDITION = " = ?";
@@ -209,36 +214,35 @@ public class SQLQueryUtils {
 		return new StringBuilder().append("%").append(str.toUpperCase()).append("%").toString();
 	}
 
-	public static String applyAlias(String tableAlias, String columnName) {
-//		return String.format(
-//				"%1$s%2$s%3$s AS %1$s%4$s%3$s", 
-//				tableAlias,
-//				TABLE_ALIAS_DELIMITER,
-//				columnName,
-//				COLUMN_ALIAS_DELMITER
-//				);
-		return String.join(TABLE_ALIAS_DELIMITER, tableAlias, columnName);
+	public static String applyTableAlias(String alias, String columnName) {
+		return String.join(TABLE_ALIAS_DELIMITER, alias, columnName);
+	}
+	
+	public static String generateColumnAlias(Class<?> entity, String column) {
+		String columnSubstring = column.substring(column.lastIndexOf('.') +1);
+		return String.join(COLUMN_ALIAS_DELMITER, entity.getSimpleName(), columnSubstring == null ? column : columnSubstring);
+	}
+	
+	public static Map<String, String> generateColumnAliases(Class<?> entity, Collection<String> columnNames) {
+	    Map<String, String> columns = new LinkedHashMap<>();
+	    Iterator<String> iterator = columnNames.iterator();
+	    
+	    while (iterator.hasNext()) {
+	    	String column = iterator.next();
+	    	columns.put(column, generateColumnAlias(entity, column));
+	    }
+	    return Collections.unmodifiableMap(columns);
 	}
 
-	public static String[] applyAlias(String alias, String... columnNames) {
-		String[] columnNamesWithAlias = new String[columnNames.length];
-
-		for (int i = 0; i < columnNames.length; i++) {
-			columnNamesWithAlias[i] = applyAlias(alias, columnNames[i]);
+	public static String createColumnClause(Map<String, String> columnNamesAndAliases) {
+		String[] clauses = new String[columnNamesAndAliases.size()];
+		Iterator<String> iterator = columnNamesAndAliases.keySet().iterator();
+		
+		for (int i = 0; i < clauses.length; i++) {
+			String column = iterator.next();
+			clauses[i] = String.join(AS_CLAUSE, column, columnNamesAndAliases.get(column));
 		}
-
-		return columnNamesWithAlias;
-	}
-
-	public static String getColumnClause(String... columnNames) {
-		return String.join(COLUMN_DELIMITER, columnNames);
-	}
-
-	public static String getColumnClause(String[]... columnNames) {
-		String[] clauses = new String[columnNames.length];
-		for (int i = 0; i < columnNames.length; i++) {
-			clauses[i] = getColumnClause(columnNames[i]);
-		}
+		
 		return String.join(COLUMN_DELIMITER, clauses);
 	}
 
