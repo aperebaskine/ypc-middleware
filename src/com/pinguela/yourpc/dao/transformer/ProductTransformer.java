@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.dao.transformer;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,27 +13,24 @@ import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
-import com.pinguela.yourpc.util.HibernateUtils;
 
 public class ProductTransformer 
-implements TupleTransformer<Product>, ResultListTransformer<Object> {
+implements TupleTransformer<Product>, ResultListTransformer<Product> {
 
 	private Session session;
 	private AttributeTransformer attributeTransformer;
 
 	private Map<Long, Product> productMap;
-	private Map<String, Integer> aliasMap;
+	
+	private Map<Long, Short> categoryIdMap;
+	private Map<Long, Long> replacementIdMap;
 
-	public ProductTransformer() {
-		this.session = HibernateUtils.openSession();
+	public ProductTransformer(Session session) {
+		this.session = session;
 		attributeTransformer = new AttributeTransformer();
 		productMap = new HashMap<>();
-		aliasMap = new HashMap<String, Integer>();
-	}
-
-	public void clear() {
-		productMap.clear();
-		aliasMap.clear();
+		categoryIdMap = new HashMap<>();
+		replacementIdMap = new HashMap<>();
 	}
 
 	@Override
@@ -44,8 +43,8 @@ implements TupleTransformer<Product>, ResultListTransformer<Object> {
 			Product newProduct = new Product();
 			newProduct.setId(id);
 			newProduct.setName((String) tuple[index++]);
-
-			newProduct.setCategory(session.getReference(Category.class, tuple[index++]));
+			
+			categoryIdMap.put(id, (Short) tuple[index++]);
 
 			newProduct.setDescription((String) tuple[index++]);
 			newProduct.setLaunchDate((Date) tuple[index++]);
@@ -53,11 +52,11 @@ implements TupleTransformer<Product>, ResultListTransformer<Object> {
 			newProduct.setStock((Integer) tuple[index++]);
 			newProduct.setPurchasePrice((Double) tuple[index++]);
 			newProduct.setSalePrice((Double) tuple[index++]);
-
+			
 			Long replacementId = (Long) tuple[index++];
 
 			if (replacementId != null) {
-				newProduct.setReplacement(session.getReference(Product.class, replacementId));
+				replacementIdMap.put(id, (Long) tuple[index++]);
 			}
 
 			return newProduct;
@@ -68,9 +67,28 @@ implements TupleTransformer<Product>, ResultListTransformer<Object> {
 	}
 	
 	@Override
-	public List<Object> transformList(List<Object> resultList) {
-		session.close();
-		return resultList;
+	public List<Product> transformList(List<Product> resultList) {
+		List<Product> uniqueItems = new ArrayList<Product>();
+		
+		Iterator<Product> i = resultList.iterator();
+		
+		while (i.hasNext()) {
+			Product p = i.next();
+			if (!uniqueItems.contains(p)) {
+				uniqueItems.add(p);
+			}
+		}
+		
+		for (Product p : uniqueItems) {
+			p.setCategory(session.getReference(Category.class, categoryIdMap.get(p.getId())));
+			
+			Long replacementId = replacementIdMap.get(p.getId());
+			if (replacementId != null) {
+				p.setReplacement(session.getReference(Product.class, replacementId));
+			}
+		}
+		
+		return uniqueItems;
 	}
 
 }

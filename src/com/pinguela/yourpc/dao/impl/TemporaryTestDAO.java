@@ -87,7 +87,7 @@ public class TemporaryTestDAO {
 				+ " WHERE p.ID = :id";
 
 		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
-		query.setTupleTransformer(new ProductTransformer());
+		query.setTupleTransformer(new ProductTransformer(session));
 				
 		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
 			query.addScalar(AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
@@ -115,9 +115,9 @@ public class TemporaryTestDAO {
 
 		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
 		
-		ProductTransformer transformer = new ProductTransformer();
-		query.setTupleTransformer(transformer);
-		query.setResultListTransformer(transformer);
+		ProductTransformer transformer = new ProductTransformer(session);
+		query.setTupleTransformer(transformer)
+		.setResultListTransformer(transformer);
 		
 		for (String column : PRODUCT_COLUMNS.keySet()) {
 			query.addScalar(PRODUCT_COLUMN_ALIASES.get(column), PRODUCT_COLUMNS.get(column));
@@ -136,7 +136,7 @@ public class TemporaryTestDAO {
 				.getResultList();
 		
 		for (Object object : list) {
-			System.out.println(((Product) object).getId());
+			System.out.println(object);
 		}
 		
 	}
