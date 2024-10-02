@@ -13,7 +13,6 @@ import org.hibernate.query.NativeQuery;
 import com.pinguela.yourpc.dao.transformer.ProductTransformer;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.util.HibernateUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -88,7 +87,7 @@ public class TemporaryTestDAO {
 				+ " WHERE p.ID = :id";
 
 		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
-		query.setTupleTransformer(new ProductTransformer(session));
+		query.setTupleTransformer(new ProductTransformer());
 				
 		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
 			query.addScalar(AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
@@ -99,7 +98,7 @@ public class TemporaryTestDAO {
 				.getResultList();
 
 		for (Object tuple : list) {
-			System.out.println(tuple);
+			System.out.println(((Product) tuple).getCategoryId());
 		}
 	}
 
@@ -115,19 +114,29 @@ public class TemporaryTestDAO {
 				+ " WHERE p.ID = :id";
 
 		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
-		query.setTupleTransformer(new ProductTransformer(session));
-				
-		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
-			String columnName = AttributeUtils.getValueColumnName(entry.getKey());
-			query.addScalar(SQLQueryUtils.generateColumnAlias(AttributeValue.class, columnName), entry.getValue());
+		
+		ProductTransformer transformer = new ProductTransformer();
+		query.setTupleTransformer(transformer);
+		query.setResultListTransformer(transformer);
+		
+		for (String column : PRODUCT_COLUMNS.keySet()) {
+			query.addScalar(PRODUCT_COLUMN_ALIASES.get(column), PRODUCT_COLUMNS.get(column));
 		}
-
+		
+		for (String column : AttributeDAOImpl.ATTRIBUTE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES.get(column), AttributeDAOImpl.ATTRIBUTE_COLUMNS.get(column));
+		}
+		
+		for (String column : AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES.get(column), AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMNS.get(column));
+		}
+		
 		List<Object> list = query
 				.setParameter("id", 1l)
 				.getResultList();
-
-		for (Object tuple : list) {
-			System.out.println(tuple);
+		
+		for (Object object : list) {
+			System.out.println(((Product) object).getId());
 		}
 		
 	}
