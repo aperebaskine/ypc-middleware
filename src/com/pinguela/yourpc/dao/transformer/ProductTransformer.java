@@ -3,7 +3,7 @@ package com.pinguela.yourpc.dao.transformer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ implements TupleTransformer<Product>, ResultListTransformer<Product> {
 	public ProductTransformer(Session session) {
 		this.session = session;
 		attributeTransformer = new AttributeTransformer();
-		productMap = new HashMap<>();
+		productMap = new LinkedHashMap<>();
 		categoryIdMap = new HashMap<>();
 		replacementIdMap = new HashMap<>();
 	}
@@ -63,23 +63,13 @@ implements TupleTransformer<Product>, ResultListTransformer<Product> {
 		});
 
 		// TODO Auto-generated method stub
-		return product;
+		return null;
 	}
 	
 	@Override
 	public List<Product> transformList(List<Product> resultList) {
-		List<Product> uniqueItems = new ArrayList<Product>();
 		
-		Iterator<Product> i = resultList.iterator();
-		
-		while (i.hasNext()) {
-			Product p = i.next();
-			if (!uniqueItems.contains(p)) {
-				uniqueItems.add(p);
-			}
-		}
-		
-		for (Product p : uniqueItems) {
+		for (Product p : productMap.values()) {
 			p.setCategory(session.getReference(Category.class, categoryIdMap.get(p.getId())));
 			
 			Long replacementId = replacementIdMap.get(p.getId());
@@ -88,7 +78,7 @@ implements TupleTransformer<Product>, ResultListTransformer<Product> {
 			}
 		}
 		
-		return uniqueItems;
+		return new ArrayList<>(productMap.values());
 	}
 
 }
