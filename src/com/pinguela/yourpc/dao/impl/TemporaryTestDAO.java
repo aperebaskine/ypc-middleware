@@ -1,11 +1,8 @@
 package com.pinguela.yourpc.dao.impl;
 
-import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.ATTRIBUTE_ALIAS;
-import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.ATTRIBUTE_COLUMN_NAMES;
-import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.ATTRIBUTE_VALUE_ALIAS;
-import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_NAMES;
-
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,17 +10,30 @@ import java.util.Map.Entry;
 import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 
+import com.pinguela.yourpc.dao.transformer.ProductTransformer;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.util.HibernateUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-import jakarta.persistence.Tuple;
-
 public class TemporaryTestDAO {
+	
+	static {
+		try {
+			Class.forName("com.pinguela.yourpc.util.HibernateUtils");
+			Class.forName("com.pinguela.yourpc.dao.impl.AttributeDAOImpl");
+		} catch (ClassNotFoundException e) {
+			System.exit(0);
+		}
+	}
 
 	private static final String PRODUCT_ALIAS = "p";
+	
+	private static final Map<String, Class<?>> PRODUCT_COLUMNS = defineProductColumns();
+	
+	private static final Map<String, String> PRODUCT_COLUMN_ALIASES = SQLQueryUtils.generateColumnAliases(Product.class, PRODUCT_COLUMNS.keySet());
 
 	private static final String SELECT_QUERY_PLACEHOLDER =
 			" SELECT %1$s"
@@ -34,34 +44,29 @@ public class TemporaryTestDAO {
 					+ " ON %3$s.ID = pav.ATTRIBUTE_VALUE_ID"
 					+ "	LEFT JOIN ATTRIBUTE_TYPE %4$s"
 					+ " on %4$s.ID = %3$s.ATTRIBUTE_TYPE_ID";
-
-	private static final String[] PRODUCT_COLUMN_NAMES = {
-			"ID",
-			"NAME",
-			"CATEGORY_ID",
-			"DESCRIPTION",
-			"LAUNCH_DATE",
-			"DISCONTINUATION_DATE",
-			"STOCK",
-			"PURCHASE_PRICE",
-			"SALE_PRICE",
-			"REPLACEMENT_ID"
-	};
+	
+	private static final Map<String, Class<?>> defineProductColumns() {
+	    Map<String, Class<?>> columns = new LinkedHashMap<>();
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "ID"), java.lang.Long.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "NAME"), java.lang.String.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "CATEGORY_ID"), java.lang.Short.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "DESCRIPTION"), java.lang.String.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "LAUNCH_DATE"), java.util.Date.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "DISCONTINUATION_DATE"), java.util.Date.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "STOCK"), java.lang.Integer.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "PURCHASE_PRICE"), java.lang.Double.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "SALE_PRICE"), java.lang.Double.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "REPLACEMENT_ID"), java.lang.Long.class);
+	    return Collections.unmodifiableMap(columns);
+	}
 
 	private static final String getColumns() {
-		String[] productColumns = 
-				SQLQueryUtils.applyAlias(
-						PRODUCT_ALIAS, PRODUCT_COLUMN_NAMES);
+		Map<String, String> columns = new LinkedHashMap<String, String>();
+		columns.putAll(PRODUCT_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES);
 
-		String[] attributeColumns = 
-				SQLQueryUtils.applyAlias(
-						ATTRIBUTE_ALIAS, ATTRIBUTE_COLUMN_NAMES);
-
-		String[] attributeValueColumns = 
-				SQLQueryUtils.applyAlias(
-						ATTRIBUTE_VALUE_ALIAS, ATTRIBUTE_VALUE_COLUMN_NAMES);
-
-		return SQLQueryUtils.getColumnClause(productColumns, attributeColumns, attributeValueColumns);
+		return SQLQueryUtils.createColumnClause(columns);
 	}
 
 	private static final String BASE_QUERY = 
@@ -72,6 +77,31 @@ public class TemporaryTestDAO {
 					AttributeDAOImpl.ATTRIBUTE_VALUE_ALIAS,
 					AttributeDAOImpl.ATTRIBUTE_ALIAS
 					);
+	
+	private void testNativeQuery() {
+		Map<Long, Product> productMap = new HashMap<>();
+		Map<String, Attribute<?>> attributeMap = new HashMap<>();
+
+		Session session = HibernateUtils.openSession();
+
+		String queryStr = BASE_QUERY
+				+ " WHERE p.ID = :id";
+
+		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
+		query.setTupleTransformer(new ProductTransformer(session));
+				
+		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
+			query.addScalar(AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
+		}
+
+		List<Object> list = query
+				.setParameter("id", 1l)
+				.getResultList();
+
+		for (Object tuple : list) {
+			System.out.println(tuple);
+		}
+	}
 
 
 	public static void main(String[] args) {
@@ -82,25 +112,24 @@ public class TemporaryTestDAO {
 		Session session = HibernateUtils.openSession();
 
 		String queryStr = BASE_QUERY
-				+ " WHERE p.NAME LIKE :name";
+				+ " WHERE p.ID = :id";
 
-		NativeQuery<Object[]> query = session.createNativeQuery(queryStr, Object[].class);
-		
+		NativeQuery<Object> query = session.createNativeQuery(queryStr, Object.class);
+		query.setTupleTransformer(new ProductTransformer(session));
+				
 		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
-			query.addScalar(AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
+			String columnName = AttributeUtils.getValueColumnName(entry.getKey());
+			query.addScalar(SQLQueryUtils.generateColumnAlias(AttributeValue.class, columnName), entry.getValue());
 		}
 
-		List<Object[]> list = query
-				.setParameter("name", "%Ryzen%")
+		List<Object> list = query
+				.setParameter("id", 1l)
 				.getResultList();
-		
-		System.out.println(list);
 
-		for (Object[] tuple : list) {
-			for (Object o : tuple) {
-				System.out.println(o);
-			}
+		for (Object tuple : list) {
+			System.out.println(tuple);
 		}
+		
 	}
 
 }
