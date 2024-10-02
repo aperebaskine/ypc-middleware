@@ -1,28 +1,30 @@
 package com.pinguela.yourpc.dao.impl;
 
-import static com.pinguela.yourpc.dao.impl.AttributeDAOImpl.*;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
-import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
+import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
@@ -36,8 +38,57 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class ProductDAOImpl 
-extends AbstractDAO<Long, Product>
+extends AbstractMutableDAO<Long, Product>
 implements ProductDAO {
+	
+	private static final String PRODUCT_ALIAS = "p";
+	
+	private static final Map<String, Class<?>> PRODUCT_COLUMNS = defineProductColumns();
+	
+	private static final Map<String, String> PRODUCT_COLUMN_ALIASES = SQLQueryUtils.generateColumnAliases(Product.class, PRODUCT_COLUMNS.keySet());
+
+	private static final String SELECT_QUERY_PLACEHOLDER =
+			" SELECT %1$s"
+					+ " FROM PRODUCT %2$s"
+					+ " LEFT JOIN PRODUCT_ATTRIBUTE_VALUE pav"
+					+ " ON pav.PRODUCT_ID = %2$s.ID"
+					+ " LEFT JOIN ATTRIBUTE_VALUE %3$s"
+					+ " ON %3$s.ID = pav.ATTRIBUTE_VALUE_ID"
+					+ "	LEFT JOIN ATTRIBUTE_TYPE %4$s"
+					+ " on %4$s.ID = %3$s.ATTRIBUTE_TYPE_ID";
+	
+	private static final Map<String, Class<?>> defineProductColumns() {
+	    Map<String, Class<?>> columns = new LinkedHashMap<>();
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "ID"), java.lang.Long.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "NAME"), java.lang.String.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "CATEGORY_ID"), java.lang.Short.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "DESCRIPTION"), java.lang.String.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "LAUNCH_DATE"), java.util.Date.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "DISCONTINUATION_DATE"), java.util.Date.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "STOCK"), java.lang.Integer.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "PURCHASE_PRICE"), java.lang.Double.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "SALE_PRICE"), java.lang.Double.class);
+	    columns.put(SQLQueryUtils.applyTableAlias(PRODUCT_ALIAS, "REPLACEMENT_ID"), java.lang.Long.class);
+	    return Collections.unmodifiableMap(columns);
+	}
+
+	private static final String getColumns() {
+		Map<String, String> columns = new LinkedHashMap<String, String>();
+		columns.putAll(PRODUCT_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES);
+
+		return SQLQueryUtils.createColumnClause(columns);
+	}
+
+	private static final String BASE_QUERY = 
+			String.format(
+					SELECT_QUERY_PLACEHOLDER, 
+					getColumns(), 
+					PRODUCT_ALIAS, 
+					AttributeDAOImpl.ATTRIBUTE_VALUE_ALIAS,
+					AttributeDAOImpl.ATTRIBUTE_ALIAS
+					);
 
 	private static final String SELECT_COLUMNS = 
 			" SELECT"
@@ -116,124 +167,41 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Long create(Connection conn, Product p) 
+	public Long create(Session session, Product p) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			setInsertValues(stmt, p);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				logger.error(LogMessages.INSERT_FAILED, p);
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				attributeDAO.assignToProduct(conn, p);
-				return p.getId();
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		return super.createEntity(session, p);
 	}
 
 	@Override
-	public Boolean update(Connection conn, Product p) 
+	public Boolean update(Session session, Product p) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			int index = setInsertValues(stmt, p);
-			stmt.setLong(index++, p.getId());
-
-			if (stmt.executeUpdate() != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			} else {
-				attributeDAO.assignToProduct(conn, p);
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
+		return super.updateEntity(session, p);
 	}
 	
 	@Override
-	public Boolean delete(Connection conn, Long productId) 
+	public Boolean delete(Session session, Long productId) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(DELETE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			int index = 1;
-			stmt.setTimestamp(index++, new java.sql.Timestamp(new Date().getTime()));
-			stmt.setLong(index++, productId);
-
-			if (stmt.executeUpdate() != 1) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
-	}
-
-	private int setInsertValues(PreparedStatement stmt, Product p) throws SQLException {
-
-		int i = 1;
-
-		stmt.setString(i++, p.getName());
-		stmt.setShort(i++, p.getCategoryId());
-		JDBCUtils.setNullable(stmt, p.getDescription(), i++);
-		JDBCUtils.setNullable(stmt, p.getLaunchDate(), i++);
-		stmt.setInt(i++, p.getStock());
-		stmt.setDouble(i++, p.getPurchasePrice());
-		stmt.setDouble(i++, p.getSalePrice());
-		return i;
+		return super.deleteEntity(session, productId);
 	}
 
 	@Override
-	public Product findById(Connection conn, Long id) 
+	public Product findById(Session session, Long id) 
 			throws DataException {
 
 		if (id == null) {
 			return null;
 		}
 
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Product p = null;
-
 		try {
-			stmt = conn.prepareStatement(FINDBYID_QUERY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, id);
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				p = loadNext(conn, rs);
-			}
-			return p;
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			NativeQuery<Object[]> query = 
+					session.createNativeQuery(BASE_QUERY + " WHERE p.ID = :id", Object[].class);
+			setScalars(query);
+			ScrollableResults<Object[]> results = 
+					query.setParameter("id", id).scroll();
+			return loadNext(session, results);
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
@@ -422,18 +390,18 @@ implements ProductDAO {
 		return results;
 	}
 
-	private Product loadNext(Connection conn, ResultSet rs) 
-			throws SQLException, DataException {
+	private Product loadNext(Session session, ScrollableResults<Object[]> results) {
+		
+		Object[] row = results.get();
 
 		Product p = new Product();
 		int i = 1;
 
 		p = new Product();
-		p.setId(rs.getLong(i++));
-		p.setName(rs.getString(i++));
-		p.setCategoryId(rs.getShort(i++));
-		p.setCategory(rs.getString(i++));
-		p.setDescription(rs.getString(i++));
+		p.setId((Long) row[i++]);
+		p.setName((String) row[i++]);
+		p.setCategory(session.getReference(Category.class, row[i++]));
+		p.setDescription((String) row[i++]);
 		p.setLaunchDate(rs.getDate(i++));
 		p.setStock(rs.getInt(i++));
 		p.setPurchasePrice(rs.getDouble(i++));
@@ -442,6 +410,20 @@ implements ProductDAO {
 		p.setReplacementName(rs.getString(i++));
 		p.setAttributes(attributeDAO.findByProduct(conn, p.getId()));
 		return p;
+	}
+	
+	private void setScalars(NativeQuery<Object[]> query) {
+		for (String column : PRODUCT_COLUMNS.keySet()) {
+			query.addScalar(PRODUCT_COLUMN_ALIASES.get(column), PRODUCT_COLUMNS.get(column));
+		}
+		
+		for (String column : AttributeDAOImpl.ATTRIBUTE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES.get(column), AttributeDAOImpl.ATTRIBUTE_COLUMNS.get(column));
+		}
+		
+		for (String column : AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES.get(column), AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMNS.get(column));
+		}
 	}
 
 }
