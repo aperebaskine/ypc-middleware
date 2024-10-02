@@ -5,9 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,25 +34,36 @@ implements AttributeDAO {
 	static final String ATTRIBUTE_ALIAS = "a";
 	static final String ATTRIBUTE_VALUE_ALIAS = "av";
 
-	static final String[] ATTRIBUTE_COLUMN_NAMES = {
-			"ID AS ATTRIBUTE_TYPE_ID",
-			"ATTRIBUTE_DATA_TYPE_ID",
-			"NAME"
-	};
-
-	static final String[] ATTRIBUTE_VALUE_COLUMN_NAMES = getAttributeValueColumnNames();
-
-	private static final String[] getAttributeValueColumnNames() {
-		List<String> columnNames = new ArrayList<String>();
-		columnNames.add("ID AS ATTRIBUTE_VALUE_ID");
-		columnNames.add("ATTRIBUTE_TYPE_ID");
-		columnNames.addAll(AttributeUtils.ATTRIBUTE_VALUE_COLUMN_NAMES.values());
-		return columnNames.toArray(new String[columnNames.size()]);
+	static final Map<String, Class<?>> ATTRIBUTE_COLUMNS = defineAttributeColumns();
+	static final Map<String, Class<?>> ATTRIBUTE_VALUE_COLUMNS = defineAttributeValueColumns();
+	static final Map<String, String> ATTRIBUTE_COLUMN_ALIASES = 
+			SQLQueryUtils.generateColumnAliases(Attribute.class, ATTRIBUTE_COLUMNS.keySet());
+	static final Map<String, String> ATTRIBUTE_VALUE_COLUMN_ALIASES = 
+			SQLQueryUtils.generateColumnAliases(AttributeValue.class, ATTRIBUTE_VALUE_COLUMNS.keySet());
+	
+	private static final Map<String, Class<?>> defineAttributeColumns() {
+		Map<String, Class<?>> columns = new LinkedHashMap<>();
+		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "ID"), java.lang.Long.class);
+		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "ATTRIBUTE_DATA_TYPE_ID"), java.lang.String.class);
+		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "NAME"), java.lang.String.class);
+		return Collections.unmodifiableMap(columns);
 	}
-
-	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
-	private static final String NAME_COLUMN = "NAME";
+	
+	private static final Map<String, Class<?>> defineAttributeValueColumns() {
+		Map<String, Class<?>> columns = new LinkedHashMap<>();
+		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_VALUE_ALIAS, "ID"), java.lang.Long.class);
+				
+		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
+			columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_VALUE_ALIAS, 
+					AttributeUtils.getValueColumnName(entry.getKey())), entry.getValue());
+		}
+		
+		return Collections.unmodifiableMap(columns);
+	}
+	
 	private static final String VALUE_ID_COLUMN = "ID";
+	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
+	public static final String NAME_COLUMN = "NAME";
 
 	private static final String SELECT_ID = 
 			" SELECT av." +VALUE_ID_COLUMN;
