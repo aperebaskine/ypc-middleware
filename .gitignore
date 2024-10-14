@@ -2,3 +2,7 @@
 /logs/
 /test_old/
 /target/
+.settings/
+.classpath
+.project
+.factorypath
