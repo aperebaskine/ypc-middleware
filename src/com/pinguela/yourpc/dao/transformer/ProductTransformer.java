@@ -2,82 +2,60 @@ package com.pinguela.yourpc.dao.transformer;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
 import org.hibernate.query.ResultListTransformer;
 import org.hibernate.query.TupleTransformer;
 
-import com.pinguela.yourpc.model.Category;
-import com.pinguela.yourpc.model.Product;
+import com.pinguela.yourpc.dao.impl.TableDefinition;
+import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.ProductDTO;
 
 public class ProductTransformer 
-implements TupleTransformer<Product>, ResultListTransformer<Product> {
+implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {
 
-	private Session session;
+	private Map<Long, ProductDTO> productMap;
 	private AttributeTransformer attributeTransformer;
 
-	private Map<Long, Product> productMap;
-	
-	private Map<Long, Short> categoryIdMap;
-	private Map<Long, Long> replacementIdMap;
-
-	public ProductTransformer(Session session) {
-		this.session = session;
-		attributeTransformer = new AttributeTransformer();
+	public ProductTransformer() {
 		productMap = new LinkedHashMap<>();
-		categoryIdMap = new HashMap<>();
-		replacementIdMap = new HashMap<>();
+		attributeTransformer = new AttributeTransformer();
 	}
 
 	@Override
-	public Product transformTuple(Object[] tuple, String[] aliases) {
+	public ProductDTO transformTuple(Object[] tuple, String[] aliases) {
 
 		Long id = (Long) tuple[0];
-
-		Product product = productMap.computeIfAbsent(id, idKey -> {
+		
+		ProductDTO dto = productMap.computeIfAbsent(id, idKey -> {
 			int index = 1;
-			Product newProduct = new Product();
-			newProduct.setId(id);
-			newProduct.setName((String) tuple[index++]);
-			
-			categoryIdMap.put(id, (Short) tuple[index++]);
+			ProductDTO newDto = new ProductDTO();
+			newDto.setId(id);
+			newDto.setName((String) tuple[index++]);
+			newDto.setCategoryId((Short) tuple[index++]);
+			newDto.setDescription((String) tuple[index++]);
+			newDto.setLaunchDate((Date) tuple[index++]);
+			newDto.setDiscontinuationDate((Date) tuple[index++]);
+			newDto.setStock((Integer) tuple[index++]);
+			newDto.setPurchasePrice((Double) tuple[index++]);
+			newDto.setSalePrice((Double) tuple[index++]);
+			newDto.setReplacementId((Long) tuple[index++]);
+			newDto.setReplacementName((String) tuple[index++]);
 
-			newProduct.setDescription((String) tuple[index++]);
-			newProduct.setLaunchDate((Date) tuple[index++]);
-			newProduct.setDiscontinuationDate((Date) tuple[index++]);
-			newProduct.setStock((Integer) tuple[index++]);
-			newProduct.setPurchasePrice((Double) tuple[index++]);
-			newProduct.setSalePrice((Double) tuple[index++]);
-			
-			Long replacementId = (Long) tuple[index++];
-
-			if (replacementId != null) {
-				replacementIdMap.put(id, (Long) tuple[index++]);
-			}
-
-			return newProduct;
+			return newDto;
 		});
+		
+		Attribute<?> attribute = attributeTransformer.transformTuple(
+				TableDefinition.PRODUCT_COLUMNS.size(), tuple, aliases);
+		dto.getAttributes().putIfAbsent(attribute.getName(), attribute);
 
-		// TODO Auto-generated method stub
-		return null;
+		return dto;
 	}
 	
 	@Override
-	public List<Product> transformList(List<Product> resultList) {
-		
-		for (Product p : productMap.values()) {
-			p.setCategory(session.getReference(Category.class, categoryIdMap.get(p.getId())));
-			
-			Long replacementId = replacementIdMap.get(p.getId());
-			if (replacementId != null) {
-				p.setReplacement(session.getReference(Product.class, replacementId));
-			}
-		}
-		
+	public List<ProductDTO> transformList(List<ProductDTO> resultList) {
 		return new ArrayList<>(productMap.values());
 	}
 
