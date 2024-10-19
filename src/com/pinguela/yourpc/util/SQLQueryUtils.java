@@ -219,7 +219,7 @@ public class SQLQueryUtils {
 	}
 	
 	public static String generateColumnAlias(Class<?> entity, String column) {
-		String columnSubstring = column.substring(column.lastIndexOf('.') +1);
+		String columnSubstring = column.replace(TABLE_ALIAS_DELIMITER, COLUMN_ALIAS_DELMITER);
 		return String.join(COLUMN_ALIAS_DELMITER, entity.getSimpleName(), columnSubstring == null ? column : columnSubstring);
 	}
 	
