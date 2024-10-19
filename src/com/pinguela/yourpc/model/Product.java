@@ -1,9 +1,7 @@
 package com.pinguela.yourpc.model;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.annotations.SoftDelete;
 
@@ -17,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
 
 @Entity
 public class Product 
@@ -53,16 +50,12 @@ extends AbstractEntity<Long> {
 	@ManyToOne
 	@JoinColumn(name = "REPLACEMENT_ID")
 	private Product replacement;
-
-	@Transient
-	private Map<String, Attribute<?>> attributes;
 	
 	@ManyToMany(targetEntity = AttributeValue.class, fetch = FetchType.LAZY)
 	@JoinTable(inverseJoinColumns = @JoinColumn(name = "ATTRIBUTE_VALUE_ID"))
 	private List<AttributeValue<?>> values;
 
 	public Product() {
-		this.attributes = new HashMap<String, Attribute<?>>();
 	}
 
 	public Long getId() {
@@ -149,16 +142,12 @@ extends AbstractEntity<Long> {
 		this.replacement = replacement;
 	}
 
-	public Map<String, Attribute<?>> getAttributes() {
-		return this.attributes;
+	public List<AttributeValue<?>> getValues() {
+		return values;
 	}
 
-	public void setAttributes(Map<String, Attribute<?>> attributes) {
-		this.attributes = attributes;
-	}
-
-	public void addAttribute(Attribute<?> attribute) {
-		this.attributes.put(attribute.getName(), attribute);
+	public void setValues(List<AttributeValue<?>> values) {
+		this.values = values;
 	}
 
 }
