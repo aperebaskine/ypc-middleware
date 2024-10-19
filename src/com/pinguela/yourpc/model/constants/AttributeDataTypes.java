@@ -8,6 +8,9 @@ package com.pinguela.yourpc.model.constants;
  * {@link java.sql.Types}.</b></p>
  */
 public final class AttributeDataTypes {
+	
+	private AttributeDataTypes() {
+	}
 
 	public static final String VARCHAR = "VAR";
 	public static final String BIGINT = "INT";
