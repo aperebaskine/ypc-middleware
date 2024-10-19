@@ -181,7 +181,7 @@ implements Cloneable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addValue(Integer id, Object value) {
+	public void addValue(Long id, Object value) {
 
 		if (value != null && !getTypeParameterClass().isInstance(value)) {
 			throw new IllegalArgumentException("Object type does not match type parameter.");
