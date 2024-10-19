@@ -13,12 +13,12 @@ import jakarta.persistence.Transient;
 @Entity
 @Immutable
 public class AttributeValue<E> 
-extends AbstractEntity<Integer> 
+extends AbstractEntity<Long> 
 implements Cloneable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id = null;
+	private Long id = null;
 	
 	@Transient // Persistence to be handled by manual queries
 	private E value = null; 
@@ -26,16 +26,16 @@ implements Cloneable {
 	AttributeValue() {
 	}
 	
-	AttributeValue(Integer id, E value) {
+	AttributeValue(Long id, E value) {
 		this.id = id;
 		this.value = value;
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
