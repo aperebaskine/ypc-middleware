@@ -5,10 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,35 +28,10 @@ public class AttributeDAOImpl
 extends AbstractMutableDAO<Integer, Attribute<?>>
 implements AttributeDAO {
 
-	static final String ATTRIBUTE_ALIAS = "a";
-	static final String ATTRIBUTE_VALUE_ALIAS = "av";
-
-	static final Map<String, Class<?>> ATTRIBUTE_COLUMNS = defineAttributeColumns();
-	static final Map<String, Class<?>> ATTRIBUTE_VALUE_COLUMNS = defineAttributeValueColumns();
 	static final Map<String, String> ATTRIBUTE_COLUMN_ALIASES = 
-			SQLQueryUtils.generateColumnAliases(Attribute.class, ATTRIBUTE_COLUMNS.keySet());
+			SQLQueryUtils.generateColumnAliases(Attribute.class, TableDefinition.ATTRIBUTE_COLUMNS.keySet());
 	static final Map<String, String> ATTRIBUTE_VALUE_COLUMN_ALIASES = 
-			SQLQueryUtils.generateColumnAliases(AttributeValue.class, ATTRIBUTE_VALUE_COLUMNS.keySet());
-	
-	private static final Map<String, Class<?>> defineAttributeColumns() {
-		Map<String, Class<?>> columns = new LinkedHashMap<>();
-		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "ID"), java.lang.Long.class);
-		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "ATTRIBUTE_DATA_TYPE_ID"), java.lang.String.class);
-		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_ALIAS, "NAME"), java.lang.String.class);
-		return Collections.unmodifiableMap(columns);
-	}
-	
-	private static final Map<String, Class<?>> defineAttributeValueColumns() {
-		Map<String, Class<?>> columns = new LinkedHashMap<>();
-		columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_VALUE_ALIAS, "ID"), java.lang.Long.class);
-				
-		for (Entry<String, Class<?>> entry : Attribute.TYPE_PARAMETER_CLASSES.entrySet()) {
-			columns.put(SQLQueryUtils.applyTableAlias(ATTRIBUTE_VALUE_ALIAS, 
-					AttributeUtils.getValueColumnName(entry.getKey())), entry.getValue());
-		}
-		
-		return Collections.unmodifiableMap(columns);
-	}
+			SQLQueryUtils.generateColumnAliases(AttributeValue.class, TableDefinition.ATTRIBUTE_VALUE_COLUMNS.keySet());
 	
 	private static final String VALUE_ID_COLUMN = "ID";
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
