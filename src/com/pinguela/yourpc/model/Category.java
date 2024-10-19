@@ -31,7 +31,7 @@ extends AbstractEntity<Short> {
 	private Category parent = null;
 	
 	@MapKey(name = "id")
-	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
 	private Map<Short, Category> children = null;
 
 	public Category() {
