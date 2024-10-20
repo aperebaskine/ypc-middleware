@@ -127,7 +127,7 @@ implements ProductStatisticsDAO {
 		}
 
 		query.append(FINDMOST_QUERY_PLACEHOLDER_GROUPBY)
-		.append(SQLQueryUtils.buildOrderByClause(criteria));
+		.append(SQLQueryUtils.buildOrderByClause(criteria, ProductStatistics.class));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
