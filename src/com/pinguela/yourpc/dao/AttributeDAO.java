@@ -6,7 +6,6 @@ import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.Product;
 
 public interface AttributeDAO {
 	
@@ -44,11 +43,11 @@ public interface AttributeDAO {
 	 * Assigns attribute values to a product, inserting to the database any value that's absent from it.
 	 * 
 	 * @param conn Connection to the database that is being used to execute the query
-	 * @param p Product containing attributes to assign
+	 * @param attributes Product containing attributes to assign
 	 * @return true if the assign statement was successful, else false
 	 * @throws DataException
 	 */
-	public Boolean assignToProduct(Session session, Product p)
+	public Boolean saveAttributeValues(Session session, Map<String, Attribute<?>> attributes)
 			throws DataException;
 	
 }
