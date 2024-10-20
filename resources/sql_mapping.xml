@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+	<mapping queryType="native">
+		<entity>com.pinguela.yourpc.model.Product</entity>
+		<orderMapping default="true">
+			<key>name</key>
+			<column>p.NAME</column>
+		</orderMapping>
+		<orderMapping>
+			<key>date</key>
+			<column>p.LAUNCH_DATE</column>
+		</orderMapping>
+		<orderMapping>
+			<key>stock</key>
+			<column>p.STOCK</column>
+		</orderMapping>
+		<orderMapping>
+			<key>price</key>
+			<column>p.SALE_PRICE</column>
+		</orderMapping>
+	</mapping>
+	<mapping queryType="criteria">
+		<entity>com.pinguela.yourpc.model.Customer</entity>
+		<entity>com.pinguela.yourpc.model.Employee</entity>
+		<orderMapping>
+			<key>firstName</key>
+			<field>name.firstName</field>
+		</orderMapping>
+		<orderMapping default="true">
+			<key>lastName</key>
+			<field>name.lastName1</field>
+		</orderMapping>
+		<orderMapping>
+			<key>documentNumber</key>
+			<field>document.number</field>
+		</orderMapping>
+		<orderMapping>
+			<key>phoneNumber</key>
+			<field>phoneNumber</field>
+		</orderMapping>
+		<orderMapping>
+			<key>email</key>
+			<field>email</field>
+		</orderMapping>
+	</mapping>
+	<mapping queryType="criteria">
+		<entity>com.pinguela.yourpc.model.Employee</entity>
+		<orderMapping>
+			<key>username</key>
+			<field>username</field>
+		</orderMapping>
+	</mapping>
+	<mapping queryType="criteria">
+		<entity>com.pinguela.yourpc.model.CustomerOrder</entity>
+		<orderMapping>
+			<key>amount</key>
+			<field>totalPrice</field>
+		</orderMapping>
+		<orderMapping default="true" order="desc">
+			<key>date</key>
+			<field>orderDate</field>
+		</orderMapping>
+	</mapping>
+	<mapping queryType="criteria">
+		<entity>com.pinguela.yourpc.model.Ticket</entity>
+		<entity>com.pinguela.yourpc.model.RMA</entity>
+		<orderMapping default="true" order="desc">
+			<key>date</key>
+			<field>creationDate</field>
+		</orderMapping>
+	</mapping>
+	<mapping queryType="criteria">
+		<entity>com.pinguela.yourpc.model.Address</entity>
+		<entity>com.pinguela.yourpc.model.OrderLine</entity>
+		<orderMapping default="true">
+			<key>id</key>
+			<field>id</field>
+		</orderMapping>
+	</mapping>
+</mappings>

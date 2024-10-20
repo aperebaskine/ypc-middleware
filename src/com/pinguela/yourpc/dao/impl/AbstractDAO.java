@@ -7,18 +7,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.Results;
 import com.pinguela.yourpc.util.ReflectionUtils;
+import com.pinguela.yourpc.util.SQLQueryUtils;
 import com.pinguela.yourpc.util.StringUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -140,6 +148,11 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 	
 	private List<Order> buildOrderByClause(Session session, CriteriaBuilder builder, 
 			Root<T> root, AbstractCriteria<T> criteria) {
+		
+		if (criteria.getOrderBy().isEmpty()) {
+			criteria.getOrderBy().putAll(getDefaultOrder());
+		}
+		
 		List<Order> orderBy = new LinkedList<>();
 		for (String pathStr : criteria.getOrderBy().keySet()) {
 			
@@ -150,6 +163,39 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 					builder.asc(path) : builder.desc(path));
 		}
 		return orderBy;
+	}
+	
+	private Map<String, Boolean> getDefaultOrder() {
+		Map<String, Boolean> components = new LinkedHashMap<String, Boolean>();
+		
+		XPathFactory xPathFactory = SQLQueryUtils.XPATH_FACTORY;
+		String path = null;
+		XPath xPath = null;
+
+		try {
+			path = String.format("//mapping[@queryType='criteria' and ./entity='%1$s']/orderMapping[@default = 'true']", targetClass.getName());
+			xPath = xPathFactory.newXPath();
+			
+			NodeList nodeList = (NodeList) xPath.compile(path).evaluate(SQLQueryUtils.SQL_MAPPING, XPathConstants.NODESET);
+			
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node node = nodeList.item(i);
+				Node orderAttribute = node.getAttributes().getNamedItem("order");
+				boolean ascDesc = orderAttribute == null ? AbstractCriteria.ASC :
+							"asc".equals(orderAttribute.getNodeValue());
+				
+				xPath = xPathFactory.newXPath();
+				path = "./field/text()";
+				
+				Node columnNode = (Node) xPath.compile(path).evaluate(node, XPathConstants.NODE);
+				components.put(columnNode.getNodeValue(), ascDesc);
+			}
+		} catch (XPathExpressionException e) {
+			logger.error("Could not find node using XPath {}", path);
+			throw new IllegalArgumentException(e.getMessage(), e);
+		}
+		
+		return components;	
 	}
 	
 	private Path<?> buildPath(Root<T> root, String... pathComponents) {
