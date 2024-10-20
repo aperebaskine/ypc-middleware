@@ -2,7 +2,7 @@ package com.pinguela.yourpc.util;
 
 public class StringUtils {
 	
-	private static final String DELIMITER = "@@@";
+	private static final String DELIMITER = "\\.";
 	
 	public static final String join(String... strings) {
 		return String.join(DELIMITER, strings);
