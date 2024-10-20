@@ -152,7 +152,7 @@ extends AbstractDAO<PK, T> {
 			throw new DataException(e);
 		}
 	}
-
+	
 	protected boolean deleteBy(Session session, AbstractCriteria<T> criteria) 
 			throws DataException {
 		try {
