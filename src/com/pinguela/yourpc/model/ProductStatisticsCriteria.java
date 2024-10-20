@@ -6,12 +6,6 @@ import java.util.Map;
 public class ProductStatisticsCriteria 
 extends AbstractStatisticsCriteria<ProductStatistics> {
 	
-	// Update implementation
-	public static final String ORDER_BY_DATE = "date";
-	public static final String ORDER_BY_SALE_PRICE = "salePrice";
-	public static final String ORDER_BY_SALES = " sum(ol.quantity)";
-	public static final String ORDER_BY_RETURNS = " return_pct";
-	
 	private ProductCriteria productCriteria;
 	
 	public ProductStatisticsCriteria() {
@@ -96,12 +90,6 @@ extends AbstractStatisticsCriteria<ProductStatistics> {
 
 	public void setProductAttributes(Map<String, Attribute<?>> attributes) {
 	    productCriteria.setAttributes(attributes);
-	}
-
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_DATE, ASC);
-		orderBy(ORDER_BY_SALE_PRICE, ASC);
 	}
 
 }

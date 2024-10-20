@@ -1,16 +1,17 @@
 package com.pinguela.yourpc.model;
 
+import java.util.Map.Entry;
+
+import com.pinguela.yourpc.dao.util.AttributeUtils;
+
 public class AttributeStatisticsCriteria 
 extends AbstractStatisticsCriteria<Attribute<?>> {
 	
-	// TODO: Generate automatically
-	private static final String[] ORDER_BY_NAME_AND_VALUES = {"name", "value_bigint", "value_varchar", "value_decimal", "value_boolean"};
-
-	@Override
-	protected void setDefaultOrder() {
-		for (String column : ORDER_BY_NAME_AND_VALUES) {
-			orderBy(column, ASC);
+	// TODO: Move logic to DAO
+	public AttributeStatisticsCriteria() {
+		for (Entry<String, Boolean> clause : AttributeUtils.ATTRIBUTE_ORDER_BY_CLAUSES.entrySet()) {
+			orderBy(clause.getKey(), clause.getValue());
 		}
 	}
-
+	
 }

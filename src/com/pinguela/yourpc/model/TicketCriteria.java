@@ -4,19 +4,13 @@ import java.util.Date;
 
 public class TicketCriteria
 extends AbstractCustomerOperationCriteria<Long, Ticket> {
-	
-	public static final String ORDER_BY_DATE = Ticket_.CREATION_DATE;
-	
+		
 	private Date minDate;
 	private Date maxDate;
 	private String state;
 	private String type;
 	
 	public TicketCriteria() {
-	}
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_DATE, DESC);	
 	}
 	
 	public Date getMinDate() {

@@ -21,11 +21,6 @@ extends AbstractEntityCriteria<Integer, Address> {
 	public void setEmployeeId(Integer employeeId) {
 		this.employeeId = employeeId;
 	}
-
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_ID, ASC);
-	}
 	
 }
 	

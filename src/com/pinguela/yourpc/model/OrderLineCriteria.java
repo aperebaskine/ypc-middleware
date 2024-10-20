@@ -34,9 +34,4 @@ extends AbstractEntityCriteria<Long, OrderLine> {
 		this.rmaId = rmaId;
 	}
 
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_ID, ASC);
-	}
-
 }

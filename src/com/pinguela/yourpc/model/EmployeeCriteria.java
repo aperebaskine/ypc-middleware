@@ -11,11 +11,6 @@ extends AbstractPersonCriteria<Integer, Employee> {
 	public EmployeeCriteria() {
 	}
 	
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_USERNAME, ASC);
-	}
-	
 	public String getUsername() {
 		return username;
 	}

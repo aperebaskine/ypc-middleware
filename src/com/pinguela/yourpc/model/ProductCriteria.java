@@ -25,11 +25,6 @@ extends AbstractEntityCriteria<Long, Product> {
 	public ProductCriteria() {
 		attributes = new TreeMap<String, Attribute<?>>();
 	}
-	
-	@Override
-	protected void setDefaultOrder() {
-		orderBy(ORDER_BY_NAME, ASC);
-	}
 
 	public String getName() {
 		return name;

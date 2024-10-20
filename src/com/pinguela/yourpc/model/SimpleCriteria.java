@@ -14,7 +14,4 @@ extends AbstractCriteria<T> {
 		return value;
 	}
 
-	@Override
-	protected void setDefaultOrder() {}
-
 }
