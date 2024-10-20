@@ -134,5 +134,7 @@ public class HibernateUtils {
 		close(transaction, commit);
 		close(session);
 	}
+	
+	
 
 }
