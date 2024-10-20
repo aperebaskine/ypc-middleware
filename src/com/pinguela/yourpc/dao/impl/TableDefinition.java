@@ -15,11 +15,12 @@ public final class TableDefinition {
 	private TableDefinition() {
 	}
 	
-	static final String PRODUCT_ALIAS = "p";
-	static final String REPLACEMENT_ALIAS = "r";
+	public static final String PRODUCT_ALIAS = "p";
+	public static final String PRODUCT_SUBQUERY_ALIAS = "q";
+	public static final String REPLACEMENT_ALIAS = "r";
 	
-	static final String ATTRIBUTE_ALIAS = "a";
-	static final String ATTRIBUTE_VALUE_ALIAS = "av";
+	public static final String ATTRIBUTE_ALIAS = "a";
+	public static final String ATTRIBUTE_VALUE_ALIAS = "av";
 	
 	public static final Map<String, Class<?>> PRODUCT_COLUMNS = defineProductColumns();
 	public static final Map<String, Class<?>> ATTRIBUTE_COLUMNS = defineAttributeColumns();

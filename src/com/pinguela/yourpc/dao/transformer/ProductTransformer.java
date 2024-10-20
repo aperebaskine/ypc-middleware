@@ -49,8 +49,11 @@ implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {
 		
 		Attribute<?> attribute = attributeTransformer.transformTuple(
 				TableDefinition.PRODUCT_COLUMNS.size(), tuple, aliases);
-		dto.getAttributes().putIfAbsent(attribute.getName(), attribute);
-
+		
+		if (attribute != null) {
+			dto.getAttributes().putIfAbsent(attribute.getName(), attribute);
+		}
+		
 		return dto;
 	}
 	
