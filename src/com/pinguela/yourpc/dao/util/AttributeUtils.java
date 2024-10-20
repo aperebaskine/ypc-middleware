@@ -12,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.pinguela.yourpc.dao.impl.TableDefinition;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -31,12 +33,17 @@ public class AttributeUtils {
 	 * corresponding SQL data type names.
 	 */
 	public static final Map<String, String> SQL_DATA_TYPE_NAMES;
-	
+
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding database columns.
 	 */
 	public static final Map<String, String> ATTRIBUTE_VALUE_COLUMN_NAMES;
+
+	/**
+	 * Contains the ordering that any query retrieving attributes must respect.
+	 */
+	public static final Map<String, Boolean> ATTRIBUTE_ORDER_BY_CLAUSES;
 
 	static {
 		Map<String, String> dataTypeConstantMap = getDataTypeConstants();
@@ -44,6 +51,7 @@ public class AttributeUtils {
 		SQL_TARGET_TYPE_IDENTIFIERS = initializeSqlTypeIdentifierMap(dataTypeConstantMap);
 		SQL_DATA_TYPE_NAMES = initializeSqlTypeNameMap(dataTypeConstantMap);
 		ATTRIBUTE_VALUE_COLUMN_NAMES = initializeColumnNameMap(dataTypeConstantMap);
+		ATTRIBUTE_ORDER_BY_CLAUSES = defineAttributeOrderingClauses();
 	}
 
 	private static final Map<String, String> getDataTypeConstants() {
@@ -81,7 +89,7 @@ public class AttributeUtils {
 		}
 		return Collections.unmodifiableMap(sqlTypeNameMap);
 	}
-	
+
 	private static final Map<String, String> initializeColumnNameMap(Map<String, String> dataTypeConstants) {
 		Map<String, String> columnNameMap = new LinkedHashMap<String, String>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
@@ -90,7 +98,18 @@ public class AttributeUtils {
 		}
 		return Collections.unmodifiableMap(columnNameMap);
 	}
-	
+
+	private static Map<String, Boolean> defineAttributeOrderingClauses() {	
+		Map<String, Boolean> clauses = new LinkedHashMap<String, Boolean>();
+		clauses.put(String.format("%1$s.NAME", TableDefinition.ATTRIBUTE_ALIAS), AbstractCriteria.ASC);
+		
+		for (String column : ATTRIBUTE_VALUE_COLUMN_NAMES.values()) {
+			clauses.put(String.format("%1$s.%2$s", TableDefinition.ATTRIBUTE_VALUE_ALIAS, column), AbstractCriteria.ASC);
+		}
+
+		return clauses;
+	}
+
 	public static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
 		return SQL_TARGET_TYPE_IDENTIFIERS.get(dataTypeIdentifier);
 	}
@@ -120,7 +139,7 @@ public class AttributeUtils {
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
 		for (Attribute<?> attribute : attributes.values()) {
-			StringBuilder condition = new StringBuilder(" (at.NAME = ? AND");
+			StringBuilder condition = new StringBuilder(" (a.NAME = ? AND");
 
 			if (attribute.getValues().size() == 1) {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));
@@ -139,7 +158,8 @@ public class AttributeUtils {
 			}
 			conditions.add(condition);
 		}
+
 		return new StringBuilder(" (").append(String.join(" OR", conditions)).append(")").toString();
-	}
+	}	
 
 }
