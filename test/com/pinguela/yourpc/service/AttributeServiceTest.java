@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.service;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -79,7 +78,7 @@ class AttributeServiceTest {
 		try {
 			Map<String, Attribute<?>> attributes =
 					attributeService.findByCategory(null, AttributeService.RETURN_UNASSIGNED_VALUES);
-			assertNull(attributes);
+			assertTrue(attributes.isEmpty());
 		} catch (Exception e) {
 			 fail(e);
 		}
