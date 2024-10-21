@@ -19,7 +19,7 @@
 			<column>p.SALE_PRICE</column>
 		</orderMapping>
 	</mapping>
-	<mapping queryType="criteria">
+	<mapping queryType="jpa">
 		<entity>com.pinguela.yourpc.model.Customer</entity>
 		<entity>com.pinguela.yourpc.model.Employee</entity>
 		<orderMapping>
@@ -43,14 +43,14 @@
 			<field>email</field>
 		</orderMapping>
 	</mapping>
-	<mapping queryType="criteria">
+	<mapping queryType="jpa">
 		<entity>com.pinguela.yourpc.model.Employee</entity>
 		<orderMapping>
 			<key>username</key>
 			<field>username</field>
 		</orderMapping>
 	</mapping>
-	<mapping queryType="criteria">
+	<mapping queryType="jpa">
 		<entity>com.pinguela.yourpc.model.CustomerOrder</entity>
 		<orderMapping>
 			<key>amount</key>
@@ -61,7 +61,7 @@
 			<field>orderDate</field>
 		</orderMapping>
 	</mapping>
-	<mapping queryType="criteria">
+	<mapping queryType="jpa">
 		<entity>com.pinguela.yourpc.model.Ticket</entity>
 		<entity>com.pinguela.yourpc.model.RMA</entity>
 		<orderMapping default="true" order="desc">
@@ -69,7 +69,7 @@
 			<field>creationDate</field>
 		</orderMapping>
 	</mapping>
-	<mapping queryType="criteria">
+	<mapping queryType="jpa">
 		<entity>com.pinguela.yourpc.model.Address</entity>
 		<entity>com.pinguela.yourpc.model.OrderLine</entity>
 		<orderMapping default="true">

@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,43 +9,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.pinguela.yourpc.model.AbstractCriteria;
 
 public class SQLQueryUtils {
-
-	private static Logger logger = LogManager.getLogger(SQLQueryUtils.class);
-
-	public static final XPathFactory XPATH_FACTORY;
-	public static final Document SQL_MAPPING;
-
-	static {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = factory.newDocumentBuilder();
-			SQL_MAPPING = docBuilder.parse(SQLQueryUtils.class.getClassLoader().getResourceAsStream("sql_mapping.xml"));
-			SQL_MAPPING.getDocumentElement().normalize();
-			
-			XPATH_FACTORY = XPathFactory.newInstance();
-		} catch (ParserConfigurationException | IOException | SAXException e) {
-			logger.fatal(e.getMessage(), e);
-			throw new ExceptionInInitializerError(e);
-		}
-	}
 
 	private static final String COLUMN_DELIMITER = ", ";
 	private static final String TABLE_ALIAS_DELIMITER = ".";
@@ -215,18 +183,18 @@ public class SQLQueryUtils {
 			return new StringBuilder("");
 		}
 		List<StringBuilder> clauses = new ArrayList<>();
-		
+
 		if (orderBy.isEmpty()) {
 			orderBy.putAll(getDefaultOrder(targetClass));
 		}
-		
+
 		for (String column : orderBy.keySet()) {
 			String parsedColumn = getOrderColumn(targetClass, column);
 			clauses.add(new StringBuilder(" ").append(parsedColumn == null ? column : parsedColumn).append(" ")
 					.append(orderBy.get(column) == AbstractCriteria.ASC ? 
 							ASCENDING_ORDER : DESCENDING_ORDER));
 		}
-		
+
 		return new StringBuilder(" ORDER BY ").append(
 				String.join(", ", clauses.toArray(new StringBuilder[clauses.size()])));
 	}
@@ -245,53 +213,30 @@ public class SQLQueryUtils {
 		}
 		return buildOrderByClause(criteria.getOrderBy(), targetClass);
 	}
-	
-	public static Map<String, Boolean> getDefaultOrder(Class<?> targetClass) {
-		
-		Map<String, Boolean> clauses = new LinkedHashMap<String, Boolean>();
-		
-		String path = null;
-		XPath xPath = null;
 
-		try {
-			path = String.format("//mapping[@queryType='native' and ./entity='%1$s']/orderMapping[@default = 'true']", targetClass.getName());
-			xPath = XPATH_FACTORY.newXPath();
-			
-			NodeList nodeList = (NodeList) xPath.compile(path).evaluate(SQL_MAPPING, XPathConstants.NODESET);
-			
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				Node node = nodeList.item(i);
-				Node orderAttribute = node.getAttributes().getNamedItem("order");
-				boolean ascDesc = orderAttribute == null ? AbstractCriteria.ASC :
-							"asc".equals(orderAttribute.getNodeValue());
-				
-				xPath = XPATH_FACTORY.newXPath();
-				path = "./column/text()";
-				
-				Node columnNode = (Node) xPath.compile(path).evaluate(node, XPathConstants.NODE);
-				clauses.put(columnNode.getNodeValue(), ascDesc);
-			}
-		} catch (XPathExpressionException e) {
-			logger.error("Could not find node using XPath {}", path);
-			throw new IllegalArgumentException(e.getMessage(), e);
+	public static Map<String, Boolean> getDefaultOrder(Class<?> targetClass) {
+
+		String xPathStr;
+		Map<String, Boolean> clauses = new LinkedHashMap<String, Boolean>();
+
+		xPathStr = String.format("//mapping[@queryType='native' and ./entity='%1$s']/orderMapping[@default = 'true']", targetClass.getName());
+		NodeList nodeList = XMLUtils.getNodeList(XMLUtils.getXMLResource("sql_mapping.xml"), xPathStr);
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			Node orderAttribute = node.getAttributes().getNamedItem("order");
+			boolean ascDesc = orderAttribute == null ? AbstractCriteria.ASC :
+				"asc".equals(orderAttribute.getNodeValue());
+
+			clauses.put(XMLUtils.getTextNode(node, "./column"), ascDesc);
 		}
-		
+
 		return clauses;	
 	}
 
 	private static String getOrderColumn(Class<?> targetClass, String key) {
-
-		String path = String.format("//mapping[queryType='native' and ./entity='%1$s']/orderMapping[./key='%2$s']/column/text()",
-				targetClass.getName(), key);
-		XPath xPath = XPATH_FACTORY.newXPath();
-		
-		try {
-			Node node = (Node) xPath.compile(path).evaluate(SQL_MAPPING, XPathConstants.NODE);
-			return node == null ? null : node.getNodeValue();
-		} catch (XPathExpressionException e) {
-			logger.error("Could not find node using XPath {}", path);
-			throw new IllegalArgumentException(e.getMessage(), e);
-		}
+		return XMLUtils.getTextNode(XMLUtils.getXMLResource("sql_mapping.xml"), 
+				String.format("//mapping[queryType='native' and ./entity='%1$s']/orderMapping[./key='%2$s']/column", key));
 	}
 
 	/**
