@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.model.dto;
 
-public abstract class AbstractTerritoryDTO<PK> 
-extends AbstractDTO {
+import com.pinguela.yourpc.model.AbstractTerritory;
+
+public abstract class AbstractTerritoryDTO<PK extends Comparable<PK>, T extends AbstractTerritory<PK>> 
+extends AbstractDTO<T> {
 
 	private PK id;
 	private String name;

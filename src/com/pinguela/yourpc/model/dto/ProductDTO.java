@@ -5,9 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.Product;
 
 public class ProductDTO 
-extends AbstractDTO {
+extends AbstractDTO<Product> {
 	
 	private Long id;
 	private String name;

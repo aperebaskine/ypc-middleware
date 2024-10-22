@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.model.dto;
 
+import com.pinguela.yourpc.model.City;
+
 public class CityDTO
-extends AbstractTerritoryDTO<Integer> {
+extends AbstractTerritoryDTO<Integer, City> {
 
 	private Integer provinceId;
 
