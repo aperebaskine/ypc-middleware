@@ -1,8 +1,11 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.model.dto;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.pinguela.yourpc.model.AbstractValueObject;
+import com.pinguela.yourpc.model.Attribute;
 
 public class ProductDTO 
 extends AbstractValueObject {

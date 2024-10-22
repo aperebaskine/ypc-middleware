@@ -11,9 +11,9 @@ import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.ProductDAO;
 import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
 import com.pinguela.yourpc.model.ProductCriteria;
-import com.pinguela.yourpc.model.ProductDTO;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.HibernateUtils;
 

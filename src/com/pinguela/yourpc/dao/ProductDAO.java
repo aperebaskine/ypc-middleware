@@ -4,9 +4,9 @@ import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.model.ProductCriteria;
-import com.pinguela.yourpc.model.ProductDTO;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 
 public interface ProductDAO {
 	

@@ -11,7 +11,7 @@ import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.dao.impl.TableDefinition;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.ProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 
 public class ProductTransformer 
 implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {

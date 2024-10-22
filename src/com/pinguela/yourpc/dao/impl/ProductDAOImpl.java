@@ -26,9 +26,9 @@ import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
-import com.pinguela.yourpc.model.ProductDTO;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
