@@ -286,6 +286,7 @@ class CustomerOrderServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestCreate {
 
 		private CustomerOrder o;

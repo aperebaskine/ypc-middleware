@@ -278,6 +278,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestUpdate {
 
 		@Test
@@ -367,6 +368,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestDelete {
 
 		@Test
@@ -404,6 +406,7 @@ class AddressServiceTest {
 	}
 
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestDeleteByCustomer {
 
 		@Test

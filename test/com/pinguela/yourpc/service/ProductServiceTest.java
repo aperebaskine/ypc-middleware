@@ -578,6 +578,7 @@ class ProductServiceTest {
 	}
 	
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	public class TestDelete {
 		
 		@AfterAll

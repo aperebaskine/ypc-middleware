@@ -417,6 +417,7 @@ class EmployeeServiceTest {
 	}
 	
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestUpdatePassword {
 		
 		@AfterAll
@@ -449,6 +450,7 @@ class EmployeeServiceTest {
 	}
 	
 	@Nested
+	@TestInstance(Lifecycle.PER_CLASS)
 	class TestDelete {
 		
 		@AfterAll
