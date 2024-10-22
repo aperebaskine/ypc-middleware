@@ -4,11 +4,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.pinguela.yourpc.model.AbstractValueObject;
 import com.pinguela.yourpc.model.Attribute;
 
 public class ProductDTO 
-extends AbstractValueObject {
+extends AbstractDTO {
 	
 	private Long id;
 	private String name;

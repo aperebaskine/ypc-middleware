@@ -11,7 +11,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.CityDAO;
 import com.pinguela.yourpc.dao.impl.CityDAOImpl;
-import com.pinguela.yourpc.model.City;
+import com.pinguela.yourpc.model.dto.CityDTO;
 import com.pinguela.yourpc.service.CityService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -25,7 +25,7 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public List<City> findByProvince(Integer provinceId) 
+    public List<CityDTO> findByProvince(Integer provinceId) 
             throws ServiceException, DataException {
 
         Session session = null;

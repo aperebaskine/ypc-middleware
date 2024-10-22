@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
-import com.pinguela.yourpc.model.Province;
+import com.pinguela.yourpc.model.dto.ProvinceDTO;
 
 public interface ProvinceService {
 	
-	public List<Province> findByCountry(String countryId)
+	public List<ProvinceDTO> findByCountry(String countryId)
 			throws ServiceException, DataException;
 
 

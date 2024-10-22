@@ -10,7 +10,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.CountryDAO;
 import com.pinguela.yourpc.dao.impl.CountryDAOImpl;
-import com.pinguela.yourpc.model.Country;
+import com.pinguela.yourpc.model.dto.CountryDTO;
 import com.pinguela.yourpc.service.CountryService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -26,7 +26,7 @@ implements CountryService {
 	}
 
 	@Override
-	public List<Country> findAll() 
+	public List<CountryDTO> findAll() 
 			throws ServiceException, DataException {
 		
 		Session session = null;

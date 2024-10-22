@@ -5,11 +5,11 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.Province;
+import com.pinguela.yourpc.model.dto.ProvinceDTO;
 
 public interface ProvinceDAO {
 	
-	public List<Province> findByCountry(Session session, String countryId)
+	public List<ProvinceDTO> findByCountry(Session session, String countryId)
 			throws DataException;
 
 }

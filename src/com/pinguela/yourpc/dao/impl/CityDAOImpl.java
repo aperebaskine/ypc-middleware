@@ -14,6 +14,7 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.City;
 import com.pinguela.yourpc.model.City_;
 import com.pinguela.yourpc.model.SimpleCriteria;
+import com.pinguela.yourpc.model.dto.CityDTO;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -30,7 +31,7 @@ implements CityDAO {
 	}
 
 	@Override
-	public List<City> findByProvince(Session session, Integer provinceId)
+	public List<CityDTO> findByProvince(Session session, Integer provinceId)
 			throws DataException {
 		try {
 			CriteriaBuilder builder = session.getCriteriaBuilder();
