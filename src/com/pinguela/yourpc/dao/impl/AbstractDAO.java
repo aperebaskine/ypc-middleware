@@ -49,12 +49,18 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, T extends AbstractE
 
 	protected T findById(Session session, Object id) 
 			throws DataException {
+
+		if (id == null) {
+			logger.warn("findById called with null ID parameter.");
+			return null;
+		}
+
 		try {
-			return id == null ? null : session.find(targetClass, id);
+			return session.find(targetClass, id);
 		} catch (HibernateException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
-		}
+		} 
 	}
 
 	protected T findSingleResultBy(Session session, AbstractCriteria<T> criteria) 
