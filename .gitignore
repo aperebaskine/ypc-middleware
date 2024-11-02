@@ -2,3 +2,6 @@
 /logs/
 /test_old/
 /target/
+.classpath
+.project
+.settings/
