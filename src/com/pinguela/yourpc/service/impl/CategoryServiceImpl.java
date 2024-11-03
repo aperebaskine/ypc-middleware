@@ -1,11 +1,11 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -13,32 +13,31 @@ import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.dao.impl.CategoryDAOImpl;
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.service.CategoryService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class CategoryServiceImpl implements CategoryService {
-	
-	private static Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
-	private CategoryDAO categoryDAO = null;
-	
-	public CategoryServiceImpl() {
-		categoryDAO = new CategoryDAOImpl();
-	}
+    
+    private static Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
+    private CategoryDAO categoryDAO = null;
 
-	@Override
-	public Map<Short, Category> findAll() 
-			throws ServiceException, DataException {
-		
-		Connection conn = null;
+    public CategoryServiceImpl() {
+        categoryDAO = new CategoryDAOImpl();
+    }
 
-		try {
-			conn = JDBCUtils.getConnection();
-			return categoryDAO.findAll(conn);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
+    @Override
+    public Map<Short, Category> findAll() 
+            throws ServiceException, DataException {
+        
+        Session session = null;
 
+        try {
+            session = HibernateUtils.openSession();
+            return categoryDAO.findAll(session);
+        } catch (HibernateException e) {
+            logger.fatal(e.getMessage(), e);
+            throw new ServiceException(e);
+        } finally {
+            HibernateUtils.close(session);
+        }
+    }
 }
