@@ -37,6 +37,21 @@
           <target>11</target>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>11</release>
+          <annotationProcessorPaths>
+			<path>
+			  <groupId>org.hibernate.orm</groupId>
+              <artifactId>hibernate-jpamodelgen</artifactId>
+              <version>6.6.0.Final</version>
+            </path>
+            </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
   <dependencies>
