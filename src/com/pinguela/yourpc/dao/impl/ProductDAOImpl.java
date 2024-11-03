@@ -1,328 +1,246 @@
 package com.pinguela.yourpc.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 
 import com.pinguela.DataException;
-import com.pinguela.ErrorCodes;
-import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
+import com.pinguela.yourpc.dao.transformer.ProductTransformer;
+import com.pinguela.yourpc.dao.util.AttributeUtils;
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
+import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
-import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 public class ProductDAOImpl 
+extends AbstractMutableDAO<Long, Product>
 implements ProductDAO {
 
-	private static final String SELECT_COLUMNS = 
-			" SELECT"
-					+ " p.ID,"
-					+ " p.NAME,"
-					+ " p.CATEGORY_ID,"
-					+ " c.NAME,"
-					+ " p.DESCRIPTION,"
-					+ " p.LAUNCH_DATE,"
-					+ " p.STOCK,"
-					+ " p.PURCHASE_PRICE,"
-					+ " p.SALE_PRICE,"
-					+ " p.REPLACEMENT_ID,"
-					+ " q.NAME";
-	private static final String SELECT_RANGES =
-			" SELECT"
-					+ " MIN(p.STOCK),"
-					+ " MAX(p.STOCK),"
-					+ " MIN(p.SALE_PRICE),"
-					+ " MAX(p.SALE_PRICE),"
-					+ " MIN(p.LAUNCH_DATE),"
-					+ " MAX(p.LAUNCH_DATE)";
-	private static final String FROM_TABLE =
-			" FROM PRODUCT p";
-	private static final String JOIN_CATEGORY_AND_PRODUCT =
-			" INNER JOIN CATEGORY c" 
-					+ " ON c.ID = p.CATEGORY_ID"
-					+ " LEFT JOIN PRODUCT q"
-					+ " ON q.ID = p.REPLACEMENT_ID";
-	private static final String JOIN_ATTRIBUTE =
-			" INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav"
-					+ " ON pav.PRODUCT_ID = p.ID"
-					+ " INNER JOIN ATTRIBUTE_VALUE av"
-					+ "	ON av.ID = pav.ATTRIBUTE_VALUE_ID"
-					+ " INNER JOIN ATTRIBUTE_TYPE at"
-					+ " ON at.ID = av.ATTRIBUTE_TYPE_ID";
-	private static final String WHERE_ID_EQUALS = " WHERE p.ID = ?";
-	private static final String AND_DISCONTINUATION_DATE = " AND p.DISCONTINUATION_DATE IS NULL";
+	private static final Map<String, String> PRODUCT_COLUMN_ALIASES = 
+			SQLQueryUtils.generateColumnAliases(Product.class, TableDefinition.PRODUCT_COLUMNS.keySet());
 
-	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE +JOIN_CATEGORY_AND_PRODUCT;
-	private static final String FINDBYID_QUERY = FINDBY_QUERY +WHERE_ID_EQUALS +AND_DISCONTINUATION_DATE;
-	private static final String GET_RANGES_QUERY =
-			SELECT_RANGES +FROM_TABLE;
+	private static final String SELECT_QUERY_PLACEHOLDER =
+			" SELECT %1$s"
+					+ " FROM PRODUCT %2$s"
+					+ " LEFT JOIN PRODUCT %3$s"
+					+ " ON %2$s.REPLACEMENT_ID = %3$s.ID"
+					+ " LEFT JOIN (PRODUCT_ATTRIBUTE_VALUE pav"
+					+ " INNER JOIN ATTRIBUTE_VALUE %4$s"
+					+ " ON %4$s.ID = pav.ATTRIBUTE_VALUE_ID"
+					+ "	INNER JOIN ATTRIBUTE_TYPE %5$s"
+					+ " on %5$s.ID = %4$s.ATTRIBUTE_TYPE_ID)"
+					+ " ON pav.PRODUCT_ID = %2$s.ID";
 
-	private static final String CREATE_QUERY = 
-			" INSERT INTO PRODUCT(NAME,"
-					+ " CATEGORY_ID,"
-					+ " DESCRIPTION,"
-					+ " LAUNCH_DATE,"
-					+ " STOCK,"
-					+ " PURCHASE_PRICE,"
-					+ " SALE_PRICE)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+	private static final String RANGE_QUERY_COLUMNS =
+			" MIN(%1$s.STOCK),"
+					+ " MAX(%1$s.STOCK),"
+					+ " MIN(%1$s.SALE_PRICE),"
+					+ " MAX(%1$s.SALE_PRICE),"
+					+ " MIN(%1$s.LAUNCH_DATE),"
+					+ " MAX(%1$s.LAUNCH_DATE)";
 
-	private static final String UPDATE_QUERY =
-			" UPDATE PRODUCT"
-					+ " SET NAME = ?,"
-					+ " CATEGORY_ID = ?,"
-					+ " DESCRIPTION = ?,"
-					+ " LAUNCH_DATE = ?,"
-					+ " STOCK = ?,"
-					+ " PURCHASE_PRICE = ?,"
-					+ " SALE_PRICE = ?"
-					+ " WHERE ID = ?";
-	
-	private static final String DELETE_QUERY =
-			" UPDATE PRODUCT"
-					+ " SET DISCONTINUATION_DATE = ?"
-					+ " WHERE ID = ?";
+	private static final String SOFT_DELETE_QUERY = 
+			" UPDATE PRODUCT SET DISCONTINUATION_DATE = :date WHERE ID = :id";
+
+	private static final String getColumns() {
+		Map<String, String> columns = new LinkedHashMap<String, String>();
+		columns.putAll(PRODUCT_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES);
+		columns.putAll(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES);
+
+		return SQLQueryUtils.createColumnClause(columns);
+	}
+
+	private static final String BASE_QUERY = 
+			String.format(
+					SELECT_QUERY_PLACEHOLDER, 
+					getColumns(), 
+					TableDefinition.PRODUCT_ALIAS, 
+					TableDefinition.REPLACEMENT_ALIAS,
+					TableDefinition.ATTRIBUTE_VALUE_ALIAS,
+					TableDefinition.ATTRIBUTE_ALIAS
+					);
+
+	private static final String BASE_COUNT_SUBQUERY = 
+			String.format(
+					SELECT_QUERY_PLACEHOLDER, 
+					String.format(" COUNT(%1$s.ID)", TableDefinition.PRODUCT_SUBQUERY_ALIAS), 
+					TableDefinition.PRODUCT_SUBQUERY_ALIAS, 
+					TableDefinition.REPLACEMENT_ALIAS,
+					TableDefinition.ATTRIBUTE_VALUE_ALIAS,
+					TableDefinition.ATTRIBUTE_ALIAS
+					);
+
+	private static final String RANGES_QUERY =
+			String.format(
+					SELECT_QUERY_PLACEHOLDER, 
+					String.format(RANGE_QUERY_COLUMNS, TableDefinition.PRODUCT_ALIAS), 
+					TableDefinition.PRODUCT_ALIAS, 
+					TableDefinition.REPLACEMENT_ALIAS,
+					TableDefinition.ATTRIBUTE_VALUE_ALIAS,
+					TableDefinition.ATTRIBUTE_ALIAS
+					);
 
 	private static Logger logger = LogManager.getLogger(ProductDAOImpl.class);
-	private AttributeDAO attributeDAO = null;
+	private AttributeDAO attributeDAO;
 
 	public ProductDAOImpl() {
 		attributeDAO = new AttributeDAOImpl();
 	}
 
 	@Override
-	public Long create(Connection conn, Product p) 
+	public Long create(Session session, ProductDTO dto) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			setInsertValues(stmt, p);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				logger.error(LogMessages.INSERT_FAILED, p);
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				attributeDAO.assignToProduct(conn, p);
-				return p.getId();
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+		attributeDAO.saveAttributeValues(session, dto.getAttributes());
+		return super.createEntity(session, toProduct(session, dto));
 	}
 
 	@Override
-	public Boolean update(Connection conn, Product p) 
+	public Boolean update(Session session, ProductDTO dto) 
 			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			int index = setInsertValues(stmt, p);
-			stmt.setLong(index++, p.getId());
-
-			if (stmt.executeUpdate() != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			} else {
-				attributeDAO.assignToProduct(conn, p);
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
-	}
-	
-	@Override
-	public Boolean delete(Connection conn, Long productId) 
-			throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(DELETE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			int index = 1;
-			stmt.setTimestamp(index++, new java.sql.Timestamp(new Date().getTime()));
-			stmt.setLong(index++, productId);
-
-			if (stmt.executeUpdate() != 1) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
-	}
-
-	private int setInsertValues(PreparedStatement stmt, Product p) throws SQLException {
-
-		int i = 1;
-
-		stmt.setString(i++, p.getName());
-		stmt.setShort(i++, p.getCategoryId());
-		JDBCUtils.setNullable(stmt, p.getDescription(), i++);
-		JDBCUtils.setNullable(stmt, p.getLaunchDate(), i++);
-		stmt.setInt(i++, p.getStock());
-		stmt.setDouble(i++, p.getPurchasePrice());
-		stmt.setDouble(i++, p.getSalePrice());
-		return i;
+		attributeDAO.saveAttributeValues(session, dto.getAttributes());
+		return super.updateEntity(session, toProduct(session, dto));
 	}
 
 	@Override
-	public Product findById(Connection conn, Long id) 
+	public Boolean delete(Session session, Long productId) 
+			throws DataException {
+		return session.createNativeQuery(SOFT_DELETE_QUERY, Product.class)
+				.setParameter("date", new Date())
+				.setParameter("id", productId)
+				.executeUpdate() > 0;
+	}
+
+	@Override
+	public ProductDTO findById(Session session, Long id) 
 			throws DataException {
 
 		if (id == null) {
 			return null;
 		}
 
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Product p = null;
-
 		try {
-			stmt = conn.prepareStatement(FINDBYID_QUERY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, id);
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				p = loadNext(conn, rs);
-			}
-			return p;
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+			NativeQuery<ProductDTO> query = 
+					session.createNativeQuery(BASE_QUERY + " WHERE p.ID = :id AND p.DISCONTINUATION_DATE IS NULL", ProductDTO.class);
+			prepareQuery(query);
+			return query.setParameter("id", id).getSingleResultOrNull();
+		} catch (HibernateException e) {
+			logger.error(e.getMessage(), e);
+			throw new DataException(e);
 		}
 	}
 
 	@Override
-	public Results<Product> findBy(Connection conn, ProductCriteria criteria, int pos, int pageSize) 
+	public Results<ProductDTO> findBy(Session session, ProductCriteria criteria, int pos, int pageSize) 
 			throws DataException {
 
-		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildQueryClauses(criteria));
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
+		StringBuilder queryStr = new StringBuilder(BASE_QUERY).append(buildQueryClauses(criteria));
 
 		try {
-			stmt = conn.prepareStatement(query.toString(),
-					ResultSet.TYPE_SCROLL_INSENSITIVE, 
-					ResultSet.CONCUR_READ_ONLY);
-			setSelectValues(stmt, criteria);
+			NativeQuery<ProductDTO> query = session.createNativeQuery(queryStr.toString(), ProductDTO.class);
+			prepareQuery(query, pos, pageSize);
+			setSelectValues(query, criteria);
 
-			rs = stmt.executeQuery();
-			return loadResults(conn, rs, pos, pageSize);
+			Results<ProductDTO> results = new Results<ProductDTO>();
+			results.setResultCount(Long.valueOf(query.getResultCount()).intValue());
+			results.setPage(query.getResultList());
 
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
+			return results;
+
+		} catch (HibernateException he) {
+			logger.error(he.getMessage(), he);
+			throw new DataException(he);
+		} 
 	}
 
 	@Override
-	public ProductRanges getRanges(Connection conn, ProductCriteria criteria) 
+	public ProductRanges getRanges(Session session, ProductCriteria criteria) 
 			throws DataException {
-		
+
 		ProductRanges ranges = new ProductRanges();
-
-		StringBuilder query = new StringBuilder(GET_RANGES_QUERY).append(buildQueryClauses(criteria));
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
+		StringBuilder queryStr = new StringBuilder(RANGES_QUERY).append(buildQueryClauses(criteria, false));
 
 		try {
-			stmt = conn.prepareStatement(query.toString(),
-					ResultSet.TYPE_SCROLL_INSENSITIVE, 
-					ResultSet.CONCUR_READ_ONLY);
-			setSelectValues(stmt, criteria);
+			NativeQuery<Object[]> query = session.createNativeQuery(queryStr.toString(), Object[].class);  
+			setSelectValues(query, criteria);
 
-			rs = stmt.executeQuery();
-			rs.next();
-			
-			int i = 1;
-			ranges.setStockMin(rs.getInt(i++));
-			ranges.setStockMax(rs.getInt(i++));
-			ranges.setPriceMin(rs.getDouble(i++));
-			ranges.setPriceMax(rs.getDouble(i++));
-			ranges.setLaunchDateMin(rs.getDate(i++));
-			ranges.setLaunchDateMax(rs.getDate(i++));
-			
+			Object[] results = query.getSingleResult();
+
+			int i = 0;
+			ranges.setStockMin((Integer) results[i++]);
+			ranges.setStockMax((Integer) results[i++]);
+			ranges.setPriceMin(((BigDecimal) results[i++]).doubleValue());
+			ranges.setPriceMax(((BigDecimal) results[i++]).doubleValue());
+			ranges.setLaunchDateMin((Date) results[i++]);
+			ranges.setLaunchDateMax((Date) results[i++]);
+
 			return ranges;
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
+		} catch (HibernateException he) {
+			logger.error(he.getMessage(), he);
+			throw new DataException(he);
 		}
 	}
-
+	
 	private static StringBuilder buildQueryClauses(ProductCriteria criteria) {
+		return buildQueryClauses(criteria, true);
+	}
+
+	private static StringBuilder buildQueryClauses(ProductCriteria criteria, boolean includeAttributes) {
 
 		StringBuilder clauses = new StringBuilder();
 
-		if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
-
-			clauses.append(JOIN_ATTRIBUTE);
-		}
 		List<String> conditions = new ArrayList<String>();
 
 		if (criteria.getName() != null) {
-			conditions.add(" p.NAME LIKE ?");
+			conditions.add(" %1$s.NAME LIKE ?");
 		}
 		if (criteria.getLaunchDateMin() != null) {	
-			conditions.add(" p.LAUNCH_DATE >= ?");
+			conditions.add(" %1$s.LAUNCH_DATE >= ?");
 		}
 		if (criteria.getLaunchDateMax() != null) {	
-			conditions.add(" p.LAUNCH_DATE <= ?");
+			conditions.add(" %1$s.LAUNCH_DATE <= ?");
 		}
 		if (criteria.getStockMin() != null) {	
-			conditions.add(" p.STOCK >= ?");
+			conditions.add(" %1$s.STOCK >= ?");
 		}
 		if (criteria.getStockMax() != null) {	
-			conditions.add(" p.STOCK <= ?");
+			conditions.add(" %1$s.STOCK <= ?");
 		}
 		if (criteria.getPriceMin() != null) {
-			conditions.add(" p.SALE_PRICE >= ?");
+			conditions.add(" %1$s.SALE_PRICE >= ?");
 		}
 		if (criteria.getPriceMax() != null) {	
-			conditions.add(" p.SALE_PRICE <= ?");
+			conditions.add(" %1$s.SALE_PRICE <= ?");
 		}
 		if (criteria.getCategoryId() != null) {	
 			String categoryCondition = 
-					new StringBuilder(" p.CATEGORY_ID")
+					new StringBuilder(" %1$s.CATEGORY_ID")
 					.append(SQLQueryUtils.buildPlaceholderComparisonClause(
 							CategoryUtils.getLowerHierarchy(criteria.getCategoryId()).keySet())
 							)
@@ -333,97 +251,174 @@ implements ProductDAO {
 			conditions.add(AttributeUtils.buildAttributeConditionClause(criteria.getAttributes()));
 		}
 
-		conditions.add(" p.DISCONTINUATION_DATE IS NULL");
-		clauses.append(SQLQueryUtils.buildWhereClause(conditions));
+		conditions.add(" %1$s.DISCONTINUATION_DATE IS NULL");
+
+		clauses.append(SQLQueryUtils.buildWhereClause(applyTableAlias(conditions, TableDefinition.PRODUCT_ALIAS)));
+
+		if (includeAttributes) {
+			clauses.append(String.format(" GROUP BY %1$s.ID, %2$s.ID, %3$s.ID",
+					TableDefinition.PRODUCT_ALIAS,
+					TableDefinition.ATTRIBUTE_ALIAS,
+					TableDefinition.ATTRIBUTE_VALUE_ALIAS));
+		}
 
 		if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
-			clauses.append(" GROUP BY p.ID HAVING COUNT(p.ID) = ?");
-		}
-		clauses.append(SQLQueryUtils.buildOrderByClause(criteria));
+			StringBuilder subselect = new StringBuilder(" HAVING (")
+					.append(BASE_COUNT_SUBQUERY);
 
+			conditions.add(0, String.format(" %1$s.ID = %2$s.ID", TableDefinition.PRODUCT_ALIAS, TableDefinition.PRODUCT_SUBQUERY_ALIAS));
+
+			subselect.append(SQLQueryUtils.buildWhereClause(applyTableAlias(conditions, TableDefinition.PRODUCT_SUBQUERY_ALIAS)))
+			.append(String.format(" GROUP BY %1$s.ID", TableDefinition.PRODUCT_SUBQUERY_ALIAS))
+			.append(") = ?");
+
+			clauses.append(subselect);
+		}
+
+		if (includeAttributes) {
+			for (Entry<String, Boolean> entry : AttributeUtils.ATTRIBUTE_ORDER_BY_CLAUSES.entrySet()) {
+				criteria.orderBy(entry.getKey(), entry.getValue());
+			}
+			clauses.append(SQLQueryUtils.buildOrderByClause(criteria, Product.class));
+		}
+		
 		return clauses;
 	}
 
-	private static int setSelectValues(PreparedStatement stmt, ProductCriteria criteria) throws SQLException {
+	private static List<String> applyTableAlias(List<String> conditions, String tableAlias) {
+		List<String> list = new ArrayList<String>();
 
+		for (int i = 0; i < conditions.size(); i++) {
+			String condition = conditions.get(i);
+			list.add(String.format(condition, tableAlias));
+		}
+
+		return list;
+	}
+
+	private static int setSelectValues(NativeQuery<?> query, ProductCriteria criteria) {
+
+		int loops = criteria.getAttributes().isEmpty() ? 1 : 2; // Loop twice if query has subselect
 		int i = 1;
 
-		if (criteria.getName() != null) {
-			stmt.setString(i++, SQLQueryUtils.wrapLike(criteria.getName()));
-		}
-		if (criteria.getLaunchDateMin() != null) {
-			stmt.setDate(i++, new java.sql.Date(criteria.getLaunchDateMin().getTime()));
-		}
-		if (criteria.getLaunchDateMax() != null) {	
-			stmt.setDate(i++, new java.sql.Date(criteria.getLaunchDateMax().getTime()));
-		}
-		if (criteria.getStockMin() != null) {		
-			stmt.setInt(i++, criteria.getStockMin());
-		}
-		if (criteria.getStockMax() != null) {	
-			stmt.setInt(i++, criteria.getStockMax());
-		}
-		if (criteria.getPriceMin() != null) {	
-			stmt.setDouble(i++, criteria.getPriceMin());
-		}
-		if (criteria.getPriceMax() != null) {	
-			stmt.setDouble(i++, criteria.getPriceMax());
-		}
-		if (criteria.getCategoryId() != null) {	
-			for (Short categoryId : CategoryUtils.getLowerHierarchy(criteria.getCategoryId()).keySet()) {
-				stmt.setShort(i++, categoryId);
+		for (int j = 0; j < loops; j++) {
+			if (criteria.getName() != null) {
+				query.setParameter(i++, SQLQueryUtils.wrapLike(criteria.getName()));
 			}
-		}
-		if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
-			for (Attribute<?> attribute : criteria.getAttributes().values()) {
-				stmt.setString(i++, attribute.getName());
-				for (AttributeValue<?> valueContainer : attribute.getTrimmedValues()) {
-					stmt.setObject(i++, valueContainer.getValue(), AttributeUtils.getTargetSqlTypeIdentifier(attribute));
+			if (criteria.getLaunchDateMin() != null) {
+				query.setParameter(i++, new java.sql.Date(criteria.getLaunchDateMin().getTime()));
+			}
+			if (criteria.getLaunchDateMax() != null) {
+				query.setParameter(i++, new java.sql.Date(criteria.getLaunchDateMax().getTime()));
+			}
+			if (criteria.getStockMin() != null) {
+				query.setParameter(i++, criteria.getStockMin());
+			}
+			if (criteria.getStockMax() != null) {
+				query.setParameter(i++, criteria.getStockMax());
+			}
+			if (criteria.getPriceMin() != null) {
+				query.setParameter(i++, criteria.getPriceMin());
+			}
+			if (criteria.getPriceMax() != null) {
+				query.setParameter(i++, criteria.getPriceMax());
+			}
+			if (criteria.getCategoryId() != null) {
+				for (Short categoryId : CategoryUtils.getLowerHierarchy(criteria.getCategoryId()).keySet()) {
+					query.setParameter(i++, categoryId);
 				}
 			}
-			stmt.setInt(i++, criteria.getAttributes().size());
+			if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
+				for (Attribute<?> attribute : criteria.getAttributes().values()) {
+					query.setParameter(i++, attribute.getName());
+					for (AttributeValue<?> valueContainer : attribute.getValuesByHandlingMode()) {
+						query.setParameter(i++, valueContainer.getValue());
+					}
+				}
+				if (j == 1) {
+					query.setParameter(i++, criteria.getAttributes().size());
+				}
+			} 
 		}
+
 		return i;
 	}
 
-	private Results<Product> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
-			throws SQLException, DataException {
-
-		Results<Product> results = new Results<Product>();
-		results.setResultCount(JDBCUtils.getRowCount(rs));
-
-		if (results.getResultCount() > 0 && pageSize > 0 && startPos > 0 && startPos <= results.getResultCount()) {
-			int count = 0;
-			rs.absolute(startPos);
-			do {
-				results.getPage().add(loadNext(conn, rs));
-				count++;
-			} while (count<pageSize && rs.next());	
-		}
-
-		return results;
+	private static void prepareQuery(NativeQuery<ProductDTO> query) {
+		prepareQuery(query, null, null);
 	}
 
-	private Product loadNext(Connection conn, ResultSet rs) 
-			throws SQLException, DataException {
+	private static void prepareQuery(NativeQuery<ProductDTO> query, Integer pos, Integer pageSize) {
 
+		ProductTransformer transformer = new ProductTransformer();
+
+		query.setTupleTransformer(transformer)
+		.setResultListTransformer(transformer);
+
+		for (String column : TableDefinition.PRODUCT_COLUMNS.keySet()) {
+			query.addScalar(PRODUCT_COLUMN_ALIASES.get(column), TableDefinition.PRODUCT_COLUMNS.get(column));
+		}
+		for (String column : TableDefinition.ATTRIBUTE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_COLUMN_ALIASES.get(column), TableDefinition.ATTRIBUTE_COLUMNS.get(column));
+		}
+		for (String column : TableDefinition.ATTRIBUTE_VALUE_COLUMNS.keySet()) {
+			query.addScalar(AttributeDAOImpl.ATTRIBUTE_VALUE_COLUMN_ALIASES.get(column), TableDefinition.ATTRIBUTE_VALUE_COLUMNS.get(column));
+		}
+
+		if (pos != null) {
+			query.setFirstResult(pos -1);
+		}
+		if (pageSize != null) {
+			query.setMaxResults(pageSize);
+		}
+	}
+
+	private Product toProduct(Session session, ProductDTO dto) {
 		Product p = new Product();
-		int i = 1;
+		p.setId(dto.getId());
+		p.setName(dto.getName());
+		p.setCategory(session.getReference(Category.class, dto.getCategoryId()));
+		p.setDescription(dto.getDescription());
+		p.setLaunchDate(dto.getLaunchDate());
+		p.setDiscontinuationDate(dto.getDiscontinuationDate());
+		p.setStock(dto.getStock());
+		p.setPurchasePrice(dto.getPurchasePrice());
+		p.setSalePrice(dto.getSalePrice());
 
-		p = new Product();
-		p.setId(rs.getLong(i++));
-		p.setName(rs.getString(i++));
-		p.setCategoryId(rs.getShort(i++));
-		p.setCategory(rs.getString(i++));
-		p.setDescription(rs.getString(i++));
-		p.setLaunchDate(rs.getDate(i++));
-		p.setStock(rs.getInt(i++));
-		p.setPurchasePrice(rs.getDouble(i++));
-		p.setSalePrice(rs.getDouble(i++));
-		p.setReplacementId(JDBCUtils.getNullableLong(rs, i++));
-		p.setReplacementName(rs.getString(i++));
-		p.setAttributes(attributeDAO.findByProduct(conn, p.getId()));
+		if (dto.getReplacementId() != null) {
+			p.setReplacement(session.getReference(Product.class, dto.getReplacementId()));
+		}
+
+		p.setValues(groupValues(dto));
+
 		return p;
+	}
+
+	private static List<AttributeValue<?>> groupValues(ProductDTO dto) {
+		List<AttributeValue<?>> values = new ArrayList<AttributeValue<?>>();
+		for (Attribute<?> attribute : dto.getAttributes().values()) {
+			values.addAll(attribute.getValues());
+		}
+		return values;
+	}
+
+	@Override
+	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Product> root,
+			AbstractCriteria<Product> criteria) {
+		// Unused
+		return null;
+	}
+
+	@Override
+	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Product> query, Root<Product> root,
+			AbstractCriteria<Product> criteria) {
+		// Unused	
+	}
+
+	@Override
+	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Product> updateQuery, Root<Product> root,
+			AbstractUpdateValues<Product> updateValues) {
+		// Unused
 	}
 
 }

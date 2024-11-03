@@ -40,8 +40,8 @@ implements TicketDAO {
 					+ " t.DESCRIPTION";
 	private static final String FROM_TABLE =
 			" FROM TICKET t"
-			+ " INNER JOIN CUSTOMER c"
-			+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
+					+ " INNER JOIN CUSTOMER c"
+					+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
 	private static final String ID_FILTER =
 			" WHERE t.ID = ?";
 
@@ -112,7 +112,9 @@ implements TicketDAO {
 	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, int pos, int pageSize)
 			throws DataException {
 
-		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildWhereClause(criteria));
+		StringBuilder query = new StringBuilder(FINDBY_QUERY)
+				.append(buildWhereClause(criteria)
+						.append(SQLQueryUtils.buildOrderByClause(criteria, Ticket.class)));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -222,7 +224,7 @@ implements TicketDAO {
 			JDBCUtils.close(stmt);
 		}
 	}
-	
+
 	@Override
 	public Boolean update(Connection conn, Ticket ticket) throws DataException {
 
@@ -230,11 +232,11 @@ implements TicketDAO {
 
 		try {
 			ticketMessageDAO.deleteByTicket(conn, ticket.getId()); // Prepare table for re-insertion
-			
+
 			stmt = conn.prepareStatement(UPDATE_QUERY);
 			int i = setInsertValues(stmt, ticket);
 			stmt.setLong(i++, ticket.getId());
-			
+
 			int updatedRows = stmt.executeUpdate();
 			if (updatedRows != 1) {
 				logger.error(LogMessages.UPDATE_FAILED);

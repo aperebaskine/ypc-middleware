@@ -1,16 +1,36 @@
 package com.pinguela.yourpc.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.pinguela.yourpc.model.Criteria;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.pinguela.yourpc.model.AbstractCriteria;
+import com.pinguela.yourpc.model.AbstractEntityCriteria;
 
 public class SQLQueryUtils {
+	
+	private static Logger logger = LogManager.getLogger(SQLQueryUtils.class);
+
+	private static final String COLUMN_DELIMITER = ", ";
+	private static final String TABLE_ALIAS_DELIMITER = ".";
+	private static final String COLUMN_ALIAS_DELMITER = "_";
+
+	private static final String AS_CLAUSE = " AS ";
 
 	private static final String IS_NULL_CONDITION = " IS NULL";
 	private static final String EQUALS_CONDITION = " = ?";
 	private static final String IN_VALUES_CONDITION = " IN ()";
-	
+
 	private static final String ASCENDING_ORDER = " ASC";
 	private static final String DESCENDING_ORDER = " DESC";
 
@@ -28,7 +48,7 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the clause with placeholder values
 	 */
 	public static StringBuilder buildPlaceholderComparisonClause(int size) {
-		
+
 		if (size < 1) {
 			return new StringBuilder(IS_NULL_CONDITION);
 		}
@@ -54,7 +74,7 @@ public class SQLQueryUtils {
 	public static StringBuilder buildPlaceholderComparisonClause(Collection<?> values) {
 		return buildPlaceholderComparisonClause(values == null ? 0 : values.size());
 	}
-	
+
 	/** 
 	 * Dynamically creates a VALUES clause to append to a SQL INSERT query containing placeholder characters.
 	 * 
@@ -65,19 +85,19 @@ public class SQLQueryUtils {
 	 * with no rows to insert.
 	 */
 	public static StringBuilder buildPlaceholderValuesClause(int rows, int columns) {
-		
+
 		if (rows < 1) {
 			throw new IllegalArgumentException("No rows to insert.");
 		}
 
 		StringBuilder values = new StringBuilder(" VALUES ");
-		
+
 		for (int i = 0; i<rows; i++)  {
 			values.append("(").append(buildPlaceholderValueSequence(columns)).append("), ");
 		}
 		return values.delete(values.length()-2, values.length());
 	}
-	
+
 	/** 
 	 * Creates a VALUES clause to append to a SQL INSERT query containing placeholder characters.
 	 * 
@@ -88,13 +108,13 @@ public class SQLQueryUtils {
 	 * with no rows to insert.
 	 */
 	public static StringBuilder buildPlaceholderValuesClause(Collection<?> values, int columns) {
-		
+
 		if (values == null || values.isEmpty()) {
 			throw new IllegalArgumentException("No rows to insert.");
 		}
 		return buildPlaceholderValuesClause(values.size(), columns);
 	}
-	
+
 	/**
 	 * Creates a sequence of PreparedStatement placeholder characters to insert into a query.
 	 * 
@@ -102,15 +122,15 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the sequence of placeholder characters of the desired length
 	 */
 	private static StringBuilder buildPlaceholderValueSequence(int size) {
-		
+
 		StringBuilder sequence = new StringBuilder();
-		
+
 		for (int i = 0; i<size; i++) {
 			sequence.append("?, ");
 		}
 		return sequence.delete(sequence.length()-2, sequence.length());
 	}
-	
+
 	/**
 	 * Null-safe method that creates an SQL WHERE clause from a list of conditions.
 	 * 
@@ -122,7 +142,7 @@ public class SQLQueryUtils {
 				? new StringBuilder()
 						:buildWhereClause(String.join(" AND", conditions));
 	}
-	
+
 	/**
 	 * Null-safe method that creates an SQL WHERE clause from a list of conditions.
 	 * 
@@ -160,9 +180,30 @@ public class SQLQueryUtils {
 		}
 		return new StringBuilder(" ORDER BY")
 				.append(columnName)
-				.append(ascDesc == Criteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
+				.append(ascDesc == AbstractCriteria.ASC ? ASCENDING_ORDER : DESCENDING_ORDER);
 	}
-	
+
+	public static StringBuilder buildOrderByClause(Map<String, Boolean> orderBy, Class<?> targetClass) {
+		if (orderBy == null || orderBy.isEmpty()) {
+			return new StringBuilder("");
+		}
+		List<StringBuilder> clauses = new ArrayList<>();
+
+		if (orderBy.isEmpty()) {
+			orderBy.putAll(getDefaultOrder(targetClass));
+		}
+
+		for (String column : orderBy.keySet()) {
+			String parsedColumn = getOrderColumn(targetClass, column);
+			clauses.add(new StringBuilder(" ").append(parsedColumn == null ? column : parsedColumn).append(" ")
+					.append(orderBy.get(column) == AbstractCriteria.ASC ? 
+							ASCENDING_ORDER : DESCENDING_ORDER));
+		}
+
+		return new StringBuilder(" ORDER BY ").append(
+				String.join(", ", clauses.toArray(new StringBuilder[clauses.size()])));
+	}
+
 	/**
 	 * Builds an ORDER BY clause to append to a query, receiving a Criteria object as parameter.
 	 * 
@@ -170,12 +211,46 @@ public class SQLQueryUtils {
 	 * @return StringBuilder object containing the ORDER BY clause. If any of the required 
 	 * parameters are null, returns an empty StringBuilder.
 	 */
-	public static StringBuilder buildOrderByClause(Criteria<?, ?> criteria) {
-		
-		if (criteria == null || criteria.getOrderBy() == null || criteria.getAscDesc() == null) {
+	public static StringBuilder buildOrderByClause(AbstractEntityCriteria<?, ?> criteria, Class<?> targetClass) {
+
+		if (criteria == null || criteria.getOrderBy() == null) {
 			return new StringBuilder("");
 		}
-		return buildOrderByClause(criteria.getOrderBy(), criteria.getAscDesc());
+		return buildOrderByClause(criteria.getOrderBy(), targetClass);
+	}
+
+	public static Map<String, Boolean> getDefaultOrder(Class<?> targetClass) {
+
+		String xPathStr;
+		Map<String, Boolean> clauses = new LinkedHashMap<String, Boolean>();
+
+		xPathStr = String.format("//mapping[@queryType='native' and ./entity='%1$s']/orderMapping[@default = 'true']", targetClass.getName());
+		NodeList nodeList = XMLUtils.getNodeList(XMLUtils.getXMLResource("sql_mapping.xml"), xPathStr);
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			Node orderAttribute = node.getAttributes().getNamedItem("order");
+			boolean ascDesc = orderAttribute == null ? AbstractCriteria.ASC :
+				"asc".equals(orderAttribute.getNodeValue());
+
+			clauses.put(XMLUtils.getTextNode(node, "./column"), ascDesc);
+		}
+
+		return clauses;	
+	}
+
+	private static String getOrderColumn(Class<?> targetClass, String key) {
+		
+		String column = XMLUtils.getTextNode(XMLUtils.getXMLResource("sql_mapping.xml"), 
+				String.format("//mapping[queryType='native' and ./entity='%1$s']/orderMapping[./key='%2$s']/column",
+						targetClass.getName(), key));
+		
+		if (column.isEmpty()) { // Assume key is the column name
+			logger.warn("No mapping found for key {} during {} query ORDER BY clause generation. Proceeding using key as column name.", 
+					targetClass.getSimpleName(), key);
+		}
+		
+		return column;
 	}
 
 	/**
@@ -187,5 +262,37 @@ public class SQLQueryUtils {
 	public static String wrapLike(String str) {
 		return new StringBuilder().append("%").append(str.toUpperCase()).append("%").toString();
 	}
-	
+
+	public static String applyTableAlias(String alias, String columnName) {
+		return String.join(TABLE_ALIAS_DELIMITER, alias, columnName);
+	}
+
+	public static String generateColumnAlias(Class<?> entity, String column) {
+		String columnSubstring = column.replace(TABLE_ALIAS_DELIMITER, COLUMN_ALIAS_DELMITER);
+		return String.join(COLUMN_ALIAS_DELMITER, entity.getSimpleName(), columnSubstring == null ? column : columnSubstring);
+	}
+
+	public static Map<String, String> generateColumnAliases(Class<?> entity, Collection<String> columnNames) {
+		Map<String, String> columns = new LinkedHashMap<>();
+		Iterator<String> iterator = columnNames.iterator();
+
+		while (iterator.hasNext()) {
+			String column = iterator.next();
+			columns.put(column, generateColumnAlias(entity, column));
+		}
+		return Collections.unmodifiableMap(columns);
+	}
+
+	public static String createColumnClause(Map<String, String> columnNamesAndAliases) {
+		String[] clauses = new String[columnNamesAndAliases.size()];
+		Iterator<String> iterator = columnNamesAndAliases.keySet().iterator();
+
+		for (int i = 0; i < clauses.length; i++) {
+			String column = iterator.next();
+			clauses[i] = String.join(AS_CLAUSE, column, columnNamesAndAliases.get(column));
+		}
+
+		return String.join(COLUMN_DELIMITER, clauses);
+	}
+
 }

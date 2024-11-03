@@ -162,7 +162,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 			query.append(JOIN_EMPLOYEE_DEPARTMENT);
 		}
 		query.append(buildWhereClause(criteria))
-			.append(SQLQueryUtils.buildOrderByClause(criteria));
+			.append(SQLQueryUtils.buildOrderByClause(criteria.getOrderBy(), Employee.class));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

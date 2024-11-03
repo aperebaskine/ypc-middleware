@@ -5,9 +5,6 @@ import java.util.Date;
 public class CustomerOrderCriteria 
 extends AbstractCustomerOperationCriteria<Long, CustomerOrder> {
 	
-	public static final String ORDER_BY_AMOUNT = " co.TOTAL_PRICE";
-	public static final String ORDER_BY_DATE = " co.ORDER_DATE";
-	
 	private Double minAmount;
 	private Double maxAmount;
 	private Date minDate;
@@ -15,12 +12,6 @@ extends AbstractCustomerOperationCriteria<Long, CustomerOrder> {
 	private String state;
 	
 	public CustomerOrderCriteria() {
-	}
-	
-	@Override
-	protected void setDefaultOrdering() {
-		setOrderBy(ORDER_BY_DATE);
-		setAscDesc(DESC);
 	}
 	
 	public Double getMinAmount() {

@@ -1,5 +1,11 @@
 package com.pinguela.yourpc.model;
 
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
+import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
+
+import jakarta.persistence.DiscriminatorValue;
+
+@DiscriminatorValue(value = AttributeDataTypes.DECIMAL)
 public final class DoubleAttribute extends Attribute<Double> {
 
 	DoubleAttribute() {
@@ -8,12 +14,12 @@ public final class DoubleAttribute extends Attribute<Double> {
 	
 	@Override
 	public String getDataTypeIdentifier() {
-		return DECIMAL;
+		return AttributeDataTypes.DECIMAL;
 	}
 	
 	@Override
 	public int getValueHandlingMode() {
-		return RANGE;
+		return AttributeValueHandlingModes.RANGE;
 	}
 
 	@Override

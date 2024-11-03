@@ -108,7 +108,7 @@ implements RMADAO {
 		if (criteria.getCustomerEmail() != null) query.append(JOIN_CUSTOMER);
 		if (criteria.getOrderId() != null || criteria.getTicketId() != null) query.append(JOIN_ORDER_LINE);
 		if (criteria.getTicketId() != null) query.append(JOIN_TICKET_ORDER_LINE);
-		query.append(buildWhereClause(criteria)).append(SQLQueryUtils.buildOrderByClause(criteria));
+		query.append(buildWhereClause(criteria)).append(SQLQueryUtils.buildOrderByClause(criteria.getOrderBy(), RMA.class));
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

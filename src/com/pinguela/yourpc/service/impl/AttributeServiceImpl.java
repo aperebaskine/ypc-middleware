@@ -1,11 +1,11 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -13,7 +13,7 @@ import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.impl.AttributeDAOImpl;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.service.AttributeService;
-import com.pinguela.yourpc.util.JDBCUtils;
+import com.pinguela.yourpc.util.HibernateUtils;
 
 public class AttributeServiceImpl implements AttributeService {
 	
@@ -28,20 +28,16 @@ public class AttributeServiceImpl implements AttributeService {
 	public Attribute<?> findByName(String name, boolean returnUnassigned) 
 			throws ServiceException, DataException {
 		
-		if (name == null) {
-			return null;
-		}
-		
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return attributeDAO.findByName(conn, name, returnUnassigned);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			return attributeDAO.findByName(session, name, returnUnassigned);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}
 	}
 
@@ -49,20 +45,16 @@ public class AttributeServiceImpl implements AttributeService {
 	public Map<String, Attribute<?>> findByCategory(Short categoryId, boolean returnUnassigned)
 			throws ServiceException, DataException {
 		
-		if (categoryId == null) {
-			return null;
-		}
-		
-		Connection conn = null;
+		Session session = null;
 
 		try {
-			conn = JDBCUtils.getConnection();
-			return attributeDAO.findByCategory(conn, categoryId, returnUnassigned);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
+			session = HibernateUtils.openSession();
+			return attributeDAO.findByCategory(session, categoryId, returnUnassigned);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
 		} finally {
-			JDBCUtils.close(conn);
+			HibernateUtils.close(session);
 		}		
 	}
 

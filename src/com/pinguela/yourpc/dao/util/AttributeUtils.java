@@ -1,43 +1,60 @@
-package com.pinguela.yourpc.dao.impl;
+package com.pinguela.yourpc.dao.util;
+
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.RANGE;
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.SET;
 
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.pinguela.yourpc.dao.impl.TableDefinition;
+import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeDataTypes;
-import com.pinguela.yourpc.model.AttributeValueHandlingModes;
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-class AttributeUtils 
-implements AttributeDataTypes, AttributeValueHandlingModes {
+public class AttributeUtils {
 
-	static final String PRE_FORMAT_COLUMN_NAME = "VALUE_%s";
+	private static final String COLUMN_NAME_PLACEHOLDER = "VALUE_%s";
 
 	/**
 	 * Mapping of the attribute data type identifier constants to the
 	 * {@link java.sql.Types} SQL data type identifier constants.
 	 */
-	static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
+	public static final Map<String, Integer> SQL_TARGET_TYPE_IDENTIFIERS;
 
 	/**
 	 * Mapping of the attribute data type identifier constants to their
 	 * corresponding SQL data type names.
 	 */
-	static final Map<String, String> SQL_DATA_TYPE_NAMES;
+	public static final Map<String, String> SQL_DATA_TYPE_NAMES;
+
+	/**
+	 * Mapping of the attribute data type identifier constants to their
+	 * corresponding database columns.
+	 */
+	public static final Map<String, String> ATTRIBUTE_VALUE_COLUMN_NAMES;
+
+	/**
+	 * Contains the ordering that any query retrieving attributes must respect.
+	 */
+	public static final Map<String, Boolean> ATTRIBUTE_ORDER_BY_CLAUSES;
 
 	static {
 		Map<String, String> dataTypeConstantMap = getDataTypeConstants();
 
 		SQL_TARGET_TYPE_IDENTIFIERS = initializeSqlTypeIdentifierMap(dataTypeConstantMap);
 		SQL_DATA_TYPE_NAMES = initializeSqlTypeNameMap(dataTypeConstantMap);
+		ATTRIBUTE_VALUE_COLUMN_NAMES = initializeColumnNameMap(dataTypeConstantMap);
+		ATTRIBUTE_ORDER_BY_CLAUSES = defineAttributeOrderingClauses();
 	}
 
-	static final Map<String, String> getDataTypeConstants() {
+	private static final Map<String, String> getDataTypeConstants() {
 		Field[] dataTypeConstants = AttributeDataTypes.class.getFields();
 		Map<String, String> dataTypeNameMap = new HashMap<String, String>();
 		for (Field dataTypeConstant : dataTypeConstants) {
@@ -50,7 +67,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return dataTypeNameMap;
 	}
 
-	static final Map<String, Integer> initializeSqlTypeIdentifierMap(Map<String, String> dataTypeConstants) {
+	private static final Map<String, Integer> initializeSqlTypeIdentifierMap(Map<String, String> dataTypeConstants) {
 
 		Map<String, Integer> sqlTypeIdentifierMap = new HashMap<String, Integer>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
@@ -64,7 +81,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return Collections.unmodifiableMap(sqlTypeIdentifierMap);
 	}
 
-	static final Map<String, String> initializeSqlTypeNameMap(Map<String, String> dataTypeConstants) {
+	private static final Map<String, String> initializeSqlTypeNameMap(Map<String, String> dataTypeConstants) {
 
 		Map<String, String> sqlTypeNameMap = new HashMap<String, String>();
 		for (String dataTypeName : dataTypeConstants.keySet()) {
@@ -72,37 +89,57 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		}
 		return Collections.unmodifiableMap(sqlTypeNameMap);
 	}
-	
-	static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
+
+	private static final Map<String, String> initializeColumnNameMap(Map<String, String> dataTypeConstants) {
+		Map<String, String> columnNameMap = new LinkedHashMap<String, String>();
+		for (String dataTypeName : dataTypeConstants.keySet()) {
+			columnNameMap.put(dataTypeConstants.get(dataTypeName), 
+					String.format(COLUMN_NAME_PLACEHOLDER, dataTypeName));
+		}
+		return Collections.unmodifiableMap(columnNameMap);
+	}
+
+	private static Map<String, Boolean> defineAttributeOrderingClauses() {	
+		Map<String, Boolean> clauses = new LinkedHashMap<String, Boolean>();
+		clauses.put(String.format("%1$s.NAME", TableDefinition.ATTRIBUTE_ALIAS), AbstractCriteria.ASC);
+		
+		for (String column : ATTRIBUTE_VALUE_COLUMN_NAMES.values()) {
+			clauses.put(String.format("%1$s.%2$s", TableDefinition.ATTRIBUTE_VALUE_ALIAS, column), AbstractCriteria.ASC);
+		}
+
+		return clauses;
+	}
+
+	public static final int getTargetSqlTypeIdentifier(String dataTypeIdentifier) {
 		return SQL_TARGET_TYPE_IDENTIFIERS.get(dataTypeIdentifier);
 	}
 
-	static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
+	public static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
 		return getTargetSqlTypeIdentifier(attribute.getDataTypeIdentifier());
 	}
 
-	static final String getTargetSqlTypeName(String dataTypeIdentifier) {
+	public static final String getTargetSqlTypeName(String dataTypeIdentifier) {
 		return SQL_DATA_TYPE_NAMES.get(dataTypeIdentifier);
 	}
 
-	static final String getTargetSqlTypeName(Attribute<?> attribute) {
+	public static final String getTargetSqlTypeName(Attribute<?> attribute) {
 		return getTargetSqlTypeName(attribute.getDataTypeIdentifier());
 	}
 
-	static final String getValueColumnName(String dataTypeIdentifier) {
-		return String.format(PRE_FORMAT_COLUMN_NAME, getTargetSqlTypeName(dataTypeIdentifier));
+	public static final String getValueColumnName(String dataTypeIdentifier) {
+		return ATTRIBUTE_VALUE_COLUMN_NAMES.get(dataTypeIdentifier);
 	}
 
-	static final String getValueColumnName(Attribute<?> attribute) {
+	public static final String getValueColumnName(Attribute<?> attribute) {
 		return getValueColumnName(attribute.getDataTypeIdentifier());
 	}
 
-	static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
+	public static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
 
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
 		for (Attribute<?> attribute : attributes.values()) {
-			StringBuilder condition = new StringBuilder(" (at.NAME = ? AND");
+			StringBuilder condition = new StringBuilder(" (a.NAME = ? AND");
 
 			if (attribute.getValues().size() == 1) {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));
@@ -121,7 +158,8 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 			}
 			conditions.add(condition);
 		}
+
 		return new StringBuilder(" (").append(String.join(" OR", conditions)).append(")").toString();
-	}
+	}	
 
 }

@@ -1,31 +1,31 @@
 package com.pinguela.yourpc.dao;
 
-import java.sql.Connection;
+import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 
 public interface ProductDAO {
 	
-	public Long create(Connection conn, Product p)
+	public Long create(Session session, ProductDTO p)
 			throws DataException;
 	
-	public Boolean update(Connection conn, Product p)
+	public Boolean update(Session session, ProductDTO p)
 			throws DataException;
 	
-	public Boolean delete(Connection conn, Long productId)
+	public Boolean delete(Session session, Long productId)
 			throws DataException;
 	
-	public Product findById(Connection conn, Long id)
+	public ProductDTO findById(Session session, Long id)
 			throws DataException;
 	
-	public Results<Product> findBy(Connection conn, ProductCriteria criteria, int pos, int pageSize)
+	public Results<ProductDTO> findBy(Session session, ProductCriteria criteria, int pos, int pageSize)
 			throws DataException;
 	
-	public ProductRanges getRanges(Connection conn, ProductCriteria criteria) 
+	public ProductRanges getRanges(Session session, ProductCriteria criteria) 
 			throws DataException;
 	
 }

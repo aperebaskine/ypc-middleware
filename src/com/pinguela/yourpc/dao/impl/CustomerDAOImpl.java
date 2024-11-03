@@ -156,7 +156,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 		String query = new StringBuilder(SELECT_COLUMNS)
 				.append(FROM_TABLE)
 				.append(buildWhereClause(criteria))
-				.append(SQLQueryUtils.buildOrderByClause(criteria))
+				.append(SQLQueryUtils.buildOrderByClause(criteria.getOrderBy(), Customer.class))
 				.toString();
 
 		PreparedStatement stmt = null;

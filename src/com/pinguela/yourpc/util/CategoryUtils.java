@@ -47,7 +47,7 @@ public class CategoryUtils {
 	}
 
 	public static final Map<Short, Category> getLowerHierarchy(Short categoryId) {
-
+		
 		Map<Short, Category> results = new TreeMap<Short, Category>();
 		Category c = CATEGORIES.get(categoryId);
 

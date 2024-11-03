@@ -313,7 +313,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 
 		return query
 				.append(buildWhereClause(criteria))
-				.append(SQLQueryUtils.buildOrderByClause(criteria))
+				.append(SQLQueryUtils.buildOrderByClause(criteria.getOrderBy(), CustomerOrder.class))
 				.toString();
 	}
 

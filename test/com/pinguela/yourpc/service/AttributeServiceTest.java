@@ -1,7 +1,7 @@
 package com.pinguela.yourpc.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -25,7 +25,7 @@ class AttributeServiceTest {
 	void setUpBeforeClass() throws Exception {
 		attributeService = new AttributeServiceImpl();
 	}
-	
+
 	@Test
 	void testFindByName() {
 		try {
@@ -40,8 +40,8 @@ class AttributeServiceTest {
 	void testFindByCategoryWithValidCategoryIdAndUnssignedValues() {
 		try {
 			Map<String, Attribute<?>> attributes =
-					attributeService.findByCategory((short) 1, AttributeService.RETURN_UNASSIGNED_VALUES);
-			
+					attributeService.findByCategory((short) 5, AttributeService.RETURN_UNASSIGNED_VALUES);
+
 			Attribute<?> boostFreqAttribute = attributes.get("Boost Frequency (MHz)");
 			assertEquals(6500l, boostFreqAttribute.getValueAt(boostFreqAttribute.getValues().size()-1));
 		} catch (YPCException e) {
@@ -54,12 +54,12 @@ class AttributeServiceTest {
 		try {
 			Map<String, Attribute<?>> attributes =
 					attributeService.findByCategory((short) 1, AttributeService.NO_UNASSIGNED_VALUES);
-			
+
 			Attribute<?> boostFreq = attributes.get("Boost Frequency (MHz)");
 			assertEquals(6000l, boostFreq.getValueAt(boostFreq.getValues().size()-1));
-			
+
 		} catch (Exception e) {
-			 fail(e);
+			fail(e);
 		}
 	}
 
@@ -70,19 +70,14 @@ class AttributeServiceTest {
 					attributeService.findByCategory((short) 0, AttributeService.RETURN_UNASSIGNED_VALUES);
 			assertTrue(attributes.isEmpty());
 		} catch (Exception e) {
-			 fail(e);
+			fail(e);
 		}
 	}
 
 	@Test
 	void testFindByCategoryWithNullCategoryId() {
-		try {
-			Map<String, Attribute<?>> attributes =
-					attributeService.findByCategory(null, AttributeService.RETURN_UNASSIGNED_VALUES);
-			assertNull(attributes);
-		} catch (Exception e) {
-			 fail(e);
-		}
+		assertThrows(NullPointerException.class, 
+				() -> attributeService.findByCategory(null, AttributeService.RETURN_UNASSIGNED_VALUES));
 	}
 
 }

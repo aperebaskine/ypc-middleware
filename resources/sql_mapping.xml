@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+    <!-- Existing native mapping remains unchanged -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.Product</entity>
+        <orderMapping default="true">
+            <key>name</key>
+            <column>p.NAME</column>
+        </orderMapping>
+        <orderMapping>
+            <key>date</key>
+            <column>p.LAUNCH_DATE</column>
+        </orderMapping>
+        <orderMapping>
+            <key>stock</key>
+            <column>p.STOCK</column>
+        </orderMapping>
+        <orderMapping>
+            <key>price</key>
+            <column>p.SALE_PRICE</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored Customer mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.Customer</entity>
+        <orderMapping>
+            <key>firstName</key>
+            <column>cu.FIRST_NAME</column>
+        </orderMapping>
+        <orderMapping default="true">
+            <key>lastName</key>
+            <column>cu.LAST_NAME1</column>
+        </orderMapping>
+        <orderMapping>
+            <key>documentNumber</key>
+            <column>cu.DOCUMENT_NUMBER</column>
+        </orderMapping>
+        <orderMapping>
+            <key>phoneNumber</key>
+            <column>cu.PHONE</column>
+        </orderMapping>
+        <orderMapping>
+            <key>email</key>
+            <column>cu.EMAIL</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored Employee mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.Employee</entity>
+        <orderMapping>
+            <key>firstName</key>
+            <column>e.FIRST_NAME</column>
+        </orderMapping>
+        <orderMapping default="true">
+            <key>lastName</key>
+            <column>e.LAST_NAME1</column>
+        </orderMapping>
+        <orderMapping>
+            <key>documentNumber</key>
+            <column>e.DOCUMENT_NUMBER</column>
+        </orderMapping>
+        <orderMapping>
+            <key>phoneNumber</key>
+            <column>e.PHONE</column>
+        </orderMapping>
+        <orderMapping>
+            <key>email</key>
+            <column>e.EMAIL</column>
+        </orderMapping>
+        <orderMapping>
+            <key>username</key>
+            <column>e.USERNAME</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored CustomerOrder mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.CustomerOrder</entity>
+        <orderMapping>
+            <key>amount</key>
+            <column>co.TOTAL_PRICE</column>
+        </orderMapping>
+        <orderMapping default="true" order="desc">
+            <key>date</key>
+            <column>co.ORDER_DATE</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored RMA mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.RMA</entity>
+        <orderMapping default="true" order="desc">
+            <key>date</key>
+            <column>r.CREATION_DATE</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored Ticket mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.Ticket</entity>
+        <orderMapping default="true" order="desc">
+            <key>date</key>
+            <column>t.CREATION_DATE</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored Address mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.Address</entity>
+        <orderMapping default="true">
+            <key>id</key>
+            <column>a.ID</column>
+        </orderMapping>
+    </mapping>
+
+    <!-- Refactored OrderLine mappings -->
+    <mapping queryType="native">
+        <entity>com.pinguela.yourpc.model.OrderLine</entity>
+        <orderMapping default="true">
+            <key>id</key>
+            <column>ol.ID</column>
+        </orderMapping>
+    </mapping>
+</mappings>
