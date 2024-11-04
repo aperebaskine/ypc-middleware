@@ -1,14 +1,12 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.model.dto;
 
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
-import jakarta.persistence.DiscriminatorValue;
+public final class DoubleAttributeDTO
+extends AttributeDTO<Double> {
 
-@DiscriminatorValue(value = AttributeDataTypes.DECIMAL)
-public final class DoubleAttribute extends Attribute<Double> {
-
-	DoubleAttribute() {
+	DoubleAttributeDTO() {
 		super();
 	}
 	
@@ -26,4 +24,5 @@ public final class DoubleAttribute extends Attribute<Double> {
 	public Class<Double> getTypeParameterClass() {
 		return java.lang.Double.class;
 	}
+	
 }

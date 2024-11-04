@@ -97,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductDTO findById(Long id)  
+	public ProductDTO findById(Long id, Locale locale)  
 			throws ServiceException, DataException {
 
 		Session session = null;

@@ -48,7 +48,7 @@ class ProductServiceTest {
 		@Test
 		void testWithValidId() {
 			try {
-				ProductDTO p = productService.findById(1l);
+				ProductDTO p = productService.findById(1l, null);
 				assertEquals(1, p.getId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -58,7 +58,7 @@ class ProductServiceTest {
 		@Test
 		void testWithInvalidId() {
 			try {
-				ProductDTO p = productService.findById(0l);
+				ProductDTO p = productService.findById(0l, null);
 				assertNull(p);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -68,7 +68,7 @@ class ProductServiceTest {
 		@Test
 		void testWithNullId() {
 			try {
-				ProductDTO p = productService.findById(null);
+				ProductDTO p = productService.findById(null, null);
 				assertNull(p);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -505,7 +505,7 @@ class ProductServiceTest {
 		void testCreateValidProduct() {
 			try {
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id);
+				ProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -518,7 +518,7 @@ class ProductServiceTest {
 				p.getAttributes().clear();
 
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id);
+				ProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -533,7 +533,7 @@ class ProductServiceTest {
 				p.getAttributes().put(attribute.getName(), attribute);
 
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id);
+				ProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -567,11 +567,11 @@ class ProductServiceTest {
 	@Test
 	void testUpdate() {
 		try {
-			ProductDTO p = productService.findById(1l);
+			ProductDTO p = productService.findById(1l, null);
 			p.setDescription("TEST" +System.currentTimeMillis());
 			assertTrue(productService.update(p));
 
-			ProductDTO q = productService.findById(p.getId());
+			ProductDTO q = productService.findById(p.getId(), null);
 			assertEquals(p.getDescription(), q.getDescription());
 
 		} catch (YPCException e) {
@@ -591,9 +591,9 @@ class ProductServiceTest {
 		@Test
 		void testDelete() {
 			try {
-				ProductDTO p = productService.findById(1l);
+				ProductDTO p = productService.findById(1l, null);
 				assertTrue(productService.delete(p.getId()));			
-				assertNull(productService.findById(p.getId()));
+				assertNull(productService.findById(p.getId(), null));
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
 			}

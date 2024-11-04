@@ -32,7 +32,7 @@ class CategoryServiceTest {
 	@Test
 	void testFindAll() {
 		try {
-			Map<Short, Category> categories = categoryService.findAll();
+			Map<Short, Category> categories = categoryService.findAll(null);
 			assertEquals(17, categories.size());
 		} catch (YPCException e) {
 			fail(e);

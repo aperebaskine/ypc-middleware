@@ -24,7 +24,7 @@ public class CategoryUtils {
 	private static final Map<Short, Category> initializeMap() {
 		try {
 			CategoryService categoryService = new CategoryServiceImpl();
-			return categoryService.findAll();
+			return categoryService.findAll(null);
 		} catch (Exception e) {
 			logger.error(e);
 			return Collections.emptyMap();

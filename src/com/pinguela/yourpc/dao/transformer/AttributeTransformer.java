@@ -9,25 +9,26 @@ import org.hibernate.query.ResultListTransformer;
 import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.dao.util.AttributeUtils;
-import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
+import com.pinguela.yourpc.model.dto.AttributeDTOFactory;
 
 public class AttributeTransformer 
-implements TupleTransformer<Attribute<?>>, ResultListTransformer<Map<String, Attribute<?>>> {
+implements TupleTransformer<AttributeDTO<?>>, ResultListTransformer<Map<String, AttributeDTO<?>>> {
 
-	private Map<String, Attribute<?>> attributeMap;
+	private Map<String, AttributeDTO<?>> attributeMap;
 	private Map<String, Integer> aliasMap;
 
 	public AttributeTransformer() {
-		attributeMap = new LinkedHashMap<String, Attribute<?>>();
+		attributeMap = new LinkedHashMap<String, AttributeDTO<?>>();
 		aliasMap = new LinkedHashMap<String, Integer>();
 	}
 
 	@Override
-	public Attribute<?> transformTuple(Object[] tuple, String[] aliases) {
+	public AttributeDTO<?> transformTuple(Object[] tuple, String[] aliases) {
 		return transformTuple(0, tuple, aliases);
 	}
 
-	public Attribute<?> transformTuple(int offset, Object[] tuple, String[] aliases) {
+	public AttributeDTO<?> transformTuple(int offset, Object[] tuple, String[] aliases) {
 
 		int index = offset;
 		Integer id = (Integer) tuple[index++];
@@ -38,8 +39,8 @@ implements TupleTransformer<Attribute<?>>, ResultListTransformer<Map<String, Att
 			return null;
 		}
 
-		Attribute<?> attribute = attributeMap.computeIfAbsent(attributeName, name -> {
-			Attribute<?> newAttribute = Attribute.getInstance(dataTypeId);
+		AttributeDTO<?> attribute = attributeMap.computeIfAbsent(attributeName, name -> {
+			AttributeDTO<?> newAttribute = AttributeDTOFactory.getInstance(dataTypeId);
 			newAttribute.setId(id);
 			newAttribute.setName(name);
 
@@ -72,7 +73,7 @@ implements TupleTransformer<Attribute<?>>, ResultListTransformer<Map<String, Att
 	}
 
 	@Override
-	public List<Map<String, Attribute<?>>> transformList(List<Map<String, Attribute<?>>> resultList) {
+	public List<Map<String, AttributeDTO<?>>> transformList(List<Map<String, AttributeDTO<?>>> resultList) {
 		return Arrays.asList(attributeMap);
 	}
 

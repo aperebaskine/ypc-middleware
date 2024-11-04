@@ -1,5 +1,7 @@
 package com.pinguela.yourpc.service;
 
+import java.util.Locale;
+
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.model.ProductCriteria;
@@ -18,7 +20,7 @@ public interface ProductService {
 	public Boolean delete(Long productId)
 			throws ServiceException, DataException;
 	
-	public ProductDTO findById(Long id)
+	public ProductDTO findById(Long id, Locale locale)
 			throws ServiceException, DataException;
 	
 	public Results<ProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)

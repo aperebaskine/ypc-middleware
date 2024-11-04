@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -84,7 +86,7 @@ implements AttributeDAO {
 	}
 
 	@Override
-	public Attribute<?> findByName(Session session, String name, boolean returnUnassigned) throws DataException {
+	public AttributeDTO<?> findByName(Session session, String name, Locale locale, boolean returnUnassigned) throws DataException {
 		StringBuilder queryStr = new StringBuilder(BASE_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			queryStr.append(PRODUCT_JOIN);
@@ -98,7 +100,7 @@ implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByCategory(Session session, Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Session session, Short categoryId, Locale locale, boolean returnUnassigned)
 			throws DataException {
 
 		Set<Short> categoryHierarchy = CategoryUtils.getLowerHierarchy(categoryId).keySet();
@@ -117,7 +119,7 @@ implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByProduct(Session session, Long productId) throws DataException {
+	public Map<String, AttributeDTO<?>> findByProduct(Session session, Long productId, Locale locale) throws DataException {
 
 		StringBuilder queryStr = new StringBuilder(BASE_QUERY)
 				.append(PRODUCT_JOIN)
@@ -152,7 +154,7 @@ implements AttributeDAO {
 	}
 
 	@Override
-	public Boolean saveAttributeValues(Session session, Map<String, Attribute<?>> attributes) throws DataException {
+	public Boolean saveAttributeValues(Session session, Map<String, AttributeDTO<?>> attributes) throws DataException {
 
 		if (attributes == null || attributes.isEmpty()) {
 			return false;

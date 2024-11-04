@@ -1,15 +1,12 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.model.dto;
 
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
-import jakarta.persistence.DiscriminatorValue;
-
-@DiscriminatorValue(value = AttributeDataTypes.BOOLEAN)
-public final class BooleanAttribute 
-extends Attribute<Boolean> {
+public final class BooleanAttributeDTO 
+extends AttributeDTO<Boolean> {
 	
-	BooleanAttribute() {
+	BooleanAttributeDTO() {
 		super();
 	}
 

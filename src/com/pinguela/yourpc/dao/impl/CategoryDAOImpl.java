@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.dao.impl;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -10,6 +11,7 @@ import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Category_;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -25,8 +27,8 @@ implements CategoryDAO {
 	}
 
 	@Override
-	public Map<Short, Category> findAll(Session session) throws DataException {
-		List<Category> categories = super.findBy(session, null);
+	public Map<Short, CategoryDTO> findAll(Session session, Locale locale) throws DataException {
+		List<CategoryDTO> categories = super.findBy(session, null);
 		return mapByPrimaryKey(categories);
 	}
 

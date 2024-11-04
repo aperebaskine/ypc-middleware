@@ -3,8 +3,7 @@ package com.pinguela.yourpc.model;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.annotations.SoftDelete;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Product 
@@ -24,18 +24,15 @@ extends AbstractEntity<Long> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
-	private String name;
-
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Category category;
-
-	private String description;
+	
+	@OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
+	private List<ProductLocale> i18nData;
 
 	@Column(nullable = false)
 	private Date launchDate;
 
-	@SoftDelete
 	private Date discontinuationDate;
 
 	@Column(nullable = false)
@@ -66,16 +63,16 @@ extends AbstractEntity<Long> {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public Category getCategory() {
 		return category;
+	}
+	
+	public List<ProductLocale> getI18n() {
+		return i18nData;
+	}
+	
+	public void setI18n(List<ProductLocale> i18nData) {
+		this.i18nData = i18nData;
 	}
 
 	public void setCategory(Category category) {
@@ -84,14 +81,6 @@ extends AbstractEntity<Long> {
 
 	public Short getCategoryId() {
 		return category.getId();
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public Date getLaunchDate() {

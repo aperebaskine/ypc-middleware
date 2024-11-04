@@ -1,7 +1,5 @@
 package com.pinguela.yourpc.model;
 
-import java.util.Objects;
-
 import org.hibernate.annotations.Immutable;
 
 import jakarta.persistence.Entity;
@@ -13,8 +11,7 @@ import jakarta.persistence.Transient;
 @Entity
 @Immutable
 public class AttributeValue<E> 
-extends AbstractEntity<Long> 
-implements Cloneable {
+extends AbstractEntity<Long> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +20,10 @@ implements Cloneable {
 	@Transient // Persistence to be handled by manual queries
 	private E value = null; 
 
-	AttributeValue() {
+	public AttributeValue() {
 	}
 	
-	AttributeValue(Long id, E value) {
+	public AttributeValue(Long id, E value) {
 		this.id = id;
 		this.value = value;
 	}
@@ -46,34 +43,5 @@ implements Cloneable {
 	public void setValue(E value) {
 		this.value = value;
 	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public AttributeValue<E> clone() {
-		try {
-			return (AttributeValue<E>) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError();
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, value);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AttributeValue<?> other = (AttributeValue<?>) obj;
-		return Objects.equals(id, other.id) && Objects.equals(value, other.value);
-	}
-	
-	
 
 }

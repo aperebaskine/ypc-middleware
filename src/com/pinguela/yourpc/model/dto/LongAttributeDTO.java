@@ -1,14 +1,12 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.model.dto;
 
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
-import jakarta.persistence.DiscriminatorValue;
+public final class LongAttributeDTO
+extends AttributeDTO<Long> {
 
-@DiscriminatorValue(value = AttributeDataTypes.BIGINT)
-public final class LongAttribute extends Attribute<Long> {
-
-	LongAttribute() {
+	LongAttributeDTO() {
 		super();
 	}
 	

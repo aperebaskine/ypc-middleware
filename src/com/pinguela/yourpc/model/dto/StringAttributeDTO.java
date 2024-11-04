@@ -1,14 +1,12 @@
-package com.pinguela.yourpc.model;
+package com.pinguela.yourpc.model.dto;
 
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
-import jakarta.persistence.DiscriminatorValue;
-
-@DiscriminatorValue(value = AttributeDataTypes.VARCHAR)
-public final class StringAttribute extends Attribute<String> {
+public final class StringAttributeDTO
+extends AttributeDTO<String> {
 	
-	StringAttribute() {
+	StringAttributeDTO() {
 		super();
 	}
 

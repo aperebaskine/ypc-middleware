@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.service.impl;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +12,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.impl.AttributeDAOImpl;
-import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -25,14 +26,14 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
-	public Attribute<?> findByName(String name, boolean returnUnassigned) 
+	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned) 
 			throws ServiceException, DataException {
 		
 		Session session = null;
 
 		try {
 			session = HibernateUtils.openSession();
-			return attributeDAO.findByName(session, name, returnUnassigned);
+			return attributeDAO.findByName(session, name, null, returnUnassigned);
 		} catch (HibernateException e) {
 			logger.fatal(e.getMessage(), e);
 			throw new ServiceException(e);
@@ -42,14 +43,14 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByCategory(Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Short categoryId, Locale locale, boolean returnUnassigned)
 			throws ServiceException, DataException {
 		
 		Session session = null;
 
 		try {
 			session = HibernateUtils.openSession();
-			return attributeDAO.findByCategory(session, categoryId, returnUnassigned);
+			return attributeDAO.findByCategory(session, categoryId, null, returnUnassigned);
 		} catch (HibernateException e) {
 			logger.fatal(e.getMessage(), e);
 			throw new ServiceException(e);

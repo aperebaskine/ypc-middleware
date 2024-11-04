@@ -29,7 +29,7 @@ class AttributeServiceTest {
 	@Test
 	void testFindByName() {
 		try {
-			Attribute<?> attribute = attributeService.findByName("Brand", true);
+			Attribute<?> attribute = attributeService.findByName("Brand", null, true);
 			assertEquals(12, attribute.getValues().size());
 		} catch (YPCException e) {
 			fail(e);
@@ -40,7 +40,7 @@ class AttributeServiceTest {
 	void testFindByCategoryWithValidCategoryIdAndUnssignedValues() {
 		try {
 			Map<String, Attribute<?>> attributes =
-					attributeService.findByCategory((short) 5, AttributeService.RETURN_UNASSIGNED_VALUES);
+					attributeService.findByCategory((short) 5, null, AttributeService.RETURN_UNASSIGNED_VALUES);
 
 			Attribute<?> boostFreqAttribute = attributes.get("Boost Frequency (MHz)");
 			assertEquals(6500l, boostFreqAttribute.getValueAt(boostFreqAttribute.getValues().size()-1));
@@ -53,7 +53,7 @@ class AttributeServiceTest {
 	void testFindByCategoryWithValidCategoryIdAndOnlyAssignedValues() {
 		try {
 			Map<String, Attribute<?>> attributes =
-					attributeService.findByCategory((short) 1, AttributeService.NO_UNASSIGNED_VALUES);
+					attributeService.findByCategory((short) 1, null, AttributeService.NO_UNASSIGNED_VALUES);
 
 			Attribute<?> boostFreq = attributes.get("Boost Frequency (MHz)");
 			assertEquals(6000l, boostFreq.getValueAt(boostFreq.getValues().size()-1));
@@ -67,7 +67,7 @@ class AttributeServiceTest {
 	void testFindByCategoryWithInvalidCategoryId() {
 		try {
 			Map<String, Attribute<?>> attributes =
-					attributeService.findByCategory((short) 0, AttributeService.RETURN_UNASSIGNED_VALUES);
+					attributeService.findByCategory((short) 0, null, AttributeService.RETURN_UNASSIGNED_VALUES);
 			assertTrue(attributes.isEmpty());
 		} catch (Exception e) {
 			fail(e);
@@ -77,7 +77,7 @@ class AttributeServiceTest {
 	@Test
 	void testFindByCategoryWithNullCategoryId() {
 		assertThrows(NullPointerException.class, 
-				() -> attributeService.findByCategory(null, AttributeService.RETURN_UNASSIGNED_VALUES));
+				() -> attributeService.findByCategory(null, null, AttributeService.RETURN_UNASSIGNED_VALUES));
 	}
 
 }
