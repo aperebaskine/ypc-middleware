@@ -4,8 +4,11 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.pinguela.yourpc.model.dto.AbstractProductDTO;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
+
 public class ProductCriteria
-extends AbstractCriteria<Long, Product> {
+extends AbstractCriteria<Long, AbstractProductDTO> {
 	
 	public static final String ORDER_BY_NAME = " p.NAME";
 	public static final String ORDER_BY_LAUNCH_DATE = " p.LAUNCH_DATE";
@@ -20,10 +23,10 @@ extends AbstractCriteria<Long, Product> {
 	private Double priceMin = null;
 	private Double priceMax = null;
 	private Short categoryId = null;
-	private Map<String, Attribute<?>> attributes;
+	private Map<String, AttributeDTO<?>> attributes;
 	
 	public ProductCriteria() {
-		attributes = new TreeMap<String, Attribute<?>>();
+		attributes = new TreeMap<String, AttributeDTO<?>>();
 	}
 	
 	@Override
@@ -96,11 +99,11 @@ extends AbstractCriteria<Long, Product> {
 		this.categoryId = categoryId;
 	}
 
-	public Map<String, Attribute<?>> getAttributes() {
+	public Map<String, AttributeDTO<?>> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(Map<String, Attribute<?>> attributes) {
+	public void setAttributes(Map<String, AttributeDTO<?>> attributes) {
 		this.attributes = attributes;
 	}
 

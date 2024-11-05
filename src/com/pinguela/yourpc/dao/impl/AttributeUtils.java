@@ -1,5 +1,8 @@
 package com.pinguela.yourpc.dao.impl;
 
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.RANGE;
+import static com.pinguela.yourpc.model.constants.AttributeValueHandlingModes.SET;
+
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -8,13 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeDataTypes;
-import com.pinguela.yourpc.model.AttributeValueHandlingModes;
+import com.pinguela.yourpc.model.constants.AttributeDataTypes;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
-class AttributeUtils 
-implements AttributeDataTypes, AttributeValueHandlingModes {
+class AttributeUtils {
 
 	static final String PRE_FORMAT_COLUMN_NAME = "VALUE_%s";
 
@@ -77,7 +78,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return SQL_TARGET_TYPE_IDENTIFIERS.get(dataTypeIdentifier);
 	}
 
-	static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
+	static final int getTargetSqlTypeIdentifier(AttributeDTO<?> attribute) {
 		return getTargetSqlTypeIdentifier(attribute.getDataTypeIdentifier());
 	}
 
@@ -85,7 +86,7 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return SQL_DATA_TYPE_NAMES.get(dataTypeIdentifier);
 	}
 
-	static final String getTargetSqlTypeName(Attribute<?> attribute) {
+	static final String getTargetSqlTypeName(AttributeDTO<?> attribute) {
 		return getTargetSqlTypeName(attribute.getDataTypeIdentifier());
 	}
 
@@ -93,15 +94,15 @@ implements AttributeDataTypes, AttributeValueHandlingModes {
 		return String.format(PRE_FORMAT_COLUMN_NAME, getTargetSqlTypeName(dataTypeIdentifier));
 	}
 
-	static final String getValueColumnName(Attribute<?> attribute) {
+	static final String getValueColumnName(AttributeDTO<?> attribute) {
 		return getValueColumnName(attribute.getDataTypeIdentifier());
 	}
 
-	static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
+	static String buildAttributeConditionClause(Map<String, AttributeDTO<?>> attributes) {
 
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
-		for (Attribute<?> attribute : attributes.values()) {
+		for (AttributeDTO<?> attribute : attributes.values()) {
 			StringBuilder condition = new StringBuilder(" (at.NAME = ? AND");
 
 			if (attribute.getValues().size() == 1) {

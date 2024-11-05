@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.model.Category;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
+import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 public class CategoryDAOImpl implements CategoryDAO {
@@ -38,18 +41,18 @@ public class CategoryDAOImpl implements CategoryDAO {
 	private static Logger logger = LogManager.getLogger(CategoryDAOImpl.class);
 
 	@Override
-	public Map<Short, Category> findAll(Connection conn) throws DataException {
+	public Map<Short, CategoryDTO> findAll(Connection conn, Locale locale) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		Map<Short, Category> results = new TreeMap<Short, Category>();
+		Map<Short, CategoryDTO> results = new TreeMap<Short, CategoryDTO>();
 
 		try {
 			stmt = conn.prepareStatement(FIND_ROOT_CATEGORIES_QUERY);
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				Category c = loadNext(conn, rs);
+				CategoryDTO c = loadNext(conn, rs);
 				results.put(c.getId(), c);
 				putChildren(results, c);
 			}
@@ -63,7 +66,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 		}
 	}
 
-	private void findChildren(Connection conn, Category c) 
+	private void findChildren(Connection conn, CategoryDTO c) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -75,7 +78,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				Category child = loadNext(conn, rs);
+				CategoryDTO child = loadNext(conn, rs);
 				child.setParent(c);
 				c.getChildren().put(child.getId(), child);
 			}
@@ -87,10 +90,10 @@ public class CategoryDAOImpl implements CategoryDAO {
 		}
 	}
 
-	private Category loadNext(Connection conn, ResultSet rs) 
+	private CategoryDTO loadNext(Connection conn, ResultSet rs) 
 			throws SQLException, DataException {
 
-		Category c = new Category();
+		CategoryDTO c = new CategoryDTO();
 
 		c.setId(rs.getShort(ID_COLUMN));
 		c.setName(rs.getString(NAME_COLUMN));
@@ -98,14 +101,14 @@ public class CategoryDAOImpl implements CategoryDAO {
 		return c;
 	}
 	
-	private void putChildren(Map<Short, Category> map, Category c) {
+	private void putChildren(Map<Short, CategoryDTO> map, CategoryDTO c) {
 		
-		if (c.getChildren().isEmpty()) { // No more child categories to add, recursive method ends
+		if (c.getChildrenIds().isEmpty()) { // No more child categories to add, recursive method ends
 			return;
 		}
 		
-		map.putAll(c.getChildren());
-		for (Category child : c.getChildren().values()) {
+		map.putAll(CategoryUtils.CATEGORIES.g);
+		for (CategoryDTO child : c.getChildren().values()) {
 			putChildren(map, child);
 		}
 	}

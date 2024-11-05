@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,6 +19,8 @@ import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Product;
+import com.pinguela.yourpc.model.dto.AbstractProductDTO;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -83,7 +86,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 
 	@Override
-	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned) throws DataException {
+	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned) throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
@@ -119,7 +122,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
 			throws DataException {
 
 		Map<Short, Category> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
@@ -157,7 +160,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByProduct(Connection conn, Long productId) throws DataException {
+	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -248,7 +251,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public Boolean assignToProduct(Connection conn, Product p) throws DataException {
+	public Boolean assignToProduct(Connection conn, AbstractProductDTO p) throws DataException {
 
 		if (p == null || p.getAttributes() == null || p.getAttributes().isEmpty()) {
 			return false;

@@ -2,6 +2,7 @@ package com.pinguela.yourpc.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +12,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.impl.AttributeDAOImpl;
-import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -25,7 +26,28 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
-	public Attribute<?> findByName(String name, boolean returnUnassigned) 
+	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassigned)
+			throws ServiceException, DataException {
+		
+		if (id == null) {
+			return null;
+		}
+		
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return attributeDAO.findById(conn, id, locale, returnUnassigned);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+	
+	@Override
+	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned) 
 			throws ServiceException, DataException {
 		
 		if (name == null) {
@@ -36,7 +58,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return attributeDAO.findByName(conn, name, returnUnassigned);
+			return attributeDAO.findByName(conn, name, locale, returnUnassigned);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
@@ -46,7 +68,7 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 
 	@Override
-	public Map<String, Attribute<?>> findByCategory(Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Short categoryId, Locale locale, boolean returnUnassigned)
 			throws ServiceException, DataException {
 		
 		if (categoryId == null) {

@@ -2,6 +2,7 @@ package com.pinguela.yourpc.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +12,7 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.dao.impl.CategoryDAOImpl;
-import com.pinguela.yourpc.model.Category;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
 import com.pinguela.yourpc.service.CategoryService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -25,14 +26,14 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public Map<Short, Category> findAll() 
+	public Map<Short, CategoryDTO> findAll(Locale locale) 
 			throws ServiceException, DataException {
 		
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return categoryDAO.findAll(conn);
+			return categoryDAO.findAll(conn, locale);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

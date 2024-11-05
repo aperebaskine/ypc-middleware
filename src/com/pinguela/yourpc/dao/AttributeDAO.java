@@ -1,15 +1,19 @@
 package com.pinguela.yourpc.dao;
 
 import java.sql.Connection;
+import java.util.Locale;
 import java.util.Map;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.Product;
+import com.pinguela.yourpc.model.dto.AbstractProductDTO;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 
 public interface AttributeDAO {
 	
-	public Attribute<?> findByName(Connection conn, String name, boolean returnUnassigned)
+	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned)
+			throws DataException;
+	
+	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned)
 			throws DataException;
 	
 	/**
@@ -25,7 +29,7 @@ public interface AttributeDAO {
 	 * possible values for a given category
 	 * @throws DataException if driver throws SQLException
 	 */
-	public Map<String, Attribute<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
 			throws DataException;
 	
 	/**
@@ -36,7 +40,7 @@ public interface AttributeDAO {
 	 * @return Map containing a product's set of attributes, mapped to their name.
 	 * @throws DataException if driver throws SQLException
 	 */
-	public Map<String, Attribute<?>> findByProduct(Connection conn, Long productId)
+	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId)
 			throws DataException;
 
 	/**
@@ -47,7 +51,7 @@ public interface AttributeDAO {
 	 * @return true if the assign statement was successful, else false
 	 * @throws DataException
 	 */
-	public Boolean assignToProduct(Connection conn, Product p)
+	public Boolean assignToProduct(Connection conn, AbstractProductDTO p)
 			throws DataException;
 	
 }

@@ -2,12 +2,12 @@ package com.pinguela.yourpc.util.comparator;
 
 import java.util.Comparator;
 
-import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 
-public class AttributeNameComparator implements Comparator<Attribute<?>>{
+public class AttributeNameComparator implements Comparator<AttributeDTO<?>>{
 
 	@Override
-	public int compare(Attribute<?> o1, Attribute<?> o2) {
+	public int compare(AttributeDTO<?> o1, AttributeDTO<?> o2) {
 		return o1.getName().compareTo(o2.getName());
 	}
 

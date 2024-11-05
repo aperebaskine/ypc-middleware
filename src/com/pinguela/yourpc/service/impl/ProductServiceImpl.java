@@ -2,6 +2,7 @@ package com.pinguela.yourpc.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,10 +11,11 @@ import com.pinguela.DataException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.ProductDAO;
 import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
-import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
@@ -26,10 +28,10 @@ public class ProductServiceImpl implements ProductService {
 		productDAO = new ProductDAOImpl();
 	}
 
-	public Long create(Product p)  
+	public Long create(FullProductDTO dto)  
 			throws ServiceException, DataException {
 		
-		if (p == null) {
+		if (dto == null) {
 			throw new IllegalArgumentException("Product cannot be null.");
 		}
 
@@ -40,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			id = productDAO.create(conn, p);
+			id = productDAO.create(conn, dto);
 			commit = id != null;
 			return id;
 
@@ -53,10 +55,10 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Boolean update(Product p)  
+	public Boolean update(FullProductDTO dto)  
 			throws ServiceException, DataException {
 		
-		if (p == null) {
+		if (dto == null) {
 			throw new IllegalArgumentException("Product cannot be null.");
 		}
 
@@ -66,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (productDAO.update(conn, p)) {
+			if (productDAO.update(conn, dto)) {
 				commit = true;
 				return true;
 			} else {
@@ -106,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Product findById(Long id)  
+	public FullProductDTO findById(Long id)  
 			throws ServiceException, DataException {
 
 		Connection conn = null;
@@ -122,9 +124,26 @@ public class ProductServiceImpl implements ProductService {
 			JDBCUtils.close(conn);
 		}
 	}
+	
+	@Override
+	public LocalizedProductDTO findById(Long id, Locale locale) throws ServiceException, DataException {
+		
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return productDAO.findById(conn, id, locale);
+
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
 
 	@Override
-	public Results<Product> findBy(ProductCriteria criteria, int startPos, int pageSize)  
+	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)  
 			throws ServiceException, DataException {
 		
 		if (criteria == null) {

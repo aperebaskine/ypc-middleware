@@ -23,6 +23,8 @@ import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -107,7 +109,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Long create(Connection conn, Product p) 
+	public Long create(Connection conn, FullProductDTO p) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -137,7 +139,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Boolean update(Connection conn, Product p) 
+	public Boolean update(Connection conn, FullProductDTO p) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -201,7 +203,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Product findById(Connection conn, Long id) 
+	public FullProductDTO findById(Connection conn, Long id) 
 			throws DataException {
 
 		if (id == null) {
@@ -229,7 +231,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Results<Product> findBy(Connection conn, ProductCriteria criteria, int pos, int pageSize) 
+	public Results<LocalizedProductDTO> findBy(Connection conn, ProductCriteria criteria, int pos, int pageSize) 
 			throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildQueryClauses(criteria));
