@@ -15,7 +15,7 @@ extends AbstractDTO<Integer, Attribute<T>> {
 	private String name;
 	private List<AttributeValueDTO<T>> values;
 	
-	protected AttributeDTO() {
+	AttributeDTO() {
 		values = new ArrayList<AttributeValueDTO<T>>();
 	}
 	

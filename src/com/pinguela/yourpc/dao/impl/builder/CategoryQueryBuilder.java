@@ -1,6 +1,5 @@
 package com.pinguela.yourpc.dao.impl.builder;
 
-import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import com.pinguela.yourpc.annotation.QueryBuilder;
@@ -20,7 +19,7 @@ extends AbstractCriteriaQueryBuilder<Short, Category, CategoryDTO, EntityCriteri
 	public CategoryQueryBuilder() {
 		super(CategoryDTO.class, Category.class);
 	}
-	
+
 	@Override
 	protected void select(CriteriaQuery<CategoryDTO> query, CriteriaBuilder builder, Root<Category> root,
 			EntityCriteria<Short, Category> criteria) {
@@ -50,15 +49,9 @@ extends AbstractCriteriaQueryBuilder<Short, Category, CategoryDTO, EntityCriteri
 	}
 
 	@Override
-	public Query<CategoryDTO> buildQuery(Session session, Short id) {
+	protected void setParameters(Query<CategoryDTO> query, EntityCriteria<Short, Category> criteria) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Query<CategoryDTO> buildQuery(Session session, EntityCriteria<Short, Category> criteria) {
-		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 }

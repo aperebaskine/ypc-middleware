@@ -3,6 +3,7 @@ package com.pinguela.yourpc.dao.impl.builder;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -30,28 +31,32 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 		super(dtoClass, entityClass); 
 	}
 
-	public Query<D> buildQuery(Session session, C criteria) {
+	public Query<D> buildQuery(Session session, PK id, Locale locale, C criteria) {
 
 		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaQuery<D> query = builder.createQuery(getDtoClass());
+		CriteriaQuery<D> cq = builder.createQuery(getDtoClass());
 
-		Root<E> root = query.from(getEntityClass());
+		Root<E> root = cq.from(getEntityClass());
 
 		if (criteria != null) {
-			select(query, builder, root, criteria);
-			join(query, builder, root, criteria);
-			where(query, builder, root, criteria);
-			groupBy(query, builder, root, criteria);
-			query.orderBy(buildOrderByClause(builder, root, criteria));
+			select(cq, builder, root, criteria);
+			join(cq, builder, root, criteria);
+			where(cq, builder, root, criteria);
+			groupBy(cq, builder, root, criteria);
+			cq.orderBy(buildOrderByClause(builder, root, criteria));
 		}
 
-		return session.createQuery(query);
+		Query<D> query = session.createQuery(cq);
+		setParameters(query, criteria);
+		return query;
 	}
 
 	protected abstract void select(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void join(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void where(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void groupBy(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	
+	protected abstract void setParameters(Query<D> query, C criteria);
 
 	private List<Order> buildOrderByClause(CriteriaBuilder builder, 
 			Root<E> root, C criteria) {

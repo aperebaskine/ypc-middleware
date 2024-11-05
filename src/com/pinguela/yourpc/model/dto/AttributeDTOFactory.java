@@ -85,5 +85,8 @@ public final class AttributeDTOFactory {
 			throw new IllegalStateException(String.format("Exception thrown while creating instance: %s", e.getMessage()), e);
 		}
 	}
+	
+	private AttributeDTOFactory() {
+	}
 
 }

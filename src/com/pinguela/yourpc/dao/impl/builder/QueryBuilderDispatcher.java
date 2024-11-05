@@ -47,7 +47,7 @@ public class QueryBuilderDispatcher {
 	
 	private static boolean validate(Class<? extends AbstractQueryBuilder> target) {
 		
-		if (!Modifier.isFinal(target.getModifiers())) {
+		if (Modifier.isAbstract(target.getModifiers())) {
 			return false;
 		}
 		
