@@ -1,12 +1,13 @@
 package com.pinguela.yourpc.dao.impl.builder;
 
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
-import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractEntity;
+import com.pinguela.yourpc.model.AbstractEntityCriteria;
 import com.pinguela.yourpc.model.dto.AbstractDTO;
 
-public abstract class AbstractQueryBuilder<Q, E extends AbstractEntity<?>, D extends AbstractDTO<E>, C extends AbstractCriteria<E>> {
+public abstract class AbstractQueryBuilder<PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> {
 	
 	private Class<D> dtoClass;
 	private Class<E> entityClass;
@@ -23,13 +24,15 @@ public abstract class AbstractQueryBuilder<Q, E extends AbstractEntity<?>, D ext
 	protected Class<E> getEntityClass() {
 		return entityClass;
 	}
+		
+	public abstract Query<D> buildQuery(Session session, PK id);
 	
-	protected abstract Q buildQuery(Session session, C criteria);
+	public abstract Query<D> buildQuery(Session session, C criteria);
 	
-	protected abstract void setParameters(Q query, C criteria);
-	
-	public abstract Object executeQuery(Session session, C criteria);
-	
+	public Query<D> buildQuery(Session session, C criteria, int pos, int pageSize) {
+		return buildQuery(session, criteria)
+				.setFirstResult(pos)
+				.setMaxResults(pageSize);
+	}
+				
 }
-
-

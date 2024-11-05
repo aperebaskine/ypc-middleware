@@ -1,44 +1,45 @@
 package com.pinguela.yourpc.util;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.pinguela.yourpc.model.Category;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
 import com.pinguela.yourpc.service.CategoryService;
 import com.pinguela.yourpc.service.impl.CategoryServiceImpl;
 
 public class CategoryUtils {
 
 	private static Logger logger = LogManager.getLogger(CategoryUtils.class);
-	public static final Map<Short, Category> CATEGORIES;
+	public static final Map<Short, CategoryDTO> CATEGORIES;
 
 	static {
-		Map<Short, Category> categories = initializeMap();
+		Map<Short, CategoryDTO> categories = initializeMap();
 		CATEGORIES = Collections.unmodifiableMap(categories);
 	}
 
-	private static final Map<Short, Category> initializeMap() {
+	private static final Map<Short, CategoryDTO> initializeMap() {
 		try {
 			CategoryService categoryService = new CategoryServiceImpl();
-			return categoryService.findAll(null);
+			return categoryService.findAll(Locale.getDefault());
 		} catch (Exception e) {
 			logger.error(e);
 			return Collections.emptyMap();
 		}
 	}
 
-	public static final Map<Short, Category> getUpperHierarchy(Short categoryId) {
+	public static final Map<Short, CategoryDTO> getUpperHierarchy(Short categoryId) {
 
-		Map<Short, Category> results = new TreeMap<Short, Category>();
-		Category c = CATEGORIES.get(categoryId);
+		Map<Short, CategoryDTO> results = new TreeMap<Short, CategoryDTO>();
+		CategoryDTO c = CATEGORIES.get(categoryId);
 
 		if (c != null) {
 			results.put(categoryId, c);
-			if (c.getParent() != null) {
+			if (c.getParentId() != null) {
 				putParents(results, c);
 			}
 		}
@@ -46,14 +47,14 @@ public class CategoryUtils {
 		return results;
 	}
 
-	public static final Map<Short, Category> getLowerHierarchy(Short categoryId) {
+	public static final Map<Short, CategoryDTO> getLowerHierarchy(Short categoryId) {
 		
-		Map<Short, Category> results = new TreeMap<Short, Category>();
-		Category c = CATEGORIES.get(categoryId);
+		Map<Short, CategoryDTO> results = new TreeMap<Short, CategoryDTO>();
+		CategoryDTO c = CATEGORIES.get(categoryId);
 
 		if (c != null) {
 			results.put(categoryId, c);
-			if (c.getChildren() != null) {
+			if (c.getChildrenIds() != null && !c.getChildrenIds().isEmpty()) {
 				putChildren(results, c);
 			}
 		}
@@ -61,25 +62,29 @@ public class CategoryUtils {
 		return results;
 	}
 
-	private static final void putParents(Map<Short, Category> map, Category c) {
+	private static final void putParents(Map<Short, CategoryDTO> map, CategoryDTO c) {
+		
+		if (c.getParentId() == null) {
+			return;
+		}
 
-		Category parent = c.getParent();
+		CategoryDTO parent = CATEGORIES.get(c.getParentId());
 		map.put(c.getId(), parent);
-
-		if (c.getParent() != null) { // Add parent's parent
-			putParents(map, parent);
-		}	
+		
+		putParents(map, parent); // Add the parent's parents recursively until root category is found
 	}
 
-	private static final void putChildren(Map<Short, Category> map, Category c) {
+	private static final void putChildren(Map<Short, CategoryDTO> map, CategoryDTO c) {
 
-		if (c.getChildren() == null || c.getChildren().isEmpty()) {
+		if (c.getChildrenIds() == null || c.getChildrenIds().isEmpty()) {
 			return;
 		}
 		
-		for (Category child : c.getChildren().values()) {
-			map.put(child.getId(), child);
-			putChildren(map, child);
+		for (Short childId : c.getChildrenIds()) {
+			CategoryDTO child = CATEGORIES.get(childId);
+			map.put(childId, child);
+			
+			putChildren(map, child); // Map the children's children
 		} 
 	}
 

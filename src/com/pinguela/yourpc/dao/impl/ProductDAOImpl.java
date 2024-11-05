@@ -19,8 +19,6 @@ import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
 import com.pinguela.yourpc.dao.transformer.ProductTransformer;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
-import com.pinguela.yourpc.model.AbstractCriteria;
-import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.Category;
@@ -28,15 +26,10 @@ import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 public class ProductDAOImpl 
 extends AbstractMutableDAO<Long, Product>
@@ -115,14 +108,14 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Long create(Session session, LocalizedProductDTO dto) 
+	public Long create(Session session, FullProductDTO dto) 
 			throws DataException {
 		attributeDAO.saveAttributeValues(session, dto.getAttributes());
 		return super.createEntity(session, toProduct(session, dto));
 	}
 
 	@Override
-	public Boolean update(Session session, LocalizedProductDTO dto) 
+	public Boolean update(Session session, FullProductDTO dto) 
 			throws DataException {
 		attributeDAO.saveAttributeValues(session, dto.getAttributes());
 		return super.updateEntity(session, toProduct(session, dto));
@@ -138,8 +131,8 @@ implements ProductDAO {
 	}
 
 	@Override
-	public LocalizedProductDTO findById(Session session, Long id) 
-			throws DataException {
+	public FullProductDTO findById(Session session, Long id) 
+				throws DataException {
 
 		if (id == null) {
 			return null;
@@ -400,25 +393,6 @@ implements ProductDAO {
 			values.addAll(attribute.getValues());
 		}
 		return values;
-	}
-
-	@Override
-	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Product> root,
-			AbstractCriteria<Product> criteria) {
-		// Unused
-		return null;
-	}
-
-	@Override
-	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Product> query, Root<Product> root,
-			AbstractCriteria<Product> criteria) {
-		// Unused	
-	}
-
-	@Override
-	protected void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<Product> updateQuery, Root<Product> root,
-			AbstractUpdateValues<Product> updateValues) {
-		// Unused
 	}
 
 }

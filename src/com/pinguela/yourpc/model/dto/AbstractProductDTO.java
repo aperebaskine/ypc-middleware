@@ -1,15 +1,14 @@
 package com.pinguela.yourpc.model.dto;
 
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.pinguela.yourpc.model.Product;
 
 public abstract class AbstractProductDTO 
-extends AbstractDTO<Product> {
+extends AbstractDTO<Long, Product> {
 	
-	private Long id;
 	private Short categoryId;
 	private Date launchDate;
 	private Date discontinuationDate;
@@ -23,15 +22,7 @@ extends AbstractDTO<Product> {
 	private Map<String, AttributeDTO<?>> attributes;
 	
 	public AbstractProductDTO() {
-		attributes = new LinkedHashMap<String, AttributeDTO<?>>();
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
+		attributes = new TreeMap<String, AttributeDTO<?>>();
 	}
 
 	public Short getCategoryId() {

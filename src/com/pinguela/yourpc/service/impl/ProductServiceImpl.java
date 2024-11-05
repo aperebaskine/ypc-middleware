@@ -1,5 +1,7 @@
 package com.pinguela.yourpc.service.impl;
 
+import java.util.Locale;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -13,6 +15,7 @@ import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.HibernateUtils;
@@ -27,7 +30,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Long create(LocalizedProductDTO p)  
+
+	public Long create(FullProductDTO dto)  
 			throws ServiceException, DataException {
 
 		Session session = null;
@@ -40,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
 			session = HibernateUtils.openSession();
 			transaction = session.beginTransaction();
 			
-			id = productDAO.create(session, p);
+			id = productDAO.create(session, dto);
 			commit = id != null;
 			return id;
 
@@ -53,7 +57,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Boolean update(LocalizedProductDTO p)  
+
+	public Boolean update(FullProductDTO dto)  
 			throws ServiceException, DataException {
 
 		Session session = null;
@@ -64,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
 			session = HibernateUtils.openSession();
 			transaction = session.beginTransaction();
 			
-			return productDAO.update(session, p) && (commit = true);
+			return productDAO.update(session, dto) && (commit = true);
 			
 		} catch (HibernateException e) {
 			logger.fatal(e.getMessage(), e);
@@ -95,6 +100,24 @@ public class ProductServiceImpl implements ProductService {
 			HibernateUtils.close(session, transaction, commit);
 		}
 	}
+	
+	@Override
+	public FullProductDTO findById(Long id) 
+			throws ServiceException, DataException {
+		
+		Session session = null;
+
+		try {
+			session = HibernateUtils.openSession();
+			return productDAO.findById(session, id);
+
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
+		} finally {
+			HibernateUtils.close(session);
+		}
+	}
 
 	@Override
 	public LocalizedProductDTO findById(Long id, Locale locale)  
@@ -104,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
 
 		try {
 			session = HibernateUtils.openSession();
-			return productDAO.findById(session, id);
+			return productDAO.findById(session, id, locale);
 
 		} catch (HibernateException e) {
 			logger.fatal(e.getMessage(), e);

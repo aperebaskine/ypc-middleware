@@ -83,6 +83,7 @@ implements AttributeDAO {
 			String.format(SELECT_QUERY_PLACEHOLDER, getColumns());
 
 	public AttributeDAOImpl() {
+		super((Class<? extends Attribute<?>>) Attribute.class);
 	}
 
 	@Override

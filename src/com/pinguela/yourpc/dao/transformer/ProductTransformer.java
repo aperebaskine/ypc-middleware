@@ -10,7 +10,7 @@ import org.hibernate.query.ResultListTransformer;
 import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.dao.impl.TableDefinition;
-import com.pinguela.yourpc.model.Attribute;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 
 public class ProductTransformer 
@@ -47,7 +47,7 @@ implements TupleTransformer<LocalizedProductDTO>, ResultListTransformer<Localize
 			return newDto;
 		});
 		
-		Attribute<?> attribute = attributeTransformer.transformTuple(
+		AttributeDTO<?> attribute = attributeTransformer.transformTuple(
 				TableDefinition.PRODUCT_COLUMNS.size(), tuple, aliases);
 		
 		if (attribute != null) {

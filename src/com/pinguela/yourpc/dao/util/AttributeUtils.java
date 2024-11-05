@@ -14,8 +14,8 @@ import java.util.Map;
 
 import com.pinguela.yourpc.dao.impl.TableDefinition;
 import com.pinguela.yourpc.model.AbstractCriteria;
-import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.constants.AttributeDataTypes;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 public class AttributeUtils {
@@ -114,7 +114,7 @@ public class AttributeUtils {
 		return SQL_TARGET_TYPE_IDENTIFIERS.get(dataTypeIdentifier);
 	}
 
-	public static final int getTargetSqlTypeIdentifier(Attribute<?> attribute) {
+	public static final int getTargetSqlTypeIdentifier(AttributeDTO<?> attribute) {
 		return getTargetSqlTypeIdentifier(attribute.getDataTypeIdentifier());
 	}
 
@@ -122,7 +122,7 @@ public class AttributeUtils {
 		return SQL_DATA_TYPE_NAMES.get(dataTypeIdentifier);
 	}
 
-	public static final String getTargetSqlTypeName(Attribute<?> attribute) {
+	public static final String getTargetSqlTypeName(AttributeDTO<?> attribute) {
 		return getTargetSqlTypeName(attribute.getDataTypeIdentifier());
 	}
 
@@ -130,15 +130,15 @@ public class AttributeUtils {
 		return ATTRIBUTE_VALUE_COLUMN_NAMES.get(dataTypeIdentifier);
 	}
 
-	public static final String getValueColumnName(Attribute<?> attribute) {
+	public static final String getValueColumnName(AttributeDTO<?> attribute) {
 		return getValueColumnName(attribute.getDataTypeIdentifier());
 	}
 
-	public static String buildAttributeConditionClause(Map<String, Attribute<?>> attributes) {
+	public static String buildAttributeConditionClause(Map<String, AttributeDTO<?>> attributes) {
 
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
-		for (Attribute<?> attribute : attributes.values()) {
+		for (AttributeDTO<?> attribute : attributes.values()) {
 			StringBuilder condition = new StringBuilder(" (a.NAME = ? AND");
 
 			if (attribute.getValues().size() == 1) {
