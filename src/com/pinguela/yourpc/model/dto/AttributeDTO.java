@@ -10,22 +10,13 @@ import com.pinguela.yourpc.model.constants.AttributeDataTypes;
 import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
 public abstract class AttributeDTO<T> 
-extends AbstractDTO<Attribute<T>> {
+extends AbstractDTO<Integer, Attribute<T>> {
 	
-	private Integer id;
 	private String name;
 	private List<AttributeValueDTO<T>> values;
 	
 	protected AttributeDTO() {
 		values = new ArrayList<AttributeValueDTO<T>>();
-	}
-	
-	public Integer getId() {
-		return id;
-	}
-	
-	public void setId(Integer id) {
-		this.id = id;
 	}
 	
 	public String getName() {
@@ -126,7 +117,7 @@ extends AbstractDTO<Attribute<T>> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, values);
+		return Objects.hash(getId(), name, values);
 	}
 
 	@Override
@@ -138,7 +129,9 @@ extends AbstractDTO<Attribute<T>> {
 		if (getClass() != obj.getClass())
 			return false;
 		AttributeDTO<?> other = (AttributeDTO<?>) obj;
-		return Objects.equals(name, other.name) && Objects.equals(values, other.values);
+		return Objects.equals(getId(), other.getId()) 
+				&& Objects.equals(name, other.name) 
+				&& Objects.equals(values, other.values);
 	}
 
 	/**

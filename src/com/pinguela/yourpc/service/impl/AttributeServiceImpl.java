@@ -26,6 +26,23 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
+	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassignedValues)
+			throws ServiceException, DataException {
+
+		Session session = null;
+
+		try {
+			session = HibernateUtils.openSession();
+			return attributeDAO.findById(session, id, locale, returnUnassignedValues);
+		} catch (HibernateException e) {
+			logger.fatal(e.getMessage(), e);
+			throw new ServiceException(e);
+		} finally {
+			HibernateUtils.close(session);
+		}
+	}
+	
+	@Override
 	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned) 
 			throws ServiceException, DataException {
 		

@@ -5,22 +5,13 @@ import java.util.Set;
 import com.pinguela.yourpc.model.Category;
 
 public class CategoryDTO
-extends AbstractDTO<Category> {
+extends AbstractDTO<Short, Category> {
 	
-	private Short id;
 	private String name;
 	private Short parentId;
 	private Set<Short> childrenIds;
 	
 	public CategoryDTO() {
-	}
-
-	public Short getId() {
-		return id;
-	}
-
-	public void setId(Short id) {
-		this.id = id;
 	}
 
 	public String getName() {

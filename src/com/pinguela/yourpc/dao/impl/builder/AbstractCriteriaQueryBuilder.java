@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractEntity;
+import com.pinguela.yourpc.model.AbstractEntityCriteria;
 import com.pinguela.yourpc.model.dto.AbstractDTO;
 import com.pinguela.yourpc.util.StringUtils;
 import com.pinguela.yourpc.util.XMLUtils;
@@ -19,46 +21,37 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractCriteriaQueryBuilder<Q extends CriteriaQuery<D>, E extends AbstractEntity<?>, D extends AbstractDTO<E>, C extends AbstractCriteria<E>>
-extends AbstractQueryBuilder<Q, E, D, C> {
-	
-	private Class<D> dtoClass;
-	private Class<E> entityClass;
-	
+public abstract class AbstractCriteriaQueryBuilder<PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>>
+extends AbstractQueryBuilder<PK, E, D, C> {
+
 	protected AbstractCriteriaQueryBuilder(Class<D> dtoClass, Class<E> entityClass) {
-		this.dtoClass = dtoClass;
-		this.entityClass = entityClass; 
+		super(dtoClass, entityClass); 
 	}
-	
-	private CriteriaQuery<D> buildQuery(Session session, C criteria) {
-		
+
+	public Query<D> buildQuery(Session session, C criteria) {
+
 		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaQuery<D> query = builder.createQuery(dtoClass);
-		Root<E> root = query.from(entityClass);
+		CriteriaQuery<D> query = builder.createQuery(getDtoClass());
+
+		Root<E> root = query.from(getEntityClass());
 
 		if (criteria != null) {
-			Predicate[] where = buildWhereClause(builder, root, criteria);
-			if (where.length > 0) {
-				query.where(where);
-			}
-
-			List<Order> orderBy = buildOrderByClause(builder, root, criteria);
-			if (!orderBy.isEmpty()) {
-				query.orderBy(orderBy);
-			}
+			select(query, builder, root, criteria);
+			join(query, builder, root, criteria);
+			where(query, builder, root, criteria);
+			groupBy(query, builder, root, criteria);
+			query.orderBy(buildOrderByClause(builder, root, criteria));
 		}
 
-		return query;
+		return session.createQuery(query);
 	}
 
-	protected final Predicate[] buildWhereClause(CriteriaBuilder builder,
-			Root<E> root, C criteria) {
-		List<Predicate> predicates = getCriteria(builder, root, criteria);
-		return predicates.toArray(new Predicate[predicates.size()]);
-	}
+	protected abstract void select(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	protected abstract void join(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	protected abstract void where(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	protected abstract void groupBy(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 
 	private List<Order> buildOrderByClause(CriteriaBuilder builder, 
 			Root<E> root, C criteria) {
@@ -82,7 +75,7 @@ extends AbstractQueryBuilder<Q, E, D, C> {
 	private Map<String, Boolean> getDefaultOrder() {
 		Map<String, Boolean> components = new LinkedHashMap<String, Boolean>();
 
-		String path = String.format("//mapping[@queryType='jpa' and ./entity='%1$s']/orderMapping[@default = 'true']", entityClass.getName());
+		String path = String.format("//mapping[@queryType='jpa' and ./entity='%1$s']/orderMapping[@default = 'true']", getEntityClass().getName());
 
 		NodeList nodeList = XMLUtils.getNodeList(XMLUtils.getXMLResource("sql_mapping.xml"), path);
 
@@ -100,40 +93,15 @@ extends AbstractQueryBuilder<Q, E, D, C> {
 
 	private String getOrder(String key) {
 		return XMLUtils.getTextNode(XMLUtils.getXMLResource("sql_mapping.xml"), 
-				String.format("//mapping[queryType='jpa' and ./entity='%1$s']/orderMapping[./key='%2$s']/field", entityClass.getName(), key));
+				String.format("//mapping[queryType='jpa' and ./entity='%1$s']/orderMapping[./key='%2$s']/field", getEntityClass().getName(), key));
 	}
 
-	private Path<?> buildPath(Root<E> root, String... pathComponents) {
+	private static Path<?> buildPath(Root<?> root, String... pathComponents) {
 		Path<?> path = root;
 		for (String component : pathComponents) {
 			path = path.get(component);
 		}
 		return path;
 	}
-	
-	protected void construct(CriteriaQuery<D> query, CriteriaBuilder builder) {
-		// TODO builder.construct... This method will be abstract
-	}
-	
-	/**
-	 * Specify criteria for the queries performed by methods that create Query objects.
-	 * @param builder CriteriaBuilder object for building Predicates
-	 * @param query The query created by the CriteriaBuilder
-	 * @param root The query's root entity
-	 * @param criteria Object containing the criteria values
-	 */
-	protected abstract List<Predicate> getCriteria(CriteriaBuilder builder,
-			Root<E> root, AbstractCriteria<E> criteria);
-
-	/**
-	 * Append the GROUP BY clause to the query performed by {@link #findBy(Session, AbstractCriteria)}
-	 * or {@link #findBy(Session, AbstractCriteria, int, int)} based on the criteria provided.
-	 * @param builder CriteriaBuilder object for building Predicates
-	 * @param query The query created by the CriteriaBuilder
-	 * @param root The query's root entity
-	 * @param criteria Object containing the criteria values
-	 */
-	protected abstract void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<D> query,
-			Root<E> root, C criteria);
 
 }

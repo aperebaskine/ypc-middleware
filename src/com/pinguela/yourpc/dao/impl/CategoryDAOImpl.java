@@ -11,10 +11,10 @@ import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.Category_;
+import com.pinguela.yourpc.model.EntityCriteria;
 import com.pinguela.yourpc.model.dto.CategoryDTO;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -28,7 +28,8 @@ implements CategoryDAO {
 
 	@Override
 	public Map<Short, CategoryDTO> findAll(Session session, Locale locale) throws DataException {
-		List<CategoryDTO> categories = super.findBy(session, null);
+		
+		List<CategoryDTO> categories = super.findBy(session, CategoryDTO.class, new EntityCriteria<Short, Category>(locale));
 		return mapByPrimaryKey(categories);
 	}
 
@@ -38,12 +39,6 @@ implements CategoryDAO {
 		root.fetch(Category_.parent, JoinType.LEFT);
 		root.fetch(Category_.children, JoinType.LEFT);
 		return null;
-	}	
-	
-	@Override
-	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Category> query, Root<Category> root,
-			AbstractCriteria<Category> criteria) {
-		// Unused
 	}
 
 }

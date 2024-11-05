@@ -5,26 +5,16 @@ import java.util.Objects;
 import com.pinguela.yourpc.model.AttributeValue;
 
 public class AttributeValueDTO<T> 
-extends AbstractDTO<AttributeValue<T>> {
+extends AbstractDTO<Long, AttributeValue<T>> {
 	
-	private Long id;
 	private T value;
 	
 	AttributeValueDTO() {
 	}
 
 	AttributeValueDTO(Long id, T value) {
-		super();
-		this.id = id;
+		super(id);
 		this.value = value;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public T getValue() {
@@ -37,12 +27,12 @@ extends AbstractDTO<AttributeValue<T>> {
 	
 	@Override
 	protected AttributeValueDTO<T> clone() {
-		return new AttributeValueDTO<T>(this.id, this.value);
+		return new AttributeValueDTO<T>(getId(), this.value);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, value);
+		return Objects.hash(getId(), value);
 	}
 
 	@Override
@@ -54,7 +44,7 @@ extends AbstractDTO<AttributeValue<T>> {
 		if (getClass() != obj.getClass())
 			return false;
 		AttributeValueDTO<?> other = (AttributeValueDTO<?>) obj;
-		return Objects.equals(id, other.id) && Objects.equals(value, other.value);
+		return Objects.equals(getId(), other.getId()) && Objects.equals(value, other.value);
 	}
 	
 	

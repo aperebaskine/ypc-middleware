@@ -19,7 +19,6 @@ import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
 import com.pinguela.yourpc.dao.transformer.ProductTransformer;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
-import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractUpdateValues;
 import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
@@ -28,14 +27,13 @@ import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class ProductDAOImpl 
@@ -115,14 +113,14 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Long create(Session session, ProductDTO dto) 
+	public Long create(Session session, FullProductDTO dto) 
 			throws DataException {
 		attributeDAO.saveAttributeValues(session, dto.getAttributes());
 		return super.createEntity(session, toProduct(session, dto));
 	}
 
 	@Override
-	public Boolean update(Session session, ProductDTO dto) 
+	public Boolean update(Session session, FullProductDTO dto) 
 			throws DataException {
 		attributeDAO.saveAttributeValues(session, dto.getAttributes());
 		return super.updateEntity(session, toProduct(session, dto));
@@ -138,7 +136,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public ProductDTO findById(Session session, Long id) 
+	public FullProductDTO findById(Session session, Long id) 
 			throws DataException {
 
 		if (id == null) {
@@ -146,8 +144,8 @@ implements ProductDAO {
 		}
 
 		try {
-			NativeQuery<ProductDTO> query = 
-					session.createNativeQuery(BASE_QUERY + " WHERE p.ID = :id AND p.DISCONTINUATION_DATE IS NULL", ProductDTO.class);
+			NativeQuery<LocalizedProductDTO> query = 
+					session.createNativeQuery(BASE_QUERY + " WHERE p.ID = :id AND p.DISCONTINUATION_DATE IS NULL", LocalizedProductDTO.class);
 			prepareQuery(query);
 			return query.setParameter("id", id).getSingleResultOrNull();
 		} catch (HibernateException e) {
@@ -157,17 +155,17 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Results<ProductDTO> findBy(Session session, ProductCriteria criteria, int pos, int pageSize) 
+	public Results<LocalizedProductDTO> findBy(Session session, ProductCriteria criteria, int pos, int pageSize) 
 			throws DataException {
 
 		StringBuilder queryStr = new StringBuilder(BASE_QUERY).append(buildQueryClauses(criteria));
 
 		try {
-			NativeQuery<ProductDTO> query = session.createNativeQuery(queryStr.toString(), ProductDTO.class);
+			NativeQuery<LocalizedProductDTO> query = session.createNativeQuery(queryStr.toString(), LocalizedProductDTO.class);
 			prepareQuery(query, pos, pageSize);
 			setSelectValues(query, criteria);
 
-			Results<ProductDTO> results = new Results<ProductDTO>();
+			Results<LocalizedProductDTO> results = new Results<LocalizedProductDTO>();
 			results.setResultCount(Long.valueOf(query.getResultCount()).intValue());
 			results.setPage(query.getResultList());
 
@@ -344,11 +342,11 @@ implements ProductDAO {
 		return i;
 	}
 
-	private static void prepareQuery(NativeQuery<ProductDTO> query) {
+	private static void prepareQuery(NativeQuery<LocalizedProductDTO> query) {
 		prepareQuery(query, null, null);
 	}
 
-	private static void prepareQuery(NativeQuery<ProductDTO> query, Integer pos, Integer pageSize) {
+	private static void prepareQuery(NativeQuery<LocalizedProductDTO> query, Integer pos, Integer pageSize) {
 
 		ProductTransformer transformer = new ProductTransformer();
 
@@ -373,7 +371,7 @@ implements ProductDAO {
 		}
 	}
 
-	private Product toProduct(Session session, ProductDTO dto) {
+	private Product toProduct(Session session, LocalizedProductDTO dto) {
 		Product p = new Product();
 		p.setId(dto.getId());
 		p.setName(dto.getName());
@@ -394,25 +392,12 @@ implements ProductDAO {
 		return p;
 	}
 
-	private static List<AttributeValue<?>> groupValues(ProductDTO dto) {
+	private static List<AttributeValue<?>> groupValues(LocalizedProductDTO dto) {
 		List<AttributeValue<?>> values = new ArrayList<AttributeValue<?>>();
 		for (Attribute<?> attribute : dto.getAttributes().values()) {
 			values.addAll(attribute.getValues());
 		}
 		return values;
-	}
-
-	@Override
-	protected List<Predicate> getCriteria(CriteriaBuilder builder, Root<Product> root,
-			AbstractCriteria<Product> criteria) {
-		// Unused
-		return null;
-	}
-
-	@Override
-	protected void groupByCriteria(CriteriaBuilder builder, CriteriaQuery<Product> query, Root<Product> root,
-			AbstractCriteria<Product> criteria) {
-		// Unused	
 	}
 
 	@Override

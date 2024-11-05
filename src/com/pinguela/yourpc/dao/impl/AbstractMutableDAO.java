@@ -19,8 +19,8 @@ import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 
-public abstract class AbstractMutableDAO<PK extends Comparable<PK>, T extends AbstractEntity<PK>>
-extends AbstractDAO<PK, T> {
+public abstract class AbstractMutableDAO<PK extends Comparable<PK>, E extends AbstractEntity<PK>>
+extends AbstractDAO<PK, E> {
 
 	private static final int BATCH_SIZE = 50;
 
@@ -32,7 +32,7 @@ extends AbstractDAO<PK, T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected PK createEntity(Session session, T entity) 
+	protected PK createEntity(Session session, E entity) 
 			throws DataException {
 		try {
 			session.persist(entity);
@@ -44,7 +44,7 @@ extends AbstractDAO<PK, T> {
 		}
 	}
 
-	protected List<PK> createBatch(Session session, List<T> entities)
+	protected List<PK> createBatch(Session session, List<E> entities)
 			throws DataException {
 		try {
 			List<PK> identifiers = new ArrayList<>();
@@ -62,10 +62,10 @@ extends AbstractDAO<PK, T> {
 		}	
 	}
 
-	protected boolean updateEntity(Session session, T entity) 
+	protected boolean updateEntity(Session session, E entity) 
 			throws DataException {
 		try {
-			T persistedEntity = session.find(getTargetClass(), entity.getId());
+			E persistedEntity = session.find(getTargetClass(), entity.getId());
 			if (persistedEntity == null) {
 				return false;
 			}
@@ -79,10 +79,10 @@ extends AbstractDAO<PK, T> {
 		}
 	}
 
-	protected boolean updateBatch(Session session, List<T> entities)
+	protected boolean updateBatch(Session session, List<E> entities)
 			throws DataException {
 		try {
-			List<T> persistedEntities = session
+			List<E> persistedEntities = session
 					.byMultipleIds(getTargetClass())
 					.multiLoad(getIdentifiers(entities));
 
@@ -121,10 +121,10 @@ extends AbstractDAO<PK, T> {
 		}
 	}
 
-	protected boolean updateBy(Session session, AbstractCriteria<T> criteria, AbstractUpdateValues<T> updateValues) 
+	protected boolean updateBy(Session session, AbstractCriteria<E> criteria, AbstractUpdateValues<E> updateValues) 
 			throws DataException {
 		try {
-			CriteriaUpdate<T> updateQuery = buildCriteriaUpdate(session, criteria, updateValues);
+			CriteriaUpdate<E> updateQuery = buildCriteriaUpdate(session, criteria, updateValues);
 			return session.createMutationQuery(updateQuery).executeUpdate() > 0;
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
@@ -135,7 +135,7 @@ extends AbstractDAO<PK, T> {
 	protected boolean deleteEntity(Session session, PK id)
 			throws DataException {
 		try {
-			T entity = session.find(getTargetClass(), id);
+			E entity = session.find(getTargetClass(), id);
 			if (entity == null) {
 				return false;
 			}
@@ -152,7 +152,7 @@ extends AbstractDAO<PK, T> {
 	protected boolean deleteBatch(Session session, List<PK> ids) 
 			throws DataException {
 		try {
-			List<T> entities = session
+			List<E> entities = session
 					.byMultipleIds(getTargetClass())
 					.multiLoad(ids);
 
@@ -161,7 +161,7 @@ extends AbstractDAO<PK, T> {
 			}
 
 			for (int i = 0, batchStartIndex = 0; i < entities.size(); i++) {
-				T entity = entities.get(i);
+				E entity = entities.get(i);
 				if (entity == null) {
 					continue;
 				}
@@ -177,10 +177,10 @@ extends AbstractDAO<PK, T> {
 		}
 	}
 	
-	protected boolean deleteBy(Session session, AbstractCriteria<T> criteria) 
+	protected boolean deleteBy(Session session, AbstractCriteria<E> criteria) 
 			throws DataException {
 		try {
-			CriteriaDelete<T> deleteQuery = buildCriteriaDelete(session, criteria);
+			CriteriaDelete<E> deleteQuery = buildCriteriaDelete(session, criteria);
 			return session.createMutationQuery(deleteQuery).executeUpdate() > 0;
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
@@ -188,11 +188,11 @@ extends AbstractDAO<PK, T> {
 		}
 	}
 
-	private CriteriaUpdate<T> buildCriteriaUpdate(Session session, AbstractCriteria<T> criteria,
-			AbstractUpdateValues<T> updateValues) {
+	private CriteriaUpdate<E> buildCriteriaUpdate(Session session, AbstractCriteria<E> criteria,
+			AbstractUpdateValues<E> updateValues) {
 		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaUpdate<T> updateQuery = builder.createCriteriaUpdate(getTargetClass());
-		Root<T> root = updateQuery.from(getTargetClass());
+		CriteriaUpdate<E> updateQuery = builder.createCriteriaUpdate(getTargetClass());
+		Root<E> root = updateQuery.from(getTargetClass());
 
 		setUpdateValues(builder, updateQuery, root, updateValues);
 
@@ -200,21 +200,21 @@ extends AbstractDAO<PK, T> {
 		return updateQuery;
 	}
 
-	private CriteriaDelete<T> buildCriteriaDelete(Session session, AbstractCriteria<T> criteria) {
+	private CriteriaDelete<E> buildCriteriaDelete(Session session, AbstractCriteria<E> criteria) {
 		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaDelete<T> deleteQuery = builder.createCriteriaDelete(getTargetClass());
-		Root<T> root = deleteQuery.from(getTargetClass());
+		CriteriaDelete<E> deleteQuery = builder.createCriteriaDelete(getTargetClass());
+		Root<E> root = deleteQuery.from(getTargetClass());
 
 		deleteQuery.where(buildWhereClause(builder, root, criteria));
 		return deleteQuery;
 	}
 
-	private List<PK> getIdentifiers(List<T> entities) {
+	private List<PK> getIdentifiers(List<E> entities) {
 		return getIdentifiers(null, entities, 0, entities.size());
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<PK> getIdentifiers(Session session, List<T> entities, int startIndex, int endIndex) {
+	private List<PK> getIdentifiers(Session session, List<E> entities, int startIndex, int endIndex) {
 		List<PK> identifiers = new ArrayList<>();
 		for (int i = startIndex; i < endIndex; i++) {
 			identifiers.add(session == null ? 
@@ -224,11 +224,11 @@ extends AbstractDAO<PK, T> {
 		return identifiers;
 	}
 
-	private int processBatchIfFull(Session session, List<T> entities, int batchStartIndex, int currentIndex) {
+	private int processBatchIfFull(Session session, List<E> entities, int batchStartIndex, int currentIndex) {
 		return processBatchIfFull(session, entities, null, batchStartIndex, currentIndex);
 	}
 
-	private int processBatchIfFull(Session session, List<T> entities, 
+	private int processBatchIfFull(Session session, List<E> entities, 
 			List<PK> storedIdentifiers, int batchStartIndex, int currentIndex) {
 
 		if (!(currentIndex == entities.size())
@@ -244,16 +244,5 @@ extends AbstractDAO<PK, T> {
 
 		return currentIndex +1;
 	}
-
-	/**
-	 * Specify update values for the queries performed by the 
-	 * {@link #updateBy(Session, AbstractCriteria, AbstractUpdateValues)} method.
-	 * @param builder CriteriaBuilder object for building Predicates
-	 * @param updateQuery The query created by the CriteriaBuilder
-	 * @param root The query's root entity
-	 * @param updateValues Criteria object containing the values to set
-	 */
-	protected abstract void setUpdateValues(CriteriaBuilder builder, CriteriaUpdate<T> updateQuery,
-			Root<T> root, AbstractUpdateValues<T> updateValues);
-
+	
 }
