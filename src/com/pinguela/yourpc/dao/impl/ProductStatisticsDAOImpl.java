@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
-import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeStatistics;
 import com.pinguela.yourpc.model.ProductStatistics;
+import com.pinguela.yourpc.model.dto.AttributeDTOFactory;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -225,7 +225,8 @@ implements ProductStatisticsDAO {
 				Integer quantity = rs.getInt(j++);
 				String name = rs.getString(j++);
 				String dataType = rs.getString(j++);				
-				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), Attribute.TYPE_PARAMETER_CLASSES.get(dataType));
+				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), 
+						AttributeDTOFactory.TYPE_PARAMETER_CLASSES.get(dataType));
 				
 				results.add(new AttributeStatistics<>(name, value, quantity));
 			}
