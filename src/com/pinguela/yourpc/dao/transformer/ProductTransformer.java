@@ -11,12 +11,12 @@ import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.dao.impl.TableDefinition;
 import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.dto.ProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 
 public class ProductTransformer 
-implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {
+implements TupleTransformer<LocalizedProductDTO>, ResultListTransformer<LocalizedProductDTO> {
 
-	private Map<Long, ProductDTO> productMap;
+	private Map<Long, LocalizedProductDTO> productMap;
 	private AttributeTransformer attributeTransformer;
 
 	public ProductTransformer() {
@@ -25,13 +25,13 @@ implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {
 	}
 
 	@Override
-	public ProductDTO transformTuple(Object[] tuple, String[] aliases) {
+	public LocalizedProductDTO transformTuple(Object[] tuple, String[] aliases) {
 
 		Long id = (Long) tuple[0];
 		
-		ProductDTO dto = productMap.computeIfAbsent(id, idKey -> {
+		LocalizedProductDTO dto = productMap.computeIfAbsent(id, idKey -> {
 			int index = 1;
-			ProductDTO newDto = new ProductDTO();
+			LocalizedProductDTO newDto = new LocalizedProductDTO();
 			newDto.setId(id);
 			newDto.setName((String) tuple[index++]);
 			newDto.setCategoryId((Short) tuple[index++]);
@@ -58,7 +58,7 @@ implements TupleTransformer<ProductDTO>, ResultListTransformer<ProductDTO> {
 	}
 	
 	@Override
-	public List<ProductDTO> transformList(List<ProductDTO> resultList) {
+	public List<LocalizedProductDTO> transformList(List<LocalizedProductDTO> resultList) {
 		return new ArrayList<>(productMap.values());
 	}
 

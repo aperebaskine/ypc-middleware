@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.model.dto;
 
-public class ProductDTO extends AbstractProductDTO {
+public class LocalizedProductDTO 
+extends AbstractProductDTO {
 	
 	private String name;
 	private String description;

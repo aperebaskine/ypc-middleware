@@ -13,7 +13,7 @@ import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.HibernateUtils;
 
@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Long create(ProductDTO p)  
+	public Long create(LocalizedProductDTO p)  
 			throws ServiceException, DataException {
 
 		Session session = null;
@@ -53,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Boolean update(ProductDTO p)  
+	public Boolean update(LocalizedProductDTO p)  
 			throws ServiceException, DataException {
 
 		Session session = null;
@@ -97,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductDTO findById(Long id, Locale locale)  
+	public LocalizedProductDTO findById(Long id, Locale locale)  
 			throws ServiceException, DataException {
 
 		Session session = null;
@@ -115,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Results<ProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)  
+	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)  
 			throws ServiceException, DataException {
 
 		Session session = null;

@@ -27,7 +27,7 @@ import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
+import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.impl.ProductServiceImpl;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.DateUtils;
@@ -48,7 +48,7 @@ class ProductServiceTest {
 		@Test
 		void testWithValidId() {
 			try {
-				ProductDTO p = productService.findById(1l, null);
+				LocalizedProductDTO p = productService.findById(1l, null);
 				assertEquals(1, p.getId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -58,7 +58,7 @@ class ProductServiceTest {
 		@Test
 		void testWithInvalidId() {
 			try {
-				ProductDTO p = productService.findById(0l, null);
+				LocalizedProductDTO p = productService.findById(0l, null);
 				assertNull(p);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -68,7 +68,7 @@ class ProductServiceTest {
 		@Test
 		void testWithNullId() {
 			try {
-				ProductDTO p = productService.findById(null, null);
+				LocalizedProductDTO p = productService.findById(null, null);
 				assertNull(p);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -108,7 +108,7 @@ class ProductServiceTest {
 		private int pos;
 		private int pageSize;
 
-		private Results<ProductDTO> results;
+		private Results<LocalizedProductDTO> results;
 
 		@BeforeEach
 		void setUp() {
@@ -184,7 +184,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getName().toLowerCase().contains("rYzEn".toLowerCase()));
 				}
 			} catch (YPCException e) {
@@ -200,7 +200,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getLaunchDate().compareTo(date) >= 0);
 				}
 			} catch (YPCException e) {
@@ -215,7 +215,7 @@ class ProductServiceTest {
 				criteria.setLaunchDateMax(date);
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getLaunchDate().compareTo(date) <= 0);
 				}
 			} catch (YPCException e) {
@@ -229,7 +229,7 @@ class ProductServiceTest {
 				criteria.setStockMin(40);
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getStock() >= criteria.getStockMin());
 				}
 			} catch (YPCException e) {
@@ -243,7 +243,7 @@ class ProductServiceTest {
 				criteria.setStockMax(30);
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getStock() <= criteria.getStockMax());
 				}
 			} catch (YPCException e) {
@@ -279,7 +279,7 @@ class ProductServiceTest {
 				criteria.setPriceMin(900.0d);
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getSalePrice().compareTo(criteria.getPriceMin()) >= 0);
 				}
 			} catch (YPCException e) {
@@ -293,7 +293,7 @@ class ProductServiceTest {
 				criteria.setPriceMax(250.0d);
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(p.getSalePrice().compareTo(criteria.getPriceMax()) <= 0);
 				}
 			} catch (YPCException e) {
@@ -331,7 +331,7 @@ class ProductServiceTest {
 
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(categoryHierarchy.contains(p.getCategoryId()));
 				}
 			} catch (YPCException e) {
@@ -349,7 +349,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					String brand = (String) p.getAttributes().get(varcharAttribute.getName()).getValueAt(0);
 					assertEquals(varcharAttribute.getValueAt(0), brand);
 				}
@@ -367,7 +367,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					Long cores = (Long) p.getAttributes().get(bigintAttribute.getName()).getValueAt(0);
 					assertTrue(cores >= bigintAttribute.getValueAt(0) && cores <= bigintAttribute.getValueAt(1));
 				}
@@ -385,7 +385,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					Double voltage = (Double) p.getAttributes().get(decimalAttribute.getName()).getValueAt(0);
 					assertTrue(voltage.compareTo(decimalAttribute.getValueAt(0)) >= 0 
 							&& voltage.compareTo(decimalAttribute.getValueAt(1)) <= 0);
@@ -404,7 +404,7 @@ class ProductServiceTest {
 				results = productService.findBy(criteria, pos, pageSize);
 				assertFalse(results.getPage().isEmpty());
 
-				for (ProductDTO p : results.getPage()) {					
+				for (LocalizedProductDTO p : results.getPage()) {					
 					Boolean hasIntegratedGraphics = 
 							(Boolean) p.getAttributes().get(booleanAttribute.getName()).getValueAt(0);
 					assertEquals(booleanAttribute.getValueAt(0), hasIntegratedGraphics);
@@ -429,7 +429,7 @@ class ProductServiceTest {
 
 				Set<Short> categoryHierarchy = CategoryUtils.getLowerHierarchy(criteria.getCategoryId()).keySet();
 
-				for (ProductDTO p : results.getPage()) {
+				for (LocalizedProductDTO p : results.getPage()) {
 					assertTrue(categoryHierarchy.contains(p.getCategoryId()));
 					assertTrue(p.getStock() >= criteria.getStockMin());
 					assertTrue(p.getSalePrice() <= criteria.getPriceMax());
@@ -451,12 +451,12 @@ class ProductServiceTest {
 	@TestInstance(Lifecycle.PER_CLASS)
 	class TestCreate {
 
-		private ProductDTO p;
+		private LocalizedProductDTO p;
 
 		@BeforeEach
 		void setUp() {
 
-			p = new ProductDTO();
+			p = new LocalizedProductDTO();
 
 			p.setName("Intel Core i9-15900k");
 
@@ -505,7 +505,7 @@ class ProductServiceTest {
 		void testCreateValidProduct() {
 			try {
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id, null);
+				LocalizedProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -518,7 +518,7 @@ class ProductServiceTest {
 				p.getAttributes().clear();
 
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id, null);
+				LocalizedProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -533,7 +533,7 @@ class ProductServiceTest {
 				p.getAttributes().put(attribute.getName(), attribute);
 
 				Long id = productService.create(p);
-				ProductDTO q = productService.findById(id, null);
+				LocalizedProductDTO q = productService.findById(id, null);
 				assertEquals(p.getDescription(), q.getDescription());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -567,11 +567,11 @@ class ProductServiceTest {
 	@Test
 	void testUpdate() {
 		try {
-			ProductDTO p = productService.findById(1l, null);
+			LocalizedProductDTO p = productService.findById(1l, null);
 			p.setDescription("TEST" +System.currentTimeMillis());
 			assertTrue(productService.update(p));
 
-			ProductDTO q = productService.findById(p.getId(), null);
+			LocalizedProductDTO q = productService.findById(p.getId(), null);
 			assertEquals(p.getDescription(), q.getDescription());
 
 		} catch (YPCException e) {
@@ -591,7 +591,7 @@ class ProductServiceTest {
 		@Test
 		void testDelete() {
 			try {
-				ProductDTO p = productService.findById(1l, null);
+				LocalizedProductDTO p = productService.findById(1l, null);
 				assertTrue(productService.delete(p.getId()));			
 				assertNull(productService.findById(p.getId(), null));
 			} catch (YPCException e) {
