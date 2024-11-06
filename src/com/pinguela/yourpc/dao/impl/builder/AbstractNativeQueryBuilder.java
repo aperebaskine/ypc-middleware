@@ -10,5 +10,11 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 	public AbstractNativeQueryBuilder(Class<D> dtoClass, Class<E> entityClass) {
 		super(dtoClass, entityClass);
 	}
+	
+	protected abstract void select(StringBuilder query, C criteria);
+	protected abstract void from(StringBuilder query, C criteria);
+	protected abstract void where(StringBuilder query, C criteria);
+	protected abstract void groupBy(StringBuilder query, C criteria);
+	protected abstract void having(StringBuilder query, C criteria);
 
 }

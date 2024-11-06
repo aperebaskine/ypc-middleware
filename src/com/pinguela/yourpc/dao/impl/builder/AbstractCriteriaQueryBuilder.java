@@ -55,6 +55,7 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 	protected abstract void join(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void where(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void groupBy(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	protected abstract void having(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	
 	protected abstract void setParameters(Query<D> query, C criteria);
 
