@@ -9,15 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.model.AbstractCriteria;
 import com.pinguela.yourpc.model.AbstractEntity;
-import com.pinguela.yourpc.model.AbstractUpdateValues;
+import com.pinguela.yourpc.model.AbstractEntityCriteria;
+import com.pinguela.yourpc.model.dto.AbstractDTO;
 import com.pinguela.yourpc.util.HibernateUtils;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Root;
 
 public abstract class AbstractMutableDAO<PK extends Comparable<PK>, E extends AbstractEntity<PK>>
 extends AbstractDAO<PK, E> {
@@ -26,8 +21,8 @@ extends AbstractDAO<PK, E> {
 
 	private static Logger logger = LogManager.getLogger(AbstractMutableDAO.class);
 	
-	private static String tableName;
-	
+	private String tableName;
+		
 	protected AbstractMutableDAO() {
 	}
 
@@ -121,11 +116,13 @@ extends AbstractDAO<PK, E> {
 		}
 	}
 
-	protected boolean updateBy(Session session, AbstractCriteria<E> criteria, AbstractUpdateValues<E> updateValues) 
+	@SuppressWarnings("unchecked")
+	protected boolean updateBy(Session session, AbstractDTO<PK, E> dto, AbstractEntityCriteria<PK, E> criteria) 
 			throws DataException {
 		try {
-			CriteriaUpdate<E> updateQuery = buildCriteriaUpdate(session, criteria, updateValues);
-			return session.createMutationQuery(updateQuery).executeUpdate() > 0;
+			return getMutationQueryBuilder(session, dto.getClass(), QueryType.UPDATE)
+					.buildUpsertQuery(session, dto)
+					.executeUpdate() > 0;
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -177,36 +174,16 @@ extends AbstractDAO<PK, E> {
 		}
 	}
 	
-	protected boolean deleteBy(Session session, AbstractCriteria<E> criteria) 
+	protected boolean deleteBy(Session session, AbstractEntityCriteria<PK, E> criteria) 
 			throws DataException {
 		try {
-			CriteriaDelete<E> deleteQuery = buildCriteriaDelete(session, criteria);
-			return session.createMutationQuery(deleteQuery).executeUpdate() > 0;
+			return getMutationQueryBuilder(session, null, QueryType.DELETE)
+					.buildDeleteByCriteriaQuery(session, criteria)
+					.executeUpdate() > 0;
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
 		}
-	}
-
-	private CriteriaUpdate<E> buildCriteriaUpdate(Session session, AbstractCriteria<E> criteria,
-			AbstractUpdateValues<E> updateValues) {
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaUpdate<E> updateQuery = builder.createCriteriaUpdate(getTargetClass());
-		Root<E> root = updateQuery.from(getTargetClass());
-
-		setUpdateValues(builder, updateQuery, root, updateValues);
-
-		updateQuery.where(buildWhereClause(builder, root, criteria));
-		return updateQuery;
-	}
-
-	private CriteriaDelete<E> buildCriteriaDelete(Session session, AbstractCriteria<E> criteria) {
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaDelete<E> deleteQuery = builder.createCriteriaDelete(getTargetClass());
-		Root<E> root = deleteQuery.from(getTargetClass());
-
-		deleteQuery.where(buildWhereClause(builder, root, criteria));
-		return deleteQuery;
 	}
 
 	private List<PK> getIdentifiers(List<E> entities) {

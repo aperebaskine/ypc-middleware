@@ -19,13 +19,16 @@ import com.pinguela.yourpc.util.StringUtils;
 import com.pinguela.yourpc.util.XMLUtils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public abstract class AbstractCriteriaQueryBuilder<PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>>
-extends AbstractQueryBuilder<PK, E, D, C> {
+extends BaseQueryBuilder<PK, E, D, C> {
 
 	protected AbstractCriteriaQueryBuilder(Class<D> dtoClass, Class<E> entityClass) {
 		super(dtoClass, entityClass); 
@@ -41,7 +44,7 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 		if (criteria != null) {
 			select(cq, builder, root, criteria);
 			join(cq, builder, root, criteria);
-			where(cq, builder, root, criteria);
+			cq.where(toArray(where(builder, root, criteria)));
 			groupBy(cq, builder, root, criteria);
 			cq.orderBy(buildOrderByClause(builder, root, criteria));
 		}
@@ -53,11 +56,17 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 
 	protected abstract void select(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void join(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
-	protected abstract void where(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
+	protected abstract List<Predicate> where(CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void groupBy(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void having(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	
-	protected abstract void setParameters(Query<D> query, C criteria);
+	protected abstract void setParameters(Query<?> query, C criteria);
+	
+	@SuppressWarnings("unchecked")
+	private static <T> T[] toArray(List<T> list) {
+		T[] array = (T[]) new Object[list.size()];
+		return list.toArray(array);
+	}
 
 	private List<Order> buildOrderByClause(CriteriaBuilder builder, 
 			Root<E> root, C criteria) {
@@ -109,5 +118,28 @@ extends AbstractQueryBuilder<PK, E, D, C> {
 		}
 		return path;
 	}
+	
+	private CriteriaUpdate<E> buildCriteriaUpdate(Session session, C criteria, AbstractDTO<PK, E> dto) {
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaUpdate<E> updateQuery = builder.createCriteriaUpdate(getEntityClass());
+		Root<E> root = updateQuery.from(getEntityClass());
+		
+		updateQuery.where(toArray(where(builder, root, criteria)));
+		
+		Query<E> query = session.createMutationQuery(updateQuery);
+		setParameters(query, criteria);
+		return query;
+	}
+
+	private CriteriaDelete<E> buildCriteriaDelete(Session session, C criteria) {
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaDelete<E> deleteQuery = builder.createCriteriaDelete(getEntityClass());
+		Root<E> root = deleteQuery.from(getEntityClass());
+
+		deleteQuery.where(toArray(where(builder, root, criteria)));
+		return deleteQuery;
+	}
+	
+	
 
 }

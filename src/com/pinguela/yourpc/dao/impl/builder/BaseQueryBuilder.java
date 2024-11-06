@@ -38,7 +38,7 @@ import com.pinguela.yourpc.model.dto.AbstractDTO;
  * @see QueryBuilderDispatcher
  * @see AbstractDAO
  */
-public abstract class AbstractQueryBuilder<PK extends Comparable<PK>,
+public abstract class BaseQueryBuilder<PK extends Comparable<PK>,
 		E extends AbstractEntity<PK>,
 		D extends AbstractDTO<PK, E>,
 		C extends AbstractEntityCriteria<PK, E>> 
@@ -47,7 +47,7 @@ implements SelectionQueryBuilder<PK, E, D, C> , MutationQueryBuilder<PK, E, D, C
 	private Class<D> dtoClass;
 	private Class<E> entityClass;
 
-	protected AbstractQueryBuilder(Class<D> dtoClass, Class<E> entityClass) {
+	protected BaseQueryBuilder(Class<D> dtoClass, Class<E> entityClass) {
 		this.dtoClass = dtoClass;
 		this.entityClass = entityClass; 
 	}

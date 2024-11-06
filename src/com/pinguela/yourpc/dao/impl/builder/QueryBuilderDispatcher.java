@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 
 import com.pinguela.yourpc.annotation.QueryBuilder;
+import com.pinguela.yourpc.dao.builder.MutationQueryBuilder;
+import com.pinguela.yourpc.dao.builder.SelectionQueryBuilder;
 import com.pinguela.yourpc.dao.impl.QueryType;
 import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.AbstractEntityCriteria;
@@ -21,7 +23,7 @@ public class QueryBuilderDispatcher {
 
 	private static final QueryBuilderDispatcher INSTANCE = new QueryBuilderDispatcher();
 
-	private static final Map<MultiKey<?>, AbstractQueryBuilder<?, ?, ?, ?>> BUILDERS = new ConcurrentHashMap<>();
+	private static final Map<MultiKey<?>, BaseQueryBuilder<?, ?, ?, ?>> BUILDERS = new ConcurrentHashMap<>();
 
 	static {
 		initialize();
@@ -36,10 +38,10 @@ public class QueryBuilderDispatcher {
 
 	@SuppressWarnings("rawtypes")
 	private static final void initialize() {
-		Reflections reflections = new Reflections(AbstractQueryBuilder.class.getPackageName());
+		Reflections reflections = new Reflections(BaseQueryBuilder.class.getPackageName());
 
-		for (Class<? extends AbstractQueryBuilder> subclass :
-			reflections.getSubTypesOf(AbstractQueryBuilder.class)) {
+		for (Class<? extends BaseQueryBuilder> subclass :
+			reflections.getSubTypesOf(BaseQueryBuilder.class)) {
 
 			if (subclass.isAnnotationPresent(QueryBuilder.class)) {
 				register(subclass);
@@ -48,10 +50,10 @@ public class QueryBuilderDispatcher {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static void register(Class<? extends AbstractQueryBuilder> builderClass) {
+	private static void register(Class<? extends BaseQueryBuilder> builderClass) {
 
 		QueryBuilder annotation = builderClass.getAnnotation(QueryBuilder.class);
-		AbstractQueryBuilder<?, ?, ?, ?> builder = ReflectionUtils.instantiate(builderClass);
+		BaseQueryBuilder<?, ?, ?, ?> builder = ReflectionUtils.instantiate(builderClass);
 
 		for (Class<? extends AbstractDTO<?, ?>> dtoClass : annotation.dto()) {
 			MultiKey<?> key = new MultiKey<>(dtoClass, annotation.type());
@@ -59,18 +61,23 @@ public class QueryBuilderDispatcher {
 		}
 	}
 
-	public <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> AbstractQueryBuilder<PK, E, D, C>
+	public <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> SelectionQueryBuilder<PK, E, D, C>
 	dispatchSelectionQueryBuilder(Class<D> targetDtoClass) {
 		return dispatch(targetDtoClass, QueryType.SELECT);
 	}
 
-	public <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> AbstractQueryBuilder<PK, E, D, C>
+	public <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> MutationQueryBuilder<PK, E, D, C>
 	dispatchMutationQueryBuilder(Class<D> targetDtoClass, QueryType queryType) {
+		
+		if (queryType == QueryType.SELECT) {
+			throw new IllegalArgumentException("Invalid query type argument.");
+		}
+		
 		return dispatch(targetDtoClass, queryType);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> AbstractQueryBuilder<PK, E, D, C> 
+	private <PK extends Comparable<PK>, E extends AbstractEntity<PK>, D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> BaseQueryBuilder<PK, E, D, C> 
 	dispatch(Class<D> targetDtoClass, QueryType type) {
 
 		MultiKey<?> key = new MultiKey<>(targetDtoClass, type);
@@ -81,7 +88,7 @@ public class QueryBuilderDispatcher {
 			throw new IllegalArgumentException(error);
 		}
 
-		return (AbstractQueryBuilder<PK, E, D, C>) BUILDERS.get(key);
+		return (BaseQueryBuilder<PK, E, D, C>) BUILDERS.get(key);
 	}
 
 }

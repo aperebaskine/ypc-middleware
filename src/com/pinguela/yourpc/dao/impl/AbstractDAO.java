@@ -2,6 +2,7 @@ package com.pinguela.yourpc.dao.impl;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -11,7 +12,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.dao.impl.builder.AbstractQueryBuilder;
+import com.pinguela.yourpc.dao.builder.MutationQueryBuilder;
+import com.pinguela.yourpc.dao.builder.SelectionQueryBuilder;
 import com.pinguela.yourpc.dao.impl.builder.QueryBuilderDispatcher;
 import com.pinguela.yourpc.model.AbstractEntity;
 import com.pinguela.yourpc.model.AbstractEntityCriteria;
@@ -41,7 +43,7 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 		return targetClass;
 	}
 
-	protected E findById(Session session, PK id) 
+	protected <D extends AbstractDTO<PK, E>> D findById(Session session, Class<D> targetDtoClass, PK id, Locale locale) 
 			throws DataException {
 
 		if (id == null) {
@@ -50,7 +52,9 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 		}
 
 		try {
-			return id == null ? null : session.find(targetClass, id);
+			return getSelectionQueryBuilder(session, targetDtoClass)
+					.buildSelectionQuery(session, id, locale)
+					.getSingleResultOrNull();
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -61,7 +65,9 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 			Class<? extends AbstractDTO<PK, E>> targetDtoClass, AbstractEntityCriteria<PK, E> criteria) 
 					throws DataException {
 		try {
-			return getQuery(session, targetDtoClass, criteria, QueryType.SELECT).getSingleResultOrNull();
+			return getSelectionQueryBuilder(session, targetDtoClass)
+					.buildSelectionQuery(session, criteria)
+					.getSingleResultOrNull();
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -71,7 +77,9 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 	protected <D extends AbstractDTO<PK, E>> List<D> findBy(Session session, Class<D> targetDtoClass,
 			AbstractEntityCriteria<PK, E> criteria) throws DataException {
 		try {
-			return getQuery(session, targetDtoClass, criteria, QueryType.SELECT).getResultList();
+			return getSelectionQueryBuilder(session, targetDtoClass)
+					.buildSelectionQuery(session, criteria)
+					.getResultList();
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			throw new DataException(e);
@@ -83,7 +91,8 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 					throws DataException {
 		try {
 
-			Query<D> query = getQuery(session, targetDtoClass, criteria, pos, pageSize);
+			Query<D> query = getSelectionQueryBuilder(session, targetDtoClass)
+					.buildSelectionQuery(session, criteria, pos, pageSize);
 			Results<D> results = new Results<>();
 
 			results.setResultCount(Long.valueOf(query.getResultCount()).intValue());
@@ -104,19 +113,14 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 		return map;
 	}
 
-	private <D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> AbstractQueryBuilder<PK, E, D, C> getQueryBuilder(
-			Session session, Class<D> targetDtoClass, QueryType queryType) {
-		return QUERY_BUILDER_DISPATCHER.dispatch(targetDtoClass, queryType);
+	protected <D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> MutationQueryBuilder<PK, E, D, C> 
+	getMutationQueryBuilder(Session session, Class<D> targetDtoClass, QueryType queryType) {
+		return QUERY_BUILDER_DISPATCHER.dispatchMutationQueryBuilder(targetDtoClass, queryType);
 	}
-
-	protected <D extends AbstractDTO<PK, E>> Query<D> getQuery(Session session, 
-			Class<D> targetDtoClass, AbstractEntityCriteria<PK, E> criteria, QueryType queryType) {
-		return getQueryBuilder(session, targetDtoClass, queryType).buildQuery(session, criteria);
-	}
-
-	protected <D extends AbstractDTO<PK, E>> Query<D> getQuery(Session session, 
-			Class<D> targetDtoClass, AbstractEntityCriteria<PK, E> criteria, int pos, int pageSize) {
-		return getQueryBuilder(session, targetDtoClass, QueryType.SELECT).buildQuery(session, criteria, pos, pageSize);
+	
+	protected <D extends AbstractDTO<PK, E>, C extends AbstractEntityCriteria<PK, E>> SelectionQueryBuilder<PK, E, D, C> 
+	getSelectionQueryBuilder(Session session, Class<D> targetDtoClass) {
+		return QUERY_BUILDER_DISPATCHER.dispatchSelectionQueryBuilder(targetDtoClass);
 	}
 
 }
