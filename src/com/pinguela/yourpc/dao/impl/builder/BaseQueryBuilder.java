@@ -66,11 +66,6 @@ implements SelectionQueryBuilder<PK, E, D, C> , MutationQueryBuilder<PK, E, D, C
 	}
 
 	@Override
-	public Query<D> buildSelectionQuery(Session session, C criteria) {
-		throw unsupported();
-	}
-
-	@Override
 	public Query<D> buildSelectionQuery(Session session, C criteria, Integer pos, Integer pageSize) {
 		throw unsupported();
 	}

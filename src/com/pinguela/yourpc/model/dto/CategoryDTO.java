@@ -14,6 +14,13 @@ extends AbstractDTO<Short, Category> {
 	public CategoryDTO() {
 	}
 
+	public CategoryDTO(String name, Short parentId, Set<Short> childrenIds) {
+		super();
+		this.name = name;
+		this.parentId = parentId;
+		this.childrenIds = childrenIds;
+	}
+
 	public String getName() {
 		return name;
 	}

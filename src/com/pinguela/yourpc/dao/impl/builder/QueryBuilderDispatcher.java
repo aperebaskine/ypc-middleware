@@ -55,8 +55,8 @@ public class QueryBuilderDispatcher {
 		QueryBuilder annotation = builderClass.getAnnotation(QueryBuilder.class);
 		BaseQueryBuilder<?, ?, ?, ?> builder = ReflectionUtils.instantiate(builderClass);
 
-		for (Class<? extends AbstractDTO<?, ?>> dtoClass : annotation.dto()) {
-			MultiKey<?> key = new MultiKey<>(dtoClass, annotation.type());
+		for (QueryType queryType : annotation.type()) {
+			MultiKey<?> key = new MultiKey<>(queryType, annotation.dto());
 			BUILDERS.put(key, builder);
 		}
 	}

@@ -34,18 +34,11 @@ public interface SelectionQueryBuilder<PK extends Comparable<PK>,
 	
 	/**
 	 * Build a query to fetch a list of records based on specific criteria.
+	 * (Optional) Return paginated results
 	 * @param session The session used to interact with the database
 	 * @param criteria An object containing the criteria to filter
-	 * @return A query object ready to be executed
-	 */
-	Query<D> buildSelectionQuery(Session session, C criteria);
-	
-	/**
-	 * Build a paginated query to fetch a list of records based on specific criteria.
-	 * @param session The session used to interact with the database
-	 * @param criteria An object containing the criteria to filter
-	 * @param pos The start position of the page to fetch
-	 * @param pageSize The amount of records to return
+	 * @param pos (Optional) The start position of the page to fetch
+	 * @param pageSize (Optional) The amount of records to return
 	 * @return A query object ready to be executed
 	 */
 	Query<D> buildSelectionQuery(Session session, C criteria, Integer pos, Integer pageSize);

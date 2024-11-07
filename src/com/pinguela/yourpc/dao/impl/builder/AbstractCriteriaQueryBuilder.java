@@ -34,29 +34,36 @@ extends BaseQueryBuilder<PK, E, D, C> {
 		super(dtoClass, entityClass); 
 	}
 
-	public Query<D> buildQuery(Session session, PK id, Locale locale, C criteria) {
+	protected Query<D> buildQuery(Session session, PK id, Locale locale, C criteria) {
 
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<D> cq = builder.createQuery(getDtoClass());
 
 		Root<E> root = cq.from(getEntityClass());
+		
+		select(cq, builder, root, criteria);
+		join(cq, builder, root, criteria);
 
-		if (criteria != null) {
-			select(cq, builder, root, criteria);
-			join(cq, builder, root, criteria);
-			cq.where(toArray(where(builder, root, criteria)));
-			groupBy(cq, builder, root, criteria);
-			cq.orderBy(buildOrderByClause(builder, root, criteria));
+		if (id != null) {
+			cq.where(builder.equal(root.get("id"), id));
+		} else if (locale != null || criteria != null) {
+			cq.where(toArray(where(builder, root, locale, criteria)));
+			
 		}
 
+		groupBy(cq, builder, root, criteria);
+		having(cq, builder, root, criteria);
+		cq.orderBy(buildOrderByClause(builder, root, criteria));
+		
 		Query<D> query = session.createQuery(cq);
-		setParameters(query, criteria);
 		return query;
 	}
 
 	protected abstract void select(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void join(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
-	protected abstract List<Predicate> where(CriteriaBuilder builder, Root<E> root, C criteria);
+	
+	protected abstract List<Predicate> where(CriteriaBuilder builder, Root<E> root, Locale locale, C criteria);
+	
 	protected abstract void groupBy(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	protected abstract void having(CriteriaQuery<D> query, CriteriaBuilder builder, Root<E> root, C criteria);
 	
@@ -119,24 +126,21 @@ extends BaseQueryBuilder<PK, E, D, C> {
 		return path;
 	}
 	
-	private CriteriaUpdate<E> buildCriteriaUpdate(Session session, C criteria, AbstractDTO<PK, E> dto) {
+	protected CriteriaUpdate<E> buildCriteriaUpdate(Session session, C criteria, AbstractDTO<PK, E> dto) {
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaUpdate<E> updateQuery = builder.createCriteriaUpdate(getEntityClass());
 		Root<E> root = updateQuery.from(getEntityClass());
 		
-		updateQuery.where(toArray(where(builder, root, criteria)));
-		
-		Query<E> query = session.createMutationQuery(updateQuery);
-		setParameters(query, criteria);
-		return query;
+		updateQuery.where(toArray(where(builder, root, null, criteria)));
+		return updateQuery;
 	}
 
-	private CriteriaDelete<E> buildCriteriaDelete(Session session, C criteria) {
+	protected CriteriaDelete<E> buildCriteriaDelete(Session session, C criteria) {
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaDelete<E> deleteQuery = builder.createCriteriaDelete(getEntityClass());
 		Root<E> root = deleteQuery.from(getEntityClass());
 
-		deleteQuery.where(toArray(where(builder, root, criteria)));
+		deleteQuery.where(toArray(where(builder, root, null, criteria)));
 		return deleteQuery;
 	}
 	

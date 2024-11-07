@@ -43,7 +43,7 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 		return targetClass;
 	}
 
-	protected <D extends AbstractDTO<PK, E>> D findById(Session session, Class<D> targetDtoClass, PK id, Locale locale) 
+	protected <D extends AbstractDTO<PK, E>> D findBy(Session session, Class<D> targetDtoClass, PK id, Locale locale) 
 			throws DataException {
 
 		if (id == null) {
@@ -66,7 +66,7 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 					throws DataException {
 		try {
 			return getSelectionQueryBuilder(session, targetDtoClass)
-					.buildSelectionQuery(session, criteria)
+					.buildSelectionQuery(session, criteria, null, null)
 					.getSingleResultOrNull();
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
@@ -78,7 +78,7 @@ public abstract class AbstractDAO<PK extends Comparable<PK>, E extends AbstractE
 			AbstractEntityCriteria<PK, E> criteria) throws DataException {
 		try {
 			return getSelectionQueryBuilder(session, targetDtoClass)
-					.buildSelectionQuery(session, criteria)
+					.buildSelectionQuery(session, criteria, null, null)
 					.getResultList();
 		} catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);

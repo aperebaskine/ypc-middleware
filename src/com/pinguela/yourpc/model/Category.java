@@ -1,12 +1,12 @@
 package com.pinguela.yourpc.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
 import org.hibernate.annotations.Immutable;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -23,8 +23,8 @@ extends AbstractEntity<Short> {
 	@Id
 	private Short id;
 	
-	@Column(unique = true, nullable = false)
-	private String name;
+	@OneToMany(mappedBy = "category")
+	private List<CategoryLocale> categoryLocale;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PARENT_ID")
@@ -44,14 +44,6 @@ extends AbstractEntity<Short> {
 	
 	public void setId(Short id) {
 		this.id = id;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public Category getParent() {

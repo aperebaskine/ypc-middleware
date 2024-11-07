@@ -12,6 +12,10 @@ import com.pinguela.yourpc.model.dto.AbstractDTO;
 /**
  * Common interface for building database selection queries. All methods are optional and 
  * to be defined on a case-by-case basis according to the implementing class' requirements.
+ * 
+ * <p>
+ * Deletion by primary key is omitted as this should be handled directly within the DAO.
+ * </p>
  * @param <PK> Primary key type of the entity
  * @param <E> The entity handled by the queries
  * @param <D> The Data Transfer Object containing values to insert or update

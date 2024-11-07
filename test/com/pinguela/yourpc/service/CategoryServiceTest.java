@@ -3,6 +3,7 @@ package com.pinguela.yourpc.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.pinguela.YPCException;
-import com.pinguela.yourpc.model.Category;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
 import com.pinguela.yourpc.service.impl.CategoryServiceImpl;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -32,7 +33,7 @@ class CategoryServiceTest {
 	@Test
 	void testFindAll() {
 		try {
-			Map<Short, Category> categories = categoryService.findAll(null);
+			Map<Short, CategoryDTO> categories = categoryService.findAll(new Locale("en", "GB"));
 			assertEquals(17, categories.size());
 		} catch (YPCException e) {
 			fail(e);
