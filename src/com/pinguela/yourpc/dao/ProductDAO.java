@@ -7,21 +7,21 @@ import com.pinguela.DataException;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 
 public interface ProductDAO {
 	
-	public Long create(Connection conn, FullProductDTO p)
+	public Long create(Connection conn, ProductDTO p)
 			throws DataException;
 	
-	public Boolean update(Connection conn, FullProductDTO p)
+	public Boolean update(Connection conn, ProductDTO p)
 			throws DataException;
 	
 	public Boolean delete(Connection conn, Long productId)
 			throws DataException;
 	
-	public FullProductDTO findById(Connection conn, Long id)
+	public ProductDTO findById(Connection conn, Long id)
 			throws DataException;
 	
 	public LocalizedProductDTO findById(Connection conn, Long id, Locale locale)

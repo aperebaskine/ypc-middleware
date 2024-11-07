@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CategoryDAO;
-import com.pinguela.yourpc.model.Category;
 import com.pinguela.yourpc.model.dto.CategoryDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -79,8 +78,8 @@ public class CategoryDAOImpl implements CategoryDAO {
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				CategoryDTO child = loadNext(conn, rs);
-				child.setParent(c);
-				c.getChildren().put(child.getId(), child);
+				child.setParentId(c.getId());
+				c.getChildrenIds().add(child.getId());
 			}
 		} catch (SQLException sqle) {
 			logger.error(sqle);
@@ -107,7 +106,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 			return;
 		}
 		
-		map.putAll(CategoryUtils.CATEGORIES.g);
+		map.putAll(CategoryUtils.CATEGORIES.get);
 		for (CategoryDTO child : c.getChildren().values()) {
 			putChildren(map, child);
 		}

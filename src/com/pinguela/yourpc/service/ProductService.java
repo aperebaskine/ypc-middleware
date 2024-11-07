@@ -7,21 +7,21 @@ import com.pinguela.ServiceException;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 
 public interface ProductService {
 	
-	public Long create(FullProductDTO dto)
+	public Long create(ProductDTO dto)
 			throws ServiceException, DataException;
 	
-	public Boolean update(FullProductDTO dto)
+	public Boolean update(ProductDTO dto)
 			throws ServiceException, DataException;
 	
 	public Boolean delete(Long productId)
 			throws ServiceException, DataException;
 	
-	public FullProductDTO findById(Long id)
+	public ProductDTO findById(Long id)
 			throws ServiceException, DataException;
 	
 	public LocalizedProductDTO findById(Long id, Locale locale)

@@ -23,7 +23,7 @@ import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -109,7 +109,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Long create(Connection conn, FullProductDTO p) 
+	public Long create(Connection conn, ProductDTO p) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -139,7 +139,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public Boolean update(Connection conn, FullProductDTO p) 
+	public Boolean update(Connection conn, ProductDTO p) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -203,7 +203,7 @@ implements ProductDAO {
 	}
 
 	@Override
-	public FullProductDTO findById(Connection conn, Long id) 
+	public ProductDTO findById(Connection conn, Long id) 
 			throws DataException {
 
 		if (id == null) {

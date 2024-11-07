@@ -14,7 +14,7 @@ import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.FullProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -28,7 +28,7 @@ public class ProductServiceImpl implements ProductService {
 		productDAO = new ProductDAOImpl();
 	}
 
-	public Long create(FullProductDTO dto)  
+	public Long create(ProductDTO dto)  
 			throws ServiceException, DataException {
 		
 		if (dto == null) {
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Boolean update(FullProductDTO dto)  
+	public Boolean update(ProductDTO dto)  
 			throws ServiceException, DataException {
 		
 		if (dto == null) {
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public FullProductDTO findById(Long id)  
+	public ProductDTO findById(Long id)  
 			throws ServiceException, DataException {
 
 		Connection conn = null;

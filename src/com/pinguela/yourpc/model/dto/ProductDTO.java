@@ -3,7 +3,7 @@ package com.pinguela.yourpc.model.dto;
 import java.util.Locale;
 import java.util.Map;
 
-public class FullProductDTO 
+public class ProductDTO 
 extends AbstractProductDTO {
 
 	private Map<Locale, String> nameI18n;
