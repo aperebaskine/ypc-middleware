@@ -8,6 +8,7 @@ public abstract class AbstractProductDTO
 extends AbstractDTO<Long> {
 	
 	private Short categoryId;
+	private String category;
 	private Date launchDate;
 	private Date discontinuationDate;
 	private Integer stock;
@@ -29,6 +30,14 @@ extends AbstractDTO<Long> {
 
 	public void setCategoryId(Short categoryId) {
 		this.categoryId = categoryId;
+	}
+	
+	public String getCategory() {
+		return category;
+	}
+	
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public Date getLaunchDate() {

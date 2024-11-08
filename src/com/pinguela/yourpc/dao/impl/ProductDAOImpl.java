@@ -35,10 +35,11 @@ implements ProductDAO {
 	private static final String SELECT_COLUMNS = 
 			" SELECT"
 					+ " p.ID,"
-					+ " p.NAME,"
+					+ " pl.LOCALE_ID,"
+					+ " pl.NAME,"
 					+ " p.CATEGORY_ID,"
 					+ " c.NAME,"
-					+ " p.DESCRIPTION,"
+					+ " pl.DESCRIPTION,"
 					+ " p.LAUNCH_DATE,"
 					+ " p.STOCK,"
 					+ " p.PURCHASE_PRICE,"
@@ -54,12 +55,18 @@ implements ProductDAO {
 					+ " MIN(p.LAUNCH_DATE),"
 					+ " MAX(p.LAUNCH_DATE)";
 	private static final String FROM_TABLE =
-			" FROM PRODUCT p";
+			" FROM PRODUCT p"
+					+" INNER JOIN PRODUCT_LOCALE pl"
+					+ " ON pl.PRODUCT_ID = p.ID";
+	private static final String LOCALE_ID_JOIN_CONDITION =
+			" AND pl.LOCALE_ID = ?";
+
 	private static final String JOIN_CATEGORY_AND_PRODUCT =
 			" INNER JOIN CATEGORY c" 
 					+ " ON c.ID = p.CATEGORY_ID"
 					+ " LEFT JOIN PRODUCT q"
 					+ " ON q.ID = p.REPLACEMENT_ID";
+
 	private static final String JOIN_ATTRIBUTE =
 			" INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav"
 					+ " ON pav.PRODUCT_ID = p.ID"
@@ -71,47 +78,35 @@ implements ProductDAO {
 	private static final String WHERE_ID_EQUALS = " WHERE p.ID = ?";
 	private static final String AND_DISCONTINUATION_DATE = " AND p.DISCONTINUATION_DATE IS NULL";
 
-	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE +JOIN_CATEGORY_AND_PRODUCT;
-	private static final String FINDBYID_QUERY = FINDBY_QUERY +WHERE_ID_EQUALS +AND_DISCONTINUATION_DATE;
-	private static final String GET_RANGES_QUERY =
-			SELECT_RANGES +FROM_TABLE;
-
 	private static final String CREATE_QUERY = 
-			" INSERT INTO PRODUCT(NAME,"
+			" INSERT INTO PRODUCT("
 					+ " CATEGORY_ID,"
-					+ " DESCRIPTION,"
 					+ " LAUNCH_DATE,"
 					+ " STOCK,"
 					+ " PURCHASE_PRICE,"
 					+ " SALE_PRICE)"
 					+ " VALUES"
-					+ " (?, ?, ?, ?, ?, ?, ?)";
+					+ " (?, ?, ?, ?, ?)";
 
-	private static final String CREATE_I18n_QUERY = 
-			" INSERT INTO PRODUCT_LOCALE (ID, NAME, DESCRIPTION) VALUES";
+	private static final String CREATE_I18N_QUERY = 
+			" INSERT INTO PRODUCT_LOCALE (PRODUCT_ID, LOCALE_ID, NAME, DESCRIPTION) VALUES";
 
 	private static final String UPDATE_QUERY =
-			" UPDATE PRODUCT"
-					+ " SET NAME = ?,"
+			" UPDATE PRODUCT SET"
 					+ " CATEGORY_ID = ?,"
-					+ " DESCRIPTION = ?,"
 					+ " LAUNCH_DATE = ?,"
 					+ " STOCK = ?,"
 					+ " PURCHASE_PRICE = ?,"
 					+ " SALE_PRICE = ?"
 					+ " WHERE ID = ?";
 
-	private static final String UPDATE_I18n_QUERY = 
-			" UPDATE PRODUCT_LOCALE"
-					+ " SET NAME = ?,"
-					+ " DESCRIPTION = ?"
-					+ " WHERE PRODUCT_ID = ?"
-					+ " AND LOCALE_ID = ?";
-
 	private static final String DELETE_QUERY =
 			" UPDATE PRODUCT"
 					+ " SET DISCONTINUATION_DATE = ?"
 					+ " WHERE ID = ?";
+
+	private static final String DELETE_LOCALE_QUERY = 
+			" DELETE FROM PRODUCT_LOCALE WHERE PRODUCT_ID = ?";
 
 	private static Logger logger = LogManager.getLogger(ProductDAOImpl.class);
 	private AttributeDAO attributeDAO = null;
@@ -139,10 +134,10 @@ implements ProductDAO {
 				rs = stmt.getGeneratedKeys();
 				rs.next();
 				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				
+
 				createLocale(conn, p);
 				attributeDAO.assignToProduct(conn, p);
-				
+
 				return p.getId();
 			}
 		} catch (SQLException sqle) {
@@ -152,15 +147,15 @@ implements ProductDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	private boolean createLocale(Connection conn, ProductDTO p) 
 			throws DataException {
-		
+
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 
 		try {
-			stmt = conn.prepareStatement(CREATE_I18n_QUERY);
+			stmt = conn.prepareStatement(CREATE_I18N_QUERY);
 			setI18nInsertValues(stmt, p);
 
 			int affectedRows = stmt.executeUpdate();
@@ -192,6 +187,8 @@ implements ProductDAO {
 			if (stmt.executeUpdate() != 1) {
 				throw new DataException(ErrorCodes.UPDATE_FAILED);
 			} else {
+				deleteLocale(conn, p.getId());
+				createLocale(conn, p);
 				attributeDAO.assignToProduct(conn, p);
 				return true;
 			}
@@ -200,35 +197,6 @@ implements ProductDAO {
 			throw new DataException(sqle);
 		} finally {
 			JDBCUtils.close(stmt);
-		}
-	}
-	
-	private Long updateLocale(Connection conn, ProductDTO p) 
-			throws DataException {
-		
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-
-		try {
-			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
-			setInsertValues(stmt, p);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				logger.error(LogMessages.INSERT_FAILED, p);
-				throw new DataException(ErrorCodes.INSERT_FAILED);
-			} else {
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
-				attributeDAO.assignToProduct(conn, p);
-				return p.getId();
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
 		}
 	}
 
@@ -257,25 +225,47 @@ implements ProductDAO {
 		}
 	}
 
+	private boolean deleteLocale(Connection conn, Long productId) 
+			throws DataException {
+
+		PreparedStatement stmt = null;
+
+		try {
+			stmt = conn.prepareStatement(DELETE_LOCALE_QUERY, Statement.RETURN_GENERATED_KEYS);
+			stmt.setLong(1, productId);
+
+			if (stmt.executeUpdate() < 1) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt);
+		}
+	}
+
 	private int setInsertValues(PreparedStatement stmt, ProductDTO p) throws SQLException {
 
 		int i = 1;
 
-		stmt.setString(i++, p.getName());
 		stmt.setShort(i++, p.getCategoryId());
-		JDBCUtils.setNullable(stmt, p.getDescription(), i++);
 		JDBCUtils.setNullable(stmt, p.getLaunchDate(), i++);
 		stmt.setInt(i++, p.getStock());
 		stmt.setDouble(i++, p.getPurchasePrice());
 		stmt.setDouble(i++, p.getSalePrice());
 		return i;
 	}
-	
+
 	private int setI18nInsertValues(PreparedStatement stmt, ProductDTO p) 
 			throws SQLException {
-		
+
 		int i = 1;
 		for (Locale locale : p.getNameI18n().keySet()) {
+			stmt.setLong(i++, p.getId());
+			stmt.setString(i++, locale.toLanguageTag());
 			stmt.setString(i++, p.getNameI18n().get(locale));
 			stmt.setString(i++, p.getDescriptionI18n().get(locale));
 		}
@@ -300,6 +290,36 @@ implements ProductDAO {
 			rs = stmt.executeQuery();
 			if (rs.next()) {
 				p = loadNext(conn, rs);
+			}
+			return p;
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+
+	@Override
+	public LocalizedProductDTO findById(Connection conn, Long id, Locale locale) throws DataException {
+
+		if (id == null) {
+			return null;
+		}
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		LocalizedProductDTO p = null;
+
+		try {
+			stmt = conn.prepareStatement(FINDBYID_QUERY);
+			
+			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, id);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				p = loadNextLocalized(conn, rs);
 			}
 			return p;
 		} catch (SQLException sqle) {
@@ -341,7 +361,8 @@ implements ProductDAO {
 
 		ProductRanges ranges = new ProductRanges();
 
-		StringBuilder query = new StringBuilder(GET_RANGES_QUERY).append(buildQueryClauses(criteria));
+		StringBuilder query = new StringBuilder(SELECT_RANGES +FROM_TABLE)
+				.append(buildQueryClauses(criteria));
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 
@@ -468,22 +489,26 @@ implements ProductDAO {
 		return i;
 	}
 
-	private Results<ProductDTO> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
+	private Results<LocalizedProductDTO> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
 			throws SQLException, DataException {
 
-		Results<ProductDTO> results = new Results<ProductDTO>();
+		Results<LocalizedProductDTO> results = new Results<LocalizedProductDTO>();
 		results.setResultCount(JDBCUtils.getRowCount(rs));
 
 		if (results.getResultCount() > 0 && pageSize > 0 && startPos > 0 && startPos <= results.getResultCount()) {
 			int count = 0;
 			rs.absolute(startPos);
 			do {
-				results.getPage().add(loadNext(conn, rs));
+				results.getPage().add(loadNextLocalized(conn, rs));
 				count++;
 			} while (count<pageSize && rs.next());	
 		}
 
 		return results;
+	}
+
+	private void loadProductLocale(Connection conn, ProductDTO p) {
+
 	}
 
 	private ProductDTO loadNext(Connection conn, ResultSet rs) 
@@ -493,6 +518,25 @@ implements ProductDAO {
 		int i = 1;
 
 		p = new ProductDTO();
+		p.setId(rs.getLong(i++));
+		p.setCategoryId(rs.getShort(i++));
+		p.setCategory(rs.getString(i++));
+		p.setLaunchDate(rs.getDate(i++));
+		p.setStock(rs.getInt(i++));
+		p.setPurchasePrice(rs.getDouble(i++));
+		p.setSalePrice(rs.getDouble(i++));
+		p.setReplacementId(JDBCUtils.getNullableLong(rs, i++));
+		p.setReplacementName(rs.getString(i++));
+		p.setAttributes(attributeDAO.findByProduct(conn, p.getId()));
+		return p;
+	}
+
+	private LocalizedProductDTO loadNextLocalized(Connection conn, ResultSet rs) 
+			throws SQLException, DataException {
+
+		LocalizedProductDTO p = new LocalizedProductDTO();
+		int i = 1;
+
 		p.setId(rs.getLong(i++));
 		p.setName(rs.getString(i++));
 		p.setCategoryId(rs.getShort(i++));

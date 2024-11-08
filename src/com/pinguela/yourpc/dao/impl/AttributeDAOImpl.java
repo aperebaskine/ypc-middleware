@@ -15,12 +15,10 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AttributeDAO;
-import com.pinguela.yourpc.model.AttributeValue;
 import com.pinguela.yourpc.model.dto.AbstractProductDTO;
 import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.model.dto.AttributeValueDTO;
 import com.pinguela.yourpc.model.dto.CategoryDTO;
-import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -37,7 +35,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static final String SELECT_COLUMNS;
 	static {
 		StringBuilder selectClause = new StringBuilder(" SELECT at.").append(DATA_TYPE_COLUMN)
-				.append(", at.").append(NAME_COLUMN)
+				.append(", atl.").append(NAME_COLUMN)
 				.append(", av.").append(VALUE_ID_COLUMN);
 
 		for (String dataType : AttributeDTO.TYPE_PARAMETER_CLASSES.keySet()) {
@@ -48,6 +46,8 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 	private static final String FROM_TABLE = 
 			" FROM ATTRIBUTE_TYPE at"
+					+ " INNER JOIN ATTRIBUTE_TYPE_LOCALE atl"
+					+ " ON at.ID = atl.ATTRIBUTE_TYPE_ID"
 					+ " LEFT JOIN ATTRIBUTE_VALUE av"
 					+ " ON av.ATTRIBUTE_TYPE_ID = at.ID";
 	private static final String JOIN_CATEGORY = 
@@ -84,6 +84,13 @@ public class AttributeDAOImpl implements AttributeDAO {
 					+ " FROM ATTRIBUTE_TYPE WHERE NAME = ?";
 
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
+
+	@Override
+	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned)
+			throws DataException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned) throws DataException {
@@ -224,8 +231,8 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 		if (currentResults.containsKey(name)) { // Add value to previously retrieved attribute type
 			AttributeDTO<?> attribute = currentResults.get(name);
-			
-			for (AttributeValue<?> attributeValue : next.getValues()) {
+
+			for (AttributeValueDTO<?> attributeValue : next.getValues()) {
 				attribute.addValue(attributeValue.getId(), attributeValue.getValue());
 			}
 		} else { 
@@ -241,12 +248,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 		// Add value to list
 		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
 		Long id = rs.getLong(VALUE_ID_COLUMN);
-		
+
 		if (!rs.wasNull()) { // Attribute without values
 			Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
 			attribute.addValue(id, value);
 		}
-		
+
 		return attribute;
 	}
 
@@ -299,7 +306,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @param p Product containing the attribute values to count
 	 * @return number of attribute values
 	 */
-	private static int getAttributeCount(ProductDTO p) {
+	private static int getAttributeCount(AbstractProductDTO p) {
 		int count = 0;
 		for (AttributeDTO<?> attribute : p.getAttributes().values()) {
 			count+=attribute.getValues().size();
@@ -344,7 +351,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @return Database ID for the attribute value
 	 * @throws DataException if driver throws SQLException
 	 */
-	private Long identifyOrCreate(Connection conn, AttributeValue<?> attributeValue, String attributeName, String dataTypeIdentifier) 
+	private Long identifyOrCreate(Connection conn, AttributeValueDTO<?> attributeValue, String attributeName, String dataTypeIdentifier) 
 			throws DataException {
 
 		String columnName = AttributeUtils.getValueColumnName(dataTypeIdentifier);
