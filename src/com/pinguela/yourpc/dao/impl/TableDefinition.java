@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.pinguela.yourpc.dao.util.AttributeUtils;
-import com.pinguela.yourpc.model.dto.AttributeDTOFactory;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
 public final class TableDefinition {
@@ -59,7 +59,7 @@ public final class TableDefinition {
 	    
 	    addColumn(columns, ATTRIBUTE_VALUE_ALIAS, "ID", Long.class);
 
-	    for (Entry<String, Class<?>> entry : AttributeDTOFactory.TYPE_PARAMETER_CLASSES.entrySet()) {
+	    for (Entry<String, Class<?>> entry : AttributeDTO.TYPE_PARAMETER_CLASSES.entrySet()) {
 	        addColumn(columns, ATTRIBUTE_VALUE_ALIAS, 
 	            AttributeUtils.getValueColumnName(entry.getKey()), entry.getValue());
 	    }

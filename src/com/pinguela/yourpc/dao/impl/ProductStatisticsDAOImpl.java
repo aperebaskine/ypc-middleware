@@ -17,7 +17,7 @@ import com.pinguela.yourpc.dao.ProductStatisticsDAO;
 import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.AttributeStatistics;
 import com.pinguela.yourpc.model.ProductStatistics;
-import com.pinguela.yourpc.model.dto.AttributeDTOFactory;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -226,7 +226,7 @@ implements ProductStatisticsDAO {
 				String name = rs.getString(j++);
 				String dataType = rs.getString(j++);				
 				Object value = rs.getObject(AttributeUtils.getValueColumnName(dataType), 
-						AttributeDTOFactory.TYPE_PARAMETER_CLASSES.get(dataType));
+						AttributeDTO.TYPE_PARAMETER_CLASSES.get(dataType));
 				
 				results.add(new AttributeStatistics<>(name, value, quantity));
 			}

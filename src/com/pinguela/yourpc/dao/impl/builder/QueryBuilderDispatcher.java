@@ -32,6 +32,10 @@ public class QueryBuilderDispatcher {
 	private QueryBuilderDispatcher() {
 	}
 
+	/**
+	 * Return the Singleton instance of the dispatcher.
+	 * @return The instance
+	 */
 	public static QueryBuilderDispatcher getInstance() {
 		return INSTANCE;
 	}

@@ -10,7 +10,6 @@ import org.hibernate.query.TupleTransformer;
 
 import com.pinguela.yourpc.dao.util.AttributeUtils;
 import com.pinguela.yourpc.model.dto.AttributeDTO;
-import com.pinguela.yourpc.model.dto.AttributeDTOFactory;
 
 public class AttributeTransformer 
 implements TupleTransformer<AttributeDTO<?>>, ResultListTransformer<Map<String, AttributeDTO<?>>> {
@@ -40,7 +39,7 @@ implements TupleTransformer<AttributeDTO<?>>, ResultListTransformer<Map<String, 
 		}
 
 		AttributeDTO<?> attribute = attributeMap.computeIfAbsent(attributeName, name -> {
-			AttributeDTO<?> newAttribute = AttributeDTOFactory.getInstance(dataTypeId);
+			AttributeDTO<?> newAttribute = AttributeDTO.getInstance(dataTypeId);
 			newAttribute.setId(id);
 			newAttribute.setName(name);
 

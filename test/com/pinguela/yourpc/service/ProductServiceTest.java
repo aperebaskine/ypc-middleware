@@ -23,10 +23,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.pinguela.DataException;
 import com.pinguela.YPCException;
-import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
+import com.pinguela.yourpc.model.dto.FullProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
 import com.pinguela.yourpc.service.impl.ProductServiceImpl;
 import com.pinguela.yourpc.util.CategoryUtils;
@@ -79,27 +80,27 @@ class ProductServiceTest {
 	@Nested
 	class TestFindBy {
 
-		private Attribute<String> varcharAttribute;
-		private Attribute<Long> bigintAttribute;
-		private Attribute<Double> decimalAttribute;
-		private Attribute<Boolean> booleanAttribute;
+		private AttributeDTO<String> varcharAttribute;
+		private AttributeDTO<Long> bigintAttribute;
+		private AttributeDTO<Double> decimalAttribute;
+		private AttributeDTO<Boolean> booleanAttribute;
 
 		{
-			varcharAttribute = Attribute.getInstance(String.class);
+			varcharAttribute = AttributeDTO.getInstance(String.class);
 			varcharAttribute.setName("Brand");
 			varcharAttribute.addValue(null, "AMD");
 
-			bigintAttribute = Attribute.getInstance(Long.class);
+			bigintAttribute = AttributeDTO.getInstance(Long.class);
 			bigintAttribute.setName("Number of Cores");
 			bigintAttribute.addValue(null, 12l);
 			bigintAttribute.addValue(null, 20l);
 
-			decimalAttribute = Attribute.getInstance(Double.class);
+			decimalAttribute = AttributeDTO.getInstance(Double.class);
 			decimalAttribute.setName("Voltage (V)");
 			decimalAttribute.addValue(null, 1.1d);
 			decimalAttribute.addValue(null, 1.2d);
 
-			booleanAttribute = Attribute.getInstance(Boolean.class);
+			booleanAttribute = AttributeDTO.getInstance(Boolean.class);
 			booleanAttribute.setName("Integrated Graphics");
 			booleanAttribute.addValue(null, false);
 		}
@@ -444,14 +445,13 @@ class ProductServiceTest {
 				fail(e.getMessage(), e);
 			}  
 		}
-
 	}
-
+	
 	@Nested
 	@TestInstance(Lifecycle.PER_CLASS)
 	class TestCreate {
 
-		private LocalizedProductDTO p;
+		private FullProductDTO p;
 
 		@BeforeEach
 		void setUp() {
@@ -468,32 +468,32 @@ class ProductServiceTest {
 			p.setPurchasePrice(449.99d);
 			p.setSalePrice(649.99d);
 
-			Attribute<String> firstAttribute = Attribute.getInstance(String.class);
+			AttributeDTO<String> firstAttribute = AttributeDTO.getInstance(String.class);
 			firstAttribute.setName("Memory Type");
 			firstAttribute.addValue(97l, null);
 			firstAttribute.addValue(98l, null);
 
 			p.getAttributes().put(firstAttribute.getName(), firstAttribute);
 
-			Attribute<Double> secondAttribute = Attribute.getInstance(Double.class);
+			AttributeDTO<Double> secondAttribute = AttributeDTO.getInstance(Double.class);
 			secondAttribute.setName("Voltage (V)");
 			secondAttribute.addValue(146l, null);
 
 			p.getAttributes().put(secondAttribute.getName(), secondAttribute);
 
-			Attribute<String> thirdAttribute = Attribute.getInstance(String.class);
+			AttributeDTO<String> thirdAttribute = AttributeDTO.getInstance(String.class);
 			thirdAttribute.setName("Brand");
 			thirdAttribute.addValue(null, "TESTCREATE" + System.currentTimeMillis());
 
 			p.getAttributes().put(thirdAttribute.getName(), thirdAttribute);
 
-			Attribute<Long> fourthAttribute = Attribute.getInstance(Long.class);
+			AttributeDTO<Long> fourthAttribute = AttributeDTO.getInstance(Long.class);
 			fourthAttribute.setName("Boost Frequency (MHz)");
 			fourthAttribute.addValue(null, 6000L);
 
 			p.getAttributes().put(fourthAttribute.getName(), fourthAttribute);
 
-			Attribute<Boolean> fifthAttribute = Attribute.getInstance(Boolean.class);
+			AttributeDTO<Boolean> fifthAttribute = AttributeDTO.getInstance(Boolean.class);
 			fifthAttribute.setName("Integrated Graphics");
 			fifthAttribute.addValue(null, true);
 
@@ -528,7 +528,7 @@ class ProductServiceTest {
 		@Test
 		void testCreateWithSingleAttribute() {
 			try {
-				Attribute<?> attribute = p.getAttributes().get("Brand");
+				AttributeDTO<?> attribute = p.getAttributes().get("Brand");
 				p.getAttributes().clear();
 				p.getAttributes().put(attribute.getName(), attribute);
 
@@ -562,12 +562,11 @@ class ProductServiceTest {
 			TestSuite.initializeTransactionTables();
 		}
 	}
-
-
+	
 	@Test
 	void testUpdate() {
 		try {
-			LocalizedProductDTO p = productService.findById(1l, null);
+			FullProductDTO p = productService.findById(1l);
 			p.setDescription("TEST" +System.currentTimeMillis());
 			assertTrue(productService.update(p));
 
