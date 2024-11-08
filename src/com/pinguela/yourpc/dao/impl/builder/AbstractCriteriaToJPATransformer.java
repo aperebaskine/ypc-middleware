@@ -39,6 +39,6 @@ public abstract class AbstractCriteriaToJPATransformer<E extends AbstractEntity<
 		}
 	}
 	
-	protected abstract List<Predicate> doTransform(CriteriaBuilder cb, Root<E> root, List<Predicate> commonPredicates, C criteria);
+	protected abstract List<Predicate> doTransform(CriteriaBuilder cb, Root<E> root, List<Predicate> predicates, C criteria);
 	
 }
