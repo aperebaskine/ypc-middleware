@@ -7,7 +7,7 @@ extends AbstractDTO<Short> {
 
 	private String name;
 	private Short parentId;
-	private Set<Short> childrenIds;
+	private Set<CategoryDTO> children;
 
 	public CategoryDTO() {
 	}
@@ -28,12 +28,12 @@ extends AbstractDTO<Short> {
 		this.parentId = parentId;
 	}
 
-	public Set<Short> getChildrenIds() {
-		return childrenIds;
+	public Set<CategoryDTO> getChildren() {
+		return children;
 	}
 
-	public void setChildrenIds(Set<Short> childrenIds) {
-		this.childrenIds = childrenIds;
+	public void setChildren(Set<CategoryDTO> children) {
+		this.children = children;
 	}
 
 }

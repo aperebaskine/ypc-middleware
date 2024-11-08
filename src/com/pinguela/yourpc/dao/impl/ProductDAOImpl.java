@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,14 +18,13 @@ import com.pinguela.ErrorCodes;
 import com.pinguela.LogMessages;
 import com.pinguela.yourpc.dao.AttributeDAO;
 import com.pinguela.yourpc.dao.ProductDAO;
-import com.pinguela.yourpc.model.Attribute;
-import com.pinguela.yourpc.model.AttributeValue;
-import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
+import com.pinguela.yourpc.model.dto.AttributeDTO;
+import com.pinguela.yourpc.model.dto.AttributeValueDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
@@ -67,6 +67,7 @@ implements ProductDAO {
 					+ "	ON av.ID = pav.ATTRIBUTE_VALUE_ID"
 					+ " INNER JOIN ATTRIBUTE_TYPE at"
 					+ " ON at.ID = av.ATTRIBUTE_TYPE_ID";
+
 	private static final String WHERE_ID_EQUALS = " WHERE p.ID = ?";
 	private static final String AND_DISCONTINUATION_DATE = " AND p.DISCONTINUATION_DATE IS NULL";
 
@@ -83,7 +84,11 @@ implements ProductDAO {
 					+ " STOCK,"
 					+ " PURCHASE_PRICE,"
 					+ " SALE_PRICE)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+					+ " VALUES"
+					+ " (?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String CREATE_I18n_QUERY = 
+			" INSERT INTO PRODUCT_LOCALE (ID, NAME, DESCRIPTION) VALUES";
 
 	private static final String UPDATE_QUERY =
 			" UPDATE PRODUCT"
@@ -95,7 +100,14 @@ implements ProductDAO {
 					+ " PURCHASE_PRICE = ?,"
 					+ " SALE_PRICE = ?"
 					+ " WHERE ID = ?";
-	
+
+	private static final String UPDATE_I18n_QUERY = 
+			" UPDATE PRODUCT_LOCALE"
+					+ " SET NAME = ?,"
+					+ " DESCRIPTION = ?"
+					+ " WHERE PRODUCT_ID = ?"
+					+ " AND LOCALE_ID = ?";
+
 	private static final String DELETE_QUERY =
 			" UPDATE PRODUCT"
 					+ " SET DISCONTINUATION_DATE = ?"
@@ -127,8 +139,36 @@ implements ProductDAO {
 				rs = stmt.getGeneratedKeys();
 				rs.next();
 				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
+				
+				createLocale(conn, p);
 				attributeDAO.assignToProduct(conn, p);
+				
 				return p.getId();
+			}
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+	
+	private boolean createLocale(Connection conn, ProductDTO p) 
+			throws DataException {
+		
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(CREATE_I18n_QUERY);
+			setI18nInsertValues(stmt, p);
+
+			int affectedRows = stmt.executeUpdate();
+			if (affectedRows != p.getNameI18n().size()) {
+				logger.error(LogMessages.INSERT_FAILED, p);
+				throw new DataException(ErrorCodes.INSERT_FAILED);
+			} else {
+				return true;
 			}
 		} catch (SQLException sqle) {
 			logger.error(sqle);
@@ -163,6 +203,35 @@ implements ProductDAO {
 		}
 	}
 	
+	private Long updateLocale(Connection conn, ProductDTO p) 
+			throws DataException {
+		
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
+			setInsertValues(stmt, p);
+
+			int affectedRows = stmt.executeUpdate();
+			if (affectedRows != 1) {
+				logger.error(LogMessages.INSERT_FAILED, p);
+				throw new DataException(ErrorCodes.INSERT_FAILED);
+			} else {
+				rs = stmt.getGeneratedKeys();
+				rs.next();
+				p.setId(rs.getLong(JDBCUtils.GENERATED_KEY_INDEX));
+				attributeDAO.assignToProduct(conn, p);
+				return p.getId();
+			}
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+
 	@Override
 	public Boolean delete(Connection conn, Long productId) 
 			throws DataException {
@@ -188,7 +257,7 @@ implements ProductDAO {
 		}
 	}
 
-	private int setInsertValues(PreparedStatement stmt, Product p) throws SQLException {
+	private int setInsertValues(PreparedStatement stmt, ProductDTO p) throws SQLException {
 
 		int i = 1;
 
@@ -199,6 +268,17 @@ implements ProductDAO {
 		stmt.setInt(i++, p.getStock());
 		stmt.setDouble(i++, p.getPurchasePrice());
 		stmt.setDouble(i++, p.getSalePrice());
+		return i;
+	}
+	
+	private int setI18nInsertValues(PreparedStatement stmt, ProductDTO p) 
+			throws SQLException {
+		
+		int i = 1;
+		for (Locale locale : p.getNameI18n().keySet()) {
+			stmt.setString(i++, p.getNameI18n().get(locale));
+			stmt.setString(i++, p.getDescriptionI18n().get(locale));
+		}
 		return i;
 	}
 
@@ -212,7 +292,7 @@ implements ProductDAO {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		Product p = null;
+		ProductDTO p = null;
 
 		try {
 			stmt = conn.prepareStatement(FINDBYID_QUERY);
@@ -258,7 +338,7 @@ implements ProductDAO {
 	@Override
 	public ProductRanges getRanges(Connection conn, ProductCriteria criteria) 
 			throws DataException {
-		
+
 		ProductRanges ranges = new ProductRanges();
 
 		StringBuilder query = new StringBuilder(GET_RANGES_QUERY).append(buildQueryClauses(criteria));
@@ -273,7 +353,7 @@ implements ProductDAO {
 
 			rs = stmt.executeQuery();
 			rs.next();
-			
+
 			int i = 1;
 			ranges.setStockMin(rs.getInt(i++));
 			ranges.setStockMax(rs.getInt(i++));
@@ -281,7 +361,7 @@ implements ProductDAO {
 			ranges.setPriceMax(rs.getDouble(i++));
 			ranges.setLaunchDateMin(rs.getDate(i++));
 			ranges.setLaunchDateMax(rs.getDate(i++));
-			
+
 			return ranges;
 		} catch (SQLException sqle) {
 			logger.error(sqle);
@@ -377,9 +457,9 @@ implements ProductDAO {
 			}
 		}
 		if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
-			for (Attribute<?> attribute : criteria.getAttributes().values()) {
+			for (AttributeDTO<?> attribute : criteria.getAttributes().values()) {
 				stmt.setString(i++, attribute.getName());
-				for (AttributeValue<?> valueContainer : attribute.getTrimmedValues()) {
+				for (AttributeValueDTO<?> valueContainer : attribute.getValuesByHandlingMode()) {
 					stmt.setObject(i++, valueContainer.getValue(), AttributeUtils.getTargetSqlTypeIdentifier(attribute));
 				}
 			}
@@ -388,10 +468,10 @@ implements ProductDAO {
 		return i;
 	}
 
-	private Results<Product> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
+	private Results<ProductDTO> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
 			throws SQLException, DataException {
 
-		Results<Product> results = new Results<Product>();
+		Results<ProductDTO> results = new Results<ProductDTO>();
 		results.setResultCount(JDBCUtils.getRowCount(rs));
 
 		if (results.getResultCount() > 0 && pageSize > 0 && startPos > 0 && startPos <= results.getResultCount()) {
@@ -406,13 +486,13 @@ implements ProductDAO {
 		return results;
 	}
 
-	private Product loadNext(Connection conn, ResultSet rs) 
+	private ProductDTO loadNext(Connection conn, ResultSet rs) 
 			throws SQLException, DataException {
 
-		Product p = new Product();
+		ProductDTO p = new ProductDTO();
 		int i = 1;
 
-		p = new Product();
+		p = new ProductDTO();
 		p.setId(rs.getLong(i++));
 		p.setName(rs.getString(i++));
 		p.setCategoryId(rs.getShort(i++));

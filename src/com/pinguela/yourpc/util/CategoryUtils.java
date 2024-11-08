@@ -54,7 +54,7 @@ public class CategoryUtils {
 
 		if (c != null) {
 			results.put(categoryId, c);
-			if (c.getChildrenIds() != null) {
+			if (c.getChildren() != null) {
 				putChildren(results, c);
 			}
 		}
@@ -74,12 +74,11 @@ public class CategoryUtils {
 
 	private static final void putChildren(Map<Short, CategoryDTO> map, CategoryDTO c) {
 
-		if (c.getChildrenIds() == null || c.getChildrenIds().isEmpty()) {
+		if (c.getChildren() == null || c.getChildren().isEmpty()) {
 			return;
 		}
 
-		for (Short childId : c.getChildrenIds()) {
-			CategoryDTO child = CATEGORIES.get(childId);
+		for (CategoryDTO child : c.getChildren()) {
 			map.put(child.getId(), child);
 			putChildren(map, child);
 		} 

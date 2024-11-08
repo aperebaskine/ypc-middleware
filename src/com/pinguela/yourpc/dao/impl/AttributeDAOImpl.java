@@ -15,12 +15,12 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AttributeDAO;
-import com.pinguela.yourpc.model.Attribute;
 import com.pinguela.yourpc.model.AttributeValue;
-import com.pinguela.yourpc.model.Category;
-import com.pinguela.yourpc.model.Product;
 import com.pinguela.yourpc.model.dto.AbstractProductDTO;
 import com.pinguela.yourpc.model.dto.AttributeDTO;
+import com.pinguela.yourpc.model.dto.AttributeValueDTO;
+import com.pinguela.yourpc.model.dto.CategoryDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.service.AttributeService;
 import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
@@ -40,7 +40,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 				.append(", at.").append(NAME_COLUMN)
 				.append(", av.").append(VALUE_ID_COLUMN);
 
-		for (String dataType : Attribute.TYPE_PARAMETER_CLASSES.keySet()) {
+		for (String dataType : AttributeDTO.TYPE_PARAMETER_CLASSES.keySet()) {
 			selectClause.append(", av.").append(AttributeUtils.getValueColumnName(dataType));
 		}
 		SELECT_COLUMNS = selectClause.toString();
@@ -125,7 +125,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
 			throws DataException {
 
-		Map<Short, Category> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
+		Map<Short, CategoryDTO> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
 
 		StringBuilder query = new StringBuilder(FIND_BY_CATEGORY_PLACEHOLDER_CONDITION_QUERY)
 				.append(SQLQueryUtils.buildPlaceholderComparisonClause(upperHierarchy.keySet()));
@@ -193,10 +193,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @throws SQLException propagated from the driver
 	 * @throws DataException if an unexpected data type identifier was retrieved from the ResultSet.
 	 */
-	private Map<String, Attribute<?>> loadResults(ResultSet rs) 
+	private Map<String, AttributeDTO<?>> loadResults(ResultSet rs) 
 			throws SQLException, DataException {
 
-		Map<String, Attribute<?>> results = new TreeMap<String, Attribute<?>>();
+		Map<String, AttributeDTO<?>> results = new TreeMap<String, AttributeDTO<?>>();
 
 		while (rs.next()) {
 			addValue(rs, results);
@@ -216,14 +216,14 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @param retrievedValue Value to add to the map
 	 * @throws SQLException propagated by the driver
 	 */
-	private void addValue(ResultSet rs, Map<String, Attribute<?>> currentResults) 
+	private void addValue(ResultSet rs, Map<String, AttributeDTO<?>> currentResults) 
 			throws SQLException, DataException {
 
-		Attribute<?> next = loadNext(rs);
+		AttributeDTO<?> next = loadNext(rs);
 		String name = next.getName();
 
 		if (currentResults.containsKey(name)) { // Add value to previously retrieved attribute type
-			Attribute<?> attribute = currentResults.get(name);
+			AttributeDTO<?> attribute = currentResults.get(name);
 			
 			for (AttributeValue<?> attributeValue : next.getValues()) {
 				attribute.addValue(attributeValue.getId(), attributeValue.getValue());
@@ -233,9 +233,9 @@ public class AttributeDAOImpl implements AttributeDAO {
 		}
 	}
 
-	private Attribute<?> loadNext(ResultSet rs) throws SQLException {
+	private AttributeDTO<?> loadNext(ResultSet rs) throws SQLException {
 
-		Attribute<?> attribute = Attribute.getInstance(rs.getString(DATA_TYPE_COLUMN));
+		AttributeDTO<?> attribute = AttributeDTO.getInstance(rs.getString(DATA_TYPE_COLUMN));
 		attribute.setName(rs.getString(NAME_COLUMN));
 
 		// Add value to list
@@ -269,9 +269,9 @@ public class AttributeDAOImpl implements AttributeDAO {
 			stmt = conn.prepareStatement(query);
 
 			int stmtIndex = 1;
-			for (Attribute<?> attribute : p.getAttributes().values()) {
+			for (AttributeDTO<?> attribute : p.getAttributes().values()) {
 				for (int valueIndex = 0; valueIndex < attribute.getValues().size(); valueIndex++) {
-					AttributeValue<?> av = attribute.getValues().get(valueIndex);
+					AttributeValueDTO<?> av = attribute.getValues().get(valueIndex);
 					if (av.getId() == null) { // Attribute value was not previously retrieved from database
 						identifyOrCreate(conn, av, attribute.getName(), attribute.getDataTypeIdentifier());
 					}
@@ -299,9 +299,9 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @param p Product containing the attribute values to count
 	 * @return number of attribute values
 	 */
-	private static int getAttributeCount(Product p) {
+	private static int getAttributeCount(ProductDTO p) {
 		int count = 0;
-		for (Attribute<?> attribute : p.getAttributes().values()) {
+		for (AttributeDTO<?> attribute : p.getAttributes().values()) {
 			count+=attribute.getValues().size();
 		}
 		return count;

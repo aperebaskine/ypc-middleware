@@ -7,8 +7,8 @@ import com.pinguela.ServiceException;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 
 public interface ProductService {
 	

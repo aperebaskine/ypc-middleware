@@ -14,28 +14,24 @@ import org.apache.logging.log4j.Logger;
 import com.pinguela.DataException;
 import com.pinguela.yourpc.dao.CategoryDAO;
 import com.pinguela.yourpc.model.dto.CategoryDTO;
-import com.pinguela.yourpc.util.CategoryUtils;
 import com.pinguela.yourpc.util.JDBCUtils;
 
 public class CategoryDAOImpl implements CategoryDAO {
 	
-	private static final String ID_COLUMN = "ID";
-	private static final String NAME_COLUMN = "NAME";
-	private static final String PARENT_ID_COLUMN = "PARENT_ID";
-
-	private static final String SELECT_COLUMNS = " SELECT"
-			+ " c." +ID_COLUMN +","
-			+ " c." +NAME_COLUMN +","
-			+ " c." +PARENT_ID_COLUMN;
+	private static final String BASE_QUERY = 
+			" SELECT c.ID, cl.NAME, c.PARENT_ID"
+			+ " FROM CATEGORY c"
+			+ " INNER JOIN CATEGORY_LOCALE cl"
+			+ " ON cl.CATEGORY_ID = c.ID"
+			+ " AND cl.LOCALE = ?";
 	
-	private static final String FROM_TABLE = " FROM CATEGORY c";
-	private static final String WHERE_PARENT_ID = " WHERE c.PARENT_ID = ?";
+	private static final String WHERE_PARENT_ID_EQUALS = " WHERE c.PARENT_ID = ?";
 	private static final String WHERE_PARENT_ID_IS_NULL = " WHERE c.PARENT_ID IS NULL";
 
 	private static final String FIND_ROOT_CATEGORIES_QUERY = 
-			SELECT_COLUMNS +FROM_TABLE +WHERE_PARENT_ID_IS_NULL;
+			BASE_QUERY +WHERE_PARENT_ID_IS_NULL;
 	private static final String FIND_CHILDREN_QUERY = 
-			SELECT_COLUMNS +FROM_TABLE +WHERE_PARENT_ID;
+			BASE_QUERY +WHERE_PARENT_ID_EQUALS;
 
 	private static Logger logger = LogManager.getLogger(CategoryDAOImpl.class);
 
@@ -48,10 +44,11 @@ public class CategoryDAOImpl implements CategoryDAO {
 
 		try {
 			stmt = conn.prepareStatement(FIND_ROOT_CATEGORIES_QUERY);
-
+			stmt.setString(1, locale.toLanguageTag());
+			
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				CategoryDTO c = loadNext(conn, rs);
+				CategoryDTO c = loadNext(conn, rs, locale);
 				results.put(c.getId(), c);
 				putChildren(results, c);
 			}
@@ -65,7 +62,19 @@ public class CategoryDAOImpl implements CategoryDAO {
 		}
 	}
 
-	private void findChildren(Connection conn, CategoryDTO c) 
+	private CategoryDTO loadNext(Connection conn, ResultSet rs, Locale locale) 
+			throws SQLException, DataException {
+
+		CategoryDTO c = new CategoryDTO();
+
+		int i = 1;
+		c.setId(rs.getShort(i++));
+		c.setName(rs.getString(i++));
+		findChildren(conn, c, locale);
+		return c;
+	}
+	
+	private void findChildren(Connection conn, CategoryDTO c, Locale locale) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -73,13 +82,16 @@ public class CategoryDAOImpl implements CategoryDAO {
 
 		try {
 			stmt = conn.prepareStatement(FIND_CHILDREN_QUERY);
-			stmt.setShort(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, c.getId());
+			
+			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setShort(i++, c.getId());
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				CategoryDTO child = loadNext(conn, rs);
+				CategoryDTO child = loadNext(conn, rs, locale);
 				child.setParentId(c.getId());
-				c.getChildrenIds().add(child.getId());
+				c.getChildren().add(child);
 			}
 		} catch (SQLException sqle) {
 			logger.error(sqle);
@@ -88,26 +100,15 @@ public class CategoryDAOImpl implements CategoryDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-
-	private CategoryDTO loadNext(Connection conn, ResultSet rs) 
-			throws SQLException, DataException {
-
-		CategoryDTO c = new CategoryDTO();
-
-		c.setId(rs.getShort(ID_COLUMN));
-		c.setName(rs.getString(NAME_COLUMN));
-		findChildren(conn, c);
-		return c;
-	}
 	
 	private void putChildren(Map<Short, CategoryDTO> map, CategoryDTO c) {
 		
-		if (c.getChildrenIds().isEmpty()) { // No more child categories to add, recursive method ends
+		if (c.getChildren().isEmpty()) { // No more child categories to add, recursive method ends
 			return;
 		}
 		
-		map.putAll(CategoryUtils.CATEGORIES.get);
-		for (CategoryDTO child : c.getChildren().values()) {
+		for (CategoryDTO child : c.getChildren()) {
+			map.put(child.getId(), child);
 			putChildren(map, child);
 		}
 	}

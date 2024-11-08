@@ -14,8 +14,8 @@ import com.pinguela.yourpc.dao.impl.ProductDAOImpl;
 import com.pinguela.yourpc.model.ProductCriteria;
 import com.pinguela.yourpc.model.ProductRanges;
 import com.pinguela.yourpc.model.Results;
-import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.model.dto.LocalizedProductDTO;
+import com.pinguela.yourpc.model.dto.ProductDTO;
 import com.pinguela.yourpc.service.ProductService;
 import com.pinguela.yourpc.util.JDBCUtils;
 

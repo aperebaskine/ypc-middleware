@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.model.dto;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -8,6 +9,11 @@ extends AbstractProductDTO {
 
 	private Map<Locale, String> nameI18n;
 	private Map<Locale, String> descriptionI18n;
+	
+	public ProductDTO() {
+		this.nameI18n = new HashMap<Locale, String>();
+		this.descriptionI18n = new HashMap<Locale, String>();
+	}
 
 	public Map<Locale, String> getNameI18n() {
 		return nameI18n;
