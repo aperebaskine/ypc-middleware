@@ -21,16 +21,16 @@ public interface ProductDAO {
 	public Boolean delete(Connection conn, Long productId)
 			throws DataException;
 	
-	public ProductDTO findById(Connection conn, Long id)
+	public ProductDTO findById(Connection conn, Long id, Locale locale)
 			throws DataException;
 	
-	public LocalizedProductDTO findById(Connection conn, Long id, Locale locale)
+	public LocalizedProductDTO findByIdLocalized(Connection conn, Long id, Locale locale)
 			throws DataException;
 	
-	public Results<LocalizedProductDTO> findBy(Connection conn, ProductCriteria criteria, int pos, int pageSize)
+	public Results<LocalizedProductDTO> findBy(Connection conn, ProductCriteria criteria, Locale locale, int pos, int pageSize)
 			throws DataException;
 	
-	public ProductRanges getRanges(Connection conn, ProductCriteria criteria) 
+	public ProductRanges getRanges(Connection conn, ProductCriteria criteria, Locale locale) 
 			throws DataException;
 	
 }

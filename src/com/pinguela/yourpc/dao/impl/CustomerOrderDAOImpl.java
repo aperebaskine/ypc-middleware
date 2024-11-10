@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -159,7 +160,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 	}
 
 	@Override
-	public CustomerOrder findById(Connection conn, Long id) 
+	public CustomerOrder findById(Connection conn, Long id, Locale locale) 
 			throws DataException {
 		
 		if (id == null) {
@@ -184,7 +185,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				co = loadNext(conn, rs);
+				co = loadNext(conn, rs, locale);
 			}
 			return co;
 
@@ -197,7 +198,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 	}
 	
 	@Override
-	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId) 
+	public List<CustomerOrder> findByCustomer(Connection conn, Integer customerId, Locale locale) 
 			throws DataException {
 		
 		if (customerId == null) {
@@ -223,7 +224,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				results.add(loadNext(conn, rs));
+				results.add(loadNext(conn, rs, locale));
 			}
 			return results;
 
@@ -236,7 +237,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 	}
 
 	@Override
-	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria) 
+	public List<CustomerOrder> findBy(Connection conn, CustomerOrderCriteria criteria, Locale locale) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -246,11 +247,11 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		try {
 
 			stmt = conn.prepareStatement(buildFindByQuery(criteria));
-			setQueryValues(stmt, criteria);
+			setQueryValues(stmt, criteria, locale);
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {
-				results.add(loadNext(conn, rs));
+				results.add(loadNext(conn, rs, locale));
 			}
 			return results;
 
@@ -276,7 +277,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 			stmt = conn.prepareStatement(query.toString(),
 					ResultSet.TYPE_SCROLL_INSENSITIVE, 
 					ResultSet.CONCUR_READ_ONLY);
-			setQueryValues(stmt, criteria);
+			setQueryValues(stmt, criteria, null);
 
 			rs = stmt.executeQuery();
 			rs.next();
@@ -344,7 +345,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		return SQLQueryUtils.buildWhereClause(filledCriteria);
 	}
 
-	private void setQueryValues(PreparedStatement stmt, CustomerOrderCriteria criteria) throws SQLException {
+	private void setQueryValues(PreparedStatement stmt, CustomerOrderCriteria criteria, Locale locale) throws SQLException {
 
 		int index = 1;
 
@@ -371,7 +372,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		}
 	}
 
-	private CustomerOrder loadNext(Connection conn, ResultSet rs) 
+	private CustomerOrder loadNext(Connection conn, ResultSet rs, Locale locale) 
 			throws SQLException, DataException {
 
 		CustomerOrder co = new CustomerOrder();
@@ -385,7 +386,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		co.setBillingAddressId(rs.getInt(i++));
 		co.setShippingAddressId(rs.getInt(i++));
 		co.setTotalPrice(rs.getDouble(i++));
-		co.setOrderLines(orderLineDAO.findByCustomerOrder(conn, co.getId()));
+		co.setOrderLines(orderLineDAO.findByCustomerOrder(conn, co.getId(), locale));
 		return co;
 	}
 

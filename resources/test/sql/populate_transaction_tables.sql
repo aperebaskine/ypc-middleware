@@ -3,6 +3,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `PRODUCT_ATTRIBUTE_VALUE`;
 TRUNCATE TABLE `ATTRIBUTE_VALUE`;
 TRUNCATE TABLE `CATEGORY_ATTRIBUTE_TYPE`;
+TRUNCATE TABLE `ATTRIBUTE_TYPE_LOCALE`;
 TRUNCATE TABLE `ATTRIBUTE_TYPE`;
 TRUNCATE TABLE `RMA_ORDER_LINE`;
 TRUNCATE TABLE `RMA`;
@@ -11,6 +12,7 @@ TRUNCATE TABLE `TICKET_ORDER_LINE`;
 TRUNCATE TABLE `TICKET`;
 TRUNCATE TABLE `ORDER_LINE`;
 TRUNCATE TABLE `CUSTOMER_ORDER`;
+TRUNCATE TABLE `PRODUCT_LOCALE`;
 TRUNCATE TABLE `PRODUCT`;
 TRUNCATE TABLE `ADDRESS`;
 TRUNCATE TABLE `CUSTOMER`;
@@ -75,73 +77,145 @@ VALUES
     (6, 18, 'Paseo de las Delicias', 40, NULL, 'Apt 30', 28045, false, false, str_to_date('2023-01-16', '%Y-%m-%d')),
     (7, 9, 'Calle Mayor', 100, 9, 'Apt 35', 28013, false, false, str_to_date('2023-03-16', '%Y-%m-%d'));
 
-INSERT INTO `PRODUCT` (`ID`, `NAME`, `CATEGORY_ID`, `DESCRIPTION`, `LAUNCH_DATE`, `STOCK`, `PURCHASE_PRICE`, `SALE_PRICE`, `REPLACEMENT_ID`)
+INSERT INTO `PRODUCT` (`ID`, `CATEGORY_ID`, `LAUNCH_DATE`, `STOCK`, `PURCHASE_PRICE`, `SALE_PRICE`, `REPLACEMENT_ID`)
 VALUES
-	-- AMD processors
-	(1, 'AMD Ryzen 9 7950X3D 4.2 GHz/5.7 GHz', 1, 'Description of AMD Ryzen 9 7950X3D 4.2 GHz/5.7 GHz', str_to_date('2023-05-16', '%Y-%m-%d'), 100, 480.00, 800.00, NULL),
-	(2, 'AMD Ryzen 9 5950X 3.4 GHz', 1, 'Description of AMD Ryzen 9 5950X 3.4 GHz', str_to_date('2022-11-16', '%Y-%m-%d'), 40, 420.00, 700.00, 1),
-	(3, 'AMD Ryzen 7 7800X3D 4.2 GHz/5 GHz', 1, 'Description of AMD Ryzen 7 7800X3D 4.2 GHz/5 GHz', str_to_date('2023-05-16', '%Y-%m-%d'), 35, 360.00, 600.00, NULL),
-	(4, 'AMD Ryzen 7 5800X3D 3.4GHz', 1, 'Description of AMD Ryzen 7 5800X3D 3.4GHz', str_to_date('2022-11-16', '%Y-%m-%d'), 30, 300.00, 500.00, 3),
-	(5, 'AMD Ryzen 5 7600X 4.7 GHz', 1, 'Description of AMD Ryzen 5 7600X 4.7 GHz', str_to_date('2023-05-16', '%Y-%m-%d'), 25, 240.00, 400.00, NULL),
-	(6, 'AMD Ryzen 5 5600X 3.7 GHz', 1, 'Description of AMD Ryzen 5 5600X 3.7GHz', str_to_date('2022-11-16', '%Y-%m-%d'), 20, 180.00, 300.00, 5),
-	-- Intel processors
-	(7, 'Intel Core i7-14700K 3.4/5.6GHz', 1, 'Description of Intel Core i7-14700K 3.4/5.6GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 22, 300.00, 500.00, NULL),
-	(8, 'Intel Core i7-13700K 3.4 GHz', 1, 'Description of Intel Core i7-13700K 3.4 GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 18, 270.00, 450.00, 7),
-	(9, 'Intel Core i7-12700K 3.6 GHz', 1, 'Description of Intel Core i7-12700K 3.6 GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 240.00, 400.00, 8),
-	(10, 'Intel Core i9-14900K 3.2/6GHz', 1, 'Description of Intel Core i9-14900K 3.2/6GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 480.00, 800.00, NULL),
-	(11, 'Intel Core i9-13900K 3 GHz', 1, 'Description of Intel Core i9-13900K 3 GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 420.00, 700.00, 10),
-	(12, 'Intel Core i9-12900K 3.2 GHz', 1, 'Description of Intel Core i9-12900K 3.2 GHz', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 360.00, 600.00, 11),
-	-- Motherboards for Gigabyte brand
-	(13, 'Gigabyte B650 Aorus Elite AX', 2, 'Description of Gigabyte B650 Aorus Elite AX', str_to_date('2023-11-16', '%Y-%m-%d'), 12, 168.00, 280.00, NULL),
-	(14, 'Gigabyte B550 Aorus Elite AX', 2, 'Description of Gigabyte B550 Aorus Elite AX', str_to_date('2023-11-16', '%Y-%m-%d'), 10, 150.00, 250.00, 13),
-	(15, 'Gigabyte Z790 Aorus Elite AX', 2, 'Description of Gigabyte Z790 Aorus Elite AX', str_to_date('2023-11-16', '%Y-%m-%d'), 8, 192.00, 320.00, NULL),
-	(16, 'Gigabyte Z690 Gaming X DDR4', 2, 'Description of Gigabyte Z690 Gaming X DDR4', str_to_date('2023-11-16', '%Y-%m-%d'), 18, 180.00, 300.00, NULL),
-	(17, 'Gigabyte Z590 Aorus Master', 2, 'Description of Gigabyte Z590 Aorus Master', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 210.00, 350.00, NULL),
-	-- Motherboards for ASUS brand
-	(18, 'ASUS ROG STRIX X670E-F GAMING WIFI', 2, 'Description of ASUS ROG STRIX X670E-F GAMING WIFI', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 228.00, 380.00, NULL),
-	(19, 'ASUS ROG Strix B550-F GAMING', 2, 'Description of ASUS ROG Strix B550-F GAMING', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 162.00, 270.00, NULL),
-	(20, 'Asus ROG STRIX Z690-E GAMING WIFI', 2, 'Description of Asus ROG STRIX Z690-E GAMING WIFI', str_to_date('2023-11-16', '%Y-%m-%d'), 22, 240.00, 400.00, NULL),
-	(21, 'Asus ROG STRIX Z590-E GAMING WIFI', 2, 'Description of Asus ROG STRIX Z590-F GAMING WIFI', str_to_date('2023-11-16', '%Y-%m-%d'), 16, 216.00, 360.00, 20),
-	(22, 'ASUS ROG Maximus Z790 Hero', 2, 'Description of ASUS ROG Maximus Z790 Hero', str_to_date('2023-11-16', '%Y-%m-%d'), 10, 252.00, 420.00, NULL),
-	-- RAM for Corsair brand
-	(23, 'Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16', 3, 'Description of Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 90.00, 150.00, NULL),
-	(24, 'Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16', 3, 'Description of Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 150.00, 250.00, NULL),
-	(25, 'Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra', 3, 'Description of Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 240.00, 400.00, NULL),
-	(26, 'Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32', 3, 'Description of Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 360.00, 600.00, NULL),
-	(27, 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500GB', 9, 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 150.00, 250.00, NULL),
-	(28, 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB', 9, 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 270.00, 450.00, NULL),
-	(29, 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB', 9, 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 4TB', str_to_date('2023-11-16', '%Y-%m-%d'), 10, 480.00, 800.00, NULL),
-	(30, 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB', 9, 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 72.00, 120.00, 27),
-	(31, 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB', 9, 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB', str_to_date('2023-11-16', '%Y-%m-%d'), 18, 120.00, 200.00, 28),
-	(32, 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB', 9, 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB', str_to_date('2023-11-16', '%Y-%m-%d'), 12, 228.00, 380.00, 29),
-	(33, 'Samsung 970 EVO Plus SSD NVMe M.2 500GB', 9, 'Description of Samsung 970 EVO Plus SSD NVMe M.2 500GB', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 60.00, 100.00, NULL),
-	(34, 'Samsung 970 EVO Plus SSD NVMe M.2 1TB', 9, 'Description of Samsung 970 EVO Plus SSD NVMe M.2 1TB', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 108.00, 180.00, NULL),
-	(35, 'Samsung 970 EVO Plus SSD NVMe M.2 2TB', 9, 'Description of Samsung 970 EVO Plus SSD NVMe M.2 2TB', str_to_date('2023-11-16', '%Y-%m-%d'), 10, 210.00, 350.00, NULL),
-	(36, 'WD Red SA500 NAS SSD SATA M.2 2280 500GB', 9, 'Description of WD Red SA500 NAS SSD SATA M.2 2280 500GB', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 54.00, 90.00, NULL),
-	(37, 'WD Red SA500 NAS SSD SATA M.2 2280 1TB', 9, 'Description of WD Red SA500 NAS SSD SATA M.2 2280 1TB', str_to_date('2023-11-16', '%Y-%m-%d'), 22, 96.00, 160.00, NULL),
-	(38, 'WD Red SA500 NAS SSD SATA M.2 2280 2TB', 9, 'Description of WD Red SA500 NAS SSD SATA M.2 2280 2TB', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 180.00, 300.00, NULL),
-	(39, 'Western Digital Blue 2.5" SSD 1TB SATA 3', 9, 'Description of Western Digital Blue 2.5" SSD 1TB SATA 3', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 84.00, 140.00, NULL),
-	-- HDDs for Western Digital brand
-	(40, 'Western Digital Red Plus 3.5" SATA3 2TB', 10, 'Description of Western Digital Red Plus 3.5" SATA3 2TB', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 48.00, 80.00, NULL),
-	(41, 'Western Digital Red Plus 3.5" SATA3 3TB', 10, 'Description of Western Digital Red Plus 3.5" SATA3 3TB', str_to_date('2023-11-16', '%Y-%m-%d'), 18, 66.00, 110.00, NULL),
-	(42, 'Western Digital Red Plus 3.5" SATA3 4TB', 10, 'Description of Western Digital Red Plus 3.5" SATA3 4TB', str_to_date('2023-11-16', '%Y-%m-%d'), 12, 84.00, 140.00, NULL),
-	-- NVIDIA graphics cards
-	(43, 'EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X', 11, 'Description of EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 720.00, 1200.00, NULL),
-	(44, 'EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X', 11, 'Description of EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 360.00, 600.00, 43),
-	(45, 'ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3', 11, 'Description of ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3', str_to_date('2023-11-16', '%Y-%m-%d'), 40, 1080.00, 1800.00, NULL),
-	-- AMD graphics cards
-	(46, 'Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6', 12, 'Description of Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 420.00, 700.00, NULL),
-	(47, 'Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6', 12, 'Description of Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 300.00, 500.00, 46),
-	(48, 'ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6', 12, 'Description of ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 540.00, 900.00, NULL),
-	-- Cases
-    (49, 'Fractal Design Node 202 Mini ITX Desktop Case', 7, 'Description of Fractal Design Node 202 Mini ITX Desktop Case', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 100.00, 150.00, NULL),
-    (50, 'NZXT H510 Compact ATX Mid-Tower Case', 7, 'Description of NZXT H510 Compact ATX Mid-Tower Case', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 70.00, 120.00, NULL),
-    (51, 'Cooler Master MasterBox Q300L mATX Tower Case', 7, 'Description of Cooler Master MasterBox Q300L mATX Tower Case', str_to_date('2023-11-16', '%Y-%m-%d'), 20, 50.00, 100.00, NULL),
-    (52, 'Fractal Design Meshify C ATX Mid Tower Case', 7, 'Description of Fractal Design Meshify C ATX Mid Tower Case', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 90.00, 150.00, NULL),
+    -- AMD processors
+    (1, 1, str_to_date('2023-05-16', '%Y-%m-%d'), 100, 480.00, 800.00, NULL),
+    (2, 1, str_to_date('2022-11-16', '%Y-%m-%d'), 40, 420.00, 700.00, 1),
+    (3, 1, str_to_date('2023-05-16', '%Y-%m-%d'), 35, 360.00, 600.00, NULL),
+    (4, 1, str_to_date('2022-11-16', '%Y-%m-%d'), 30, 300.00, 500.00, 3),
+    (5, 1, str_to_date('2023-05-16', '%Y-%m-%d'), 25, 240.00, 400.00, NULL),
+    (6, 1, str_to_date('2022-11-16', '%Y-%m-%d'), 20, 180.00, 300.00, 5),
+    -- Intel processors
+    (7, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 22, 300.00, 500.00, NULL),
+    (8, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 18, 270.00, 450.00, 7),
+    (9, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 240.00, 400.00, 8),
+    (10, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 480.00, 800.00, NULL),
+    (11, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 420.00, 700.00, 10),
+    (12, 1, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 360.00, 600.00, 11),
+    -- Motherboards for Gigabyte brand
+    (13, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 12, 168.00, 280.00, NULL),
+    (14, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 10, 150.00, 250.00, 13),
+    (15, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 8, 192.00, 320.00, NULL),
+    (16, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 18, 180.00, 300.00, NULL),
+    (17, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 210.00, 350.00, NULL),
+    -- Motherboards for ASUS brand
+    (18, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 228.00, 380.00, NULL),
+    (19, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 162.00, 270.00, NULL),
+    (20, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 22, 240.00, 400.00, NULL),
+    (21, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 16, 216.00, 360.00, 20),
+    (22, 2, str_to_date('2023-11-16', '%Y-%m-%d'), 10, 252.00, 420.00, NULL),
+    -- RAM for Corsair brand
+    (23, 3, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 90.00, 150.00, NULL),
+    (24, 3, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 150.00, 250.00, NULL),
+    (25, 3, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 240.00, 400.00, NULL),
+    (26, 3, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 360.00, 600.00, NULL),
+    -- SSDs for Samsung brand
+    (27, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 150.00, 250.00, NULL),
+    (28, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 270.00, 450.00, NULL),
+    (29, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 10, 480.00, 800.00, NULL),
+    (30, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 72.00, 120.00, 27),
+    (31, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 18, 120.00, 200.00, 28),
+    (32, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 12, 228.00, 380.00, 29),
+    (33, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 60.00, 100.00, NULL),
+    (34, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 108.00, 180.00, NULL),
+    (35, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 10, 210.00, 350.00, NULL),
+    -- SSDs for Western Digital brand
+    (36, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 54.00, 90.00, NULL),
+    (37, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 22, 96.00, 160.00, NULL),
+    (38, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 180.00, 300.00, NULL),
+    (39, 9, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 84.00, 140.00, NULL),
+    -- HDDs for Western Digital brand
+    (40, 10, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 48.00, 80.00, NULL),
+    (41, 10, str_to_date('2023-11-16', '%Y-%m-%d'), 18, 66.00, 110.00, NULL),
+    (42, 10, str_to_date('2023-11-16', '%Y-%m-%d'), 12, 84.00, 140.00, NULL),
+    -- NVIDIA graphics cards
+    (43, 11, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 720.00, 1200.00, NULL),
+    (44, 11, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 360.00, 600.00, 43),
+    (45, 11, str_to_date('2023-11-16', '%Y-%m-%d'), 40, 1080.00, 1800.00, NULL),
+    -- AMD graphics cards
+    (46, 12, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 420.00, 700.00, NULL),
+    (47, 12, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 300.00, 500.00, 46),
+    (48, 12, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 540.00, 900.00, NULL),
+    -- Cases
+    (49, 7, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 100.00, 150.00, NULL),
+    (50, 7, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 70.00, 120.00, NULL),
+    (51, 7, str_to_date('2023-11-16', '%Y-%m-%d'), 20, 50.00, 100.00, NULL),
+    (52, 7, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 90.00, 150.00, NULL),
     -- Power Supplies
-    (53, 'EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular', 6, 'Description of EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular', str_to_date('2023-11-16', '%Y-%m-%d'), 30, 90.00, 150.00, NULL),
-    (54, 'Corsair RM850x, 850W, 80 Plus Gold, Fully Modular', 6, 'Description of Corsair RM850x, 850W, 80 Plus Gold, Fully Modular', str_to_date('2023-11-16', '%Y-%m-%d'), 25, 150.00, 250.00, NULL),
-    (55, 'Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular', 6, 'Description of Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular', str_to_date('2023-11-16', '%Y-%m-%d'), 15, 250.00, 400.00, NULL);
+    (53, 6, str_to_date('2023-11-16', '%Y-%m-%d'), 30, 90.00, 150.00, NULL),
+    (54, 6, str_to_date('2023-11-16', '%Y-%m-%d'), 25, 150.00, 250.00, NULL),
+    (55, 6, str_to_date('2023-11-16', '%Y-%m-%d'), 15, 250.00, 400.00, NULL);
+
+INSERT INTO `PRODUCT_LOCALE` (`PRODUCT_ID`, `LOCALE_ID`, `NAME`, `DESCRIPTION`)
+VALUES
+    -- AMD processors
+    (1, 'en-GB', 'AMD Ryzen 9 7950X3D 4.2 GHz/5.7 GHz', 'Description of AMD Ryzen 9 7950X3D 4.2 GHz/5.7 GHz'),
+    (2, 'en-GB', 'AMD Ryzen 9 5950X 3.4 GHz', 'Description of AMD Ryzen 9 5950X 3.4 GHz'),
+    (3, 'en-GB', 'AMD Ryzen 7 7800X3D 4.2 GHz/5 GHz', 'Description of AMD Ryzen 7 7800X3D 4.2 GHz/5 GHz'),
+    (4, 'en-GB', 'AMD Ryzen 7 5800X3D 3.4GHz', 'Description of AMD Ryzen 7 5800X3D 3.4GHz'),
+    (5, 'en-GB', 'AMD Ryzen 5 7600X 4.7 GHz', 'Description of AMD Ryzen 5 7600X 4.7 GHz'),
+    (6, 'en-GB', 'AMD Ryzen 5 5600X 3.7 GHz', 'Description of AMD Ryzen 5 5600X 3.7GHz'),
+    -- Intel processors
+    (7, 'en-GB', 'Intel Core i7-14700K 3.4/5.6GHz', 'Description of Intel Core i7-14700K 3.4/5.6GHz'),
+    (8, 'en-GB', 'Intel Core i7-13700K 3.4 GHz', 'Description of Intel Core i7-13700K 3.4 GHz'),
+    (9, 'en-GB', 'Intel Core i7-12700K 3.6 GHz', 'Description of Intel Core i7-12700K 3.6 GHz'),
+    (10, 'en-GB', 'Intel Core i9-14900K 3.2/6GHz', 'Description of Intel Core i9-14900K 3.2/6GHz'),
+    (11, 'en-GB', 'Intel Core i9-13900K 3 GHz', 'Description of Intel Core i9-13900K 3 GHz'),
+    (12, 'en-GB', 'Intel Core i9-12900K 3.2 GHz', 'Description of Intel Core i9-12900K 3.2 GHz'),
+    -- Motherboards for Gigabyte brand
+    (13, 'en-GB', 'Gigabyte B650 Aorus Elite AX', 'Description of Gigabyte B650 Aorus Elite AX'),
+    (14, 'en-GB', 'Gigabyte B550 Aorus Elite AX', 'Description of Gigabyte B550 Aorus Elite AX'),
+    (15, 'en-GB', 'Gigabyte Z790 Aorus Elite AX', 'Description of Gigabyte Z790 Aorus Elite AX'),
+    (16, 'en-GB', 'Gigabyte Z690 Gaming X DDR4', 'Description of Gigabyte Z690 Gaming X DDR4'),
+    (17, 'en-GB', 'Gigabyte Z590 Aorus Master', 'Description of Gigabyte Z590 Aorus Master'),
+    -- Motherboards for ASUS brand
+    (18, 'en-GB', 'ASUS ROG STRIX X670E-F GAMING WIFI', 'Description of ASUS ROG STRIX X670E-F GAMING WIFI'),
+    (19, 'en-GB', 'ASUS ROG Strix B550-F GAMING', 'Description of ASUS ROG Strix B550-F GAMING'),
+    (20, 'en-GB', 'Asus ROG STRIX Z690-E GAMING WIFI', 'Description of Asus ROG STRIX Z690-E GAMING WIFI'),
+    (21, 'en-GB', 'Asus ROG STRIX Z590-E GAMING WIFI', 'Description of Asus ROG STRIX Z590-F GAMING WIFI'),
+    (22, 'en-GB', 'ASUS ROG Maximus Z790 Hero', 'Description of ASUS ROG Maximus Z790 Hero'),
+    -- RAM for Corsair brand
+    (23, 'en-GB', 'Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16', 'Description of Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16'),
+    (24, 'en-GB', 'Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16', 'Description of Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16'),
+    (25, 'en-GB', 'Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra', 'Description of Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra'),
+    (26, 'en-GB', 'Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32', 'Description of Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32'),
+    -- SSDs for Samsung brand
+    (27, 'en-GB', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500GB', 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB'),
+    (28, 'en-GB', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB', 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB'),
+    (29, 'en-GB', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB', 'Description of Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 4TB'),
+    (30, 'en-GB', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB', 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB'),
+    (31, 'en-GB', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB', 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB'),
+    (32, 'en-GB', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB', 'Description of Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB'),
+    (33, 'en-GB', 'Samsung 970 EVO Plus SSD NVMe M.2 500GB', 'Description of Samsung 970 EVO Plus SSD NVMe M.2 500GB'),
+    (34, 'en-GB', 'Samsung 970 EVO Plus SSD NVMe M.2 1TB', 'Description of Samsung 970 EVO Plus SSD NVMe M.2 1TB'),
+    (35, 'en-GB', 'Samsung 970 EVO Plus SSD NVMe M.2 2TB', 'Description of Samsung 970 EVO Plus SSD NVMe M.2 2TB'),
+    -- SSDs for Western Digital brand
+    (36, 'en-GB', 'WD Red SA500 NAS SSD SATA M.2 2280 500GB', 'Description of WD Red SA500 NAS SSD SATA M.2 2280 500GB'),
+    (37, 'en-GB', 'WD Red SA500 NAS SSD SATA M.2 2280 1TB', 'Description of WD Red SA500 NAS SSD SATA M.2 2280 1TB'),
+    (38, 'en-GB', 'WD Red SA500 NAS SSD SATA M.2 2280 2TB', 'Description of WD Red SA500 NAS SSD SATA M.2 2280 2TB'),
+    (39, 'en-GB', 'Western Digital Blue 2.5" SSD 1TB SATA 3', 'Description of Western Digital Blue 2.5" SSD 1TB SATA 3'),
+    -- HDDs for Western Digital brand
+    (40, 'en-GB', 'Western Digital Red Plus 3.5" SATA3 2TB', 'Description of Western Digital Red Plus 3.5" SATA3 2TB'),
+    (41, 'en-GB', 'Western Digital Red Plus 3.5" SATA3 3TB', 'Description of Western Digital Red Plus 3.5" SATA3 3TB'),
+    (42, 'en-GB', 'Western Digital Red Plus 3.5" SATA3 4TB', 'Description of Western Digital Red Plus 3.5" SATA3 4TB'),
+    -- NVIDIA graphics cards
+    (43, 'en-GB', 'EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X', 'Description of EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X'),
+    (44, 'en-GB', 'EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X', 'Description of EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X'),
+    (45, 'en-GB', 'ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3', 'Description of ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3'),
+    -- AMD graphics cards
+    (46, 'en-GB', 'Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6', 'Description of Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6'),
+    (47, 'en-GB', 'Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6', 'Description of Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6'),
+    (48, 'en-GB', 'ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6', 'Description of ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6'),
+    -- Cases
+    (49, 'en-GB', 'Fractal Design Node 202 Mini ITX Desktop Case', 'Description of Fractal Design Node 202 Mini ITX Desktop Case'),
+    (50, 'en-GB', 'NZXT H510 Compact ATX Mid-Tower Case', 'Description of NZXT H510 Compact ATX Mid-Tower Case'),
+    (51, 'en-GB', 'Cooler Master MasterBox Q300L mATX Tower Case', 'Description of Cooler Master MasterBox Q300L mATX Tower Case'),
+    (52, 'en-GB', 'Fractal Design Meshify C ATX Mid Tower Case', 'Description of Fractal Design Meshify C ATX Mid Tower Case'),
+    -- Power Supplies
+    (53, 'en-GB', 'EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular', 'Description of EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular'),
+    (54, 'en-GB', 'Corsair RM850x, 850W, 80 Plus Gold, Fully Modular', 'Description of Corsair RM850x, 850W, 80 Plus Gold, Fully Modular'),
+    (55, 'en-GB', 'Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular', 'Description of Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular');
 
 INSERT INTO `CUSTOMER_ORDER` (`ORDER_STATE_ID`, `CUSTOMER_ID`, `ORDER_DATE`, `TRACKING_NUMBER`, `INVOICE_TOTAL`, `BILLING_ADDRESS_ID`, `SHIPPING_ADDRESS_ID`)
 VALUES
@@ -343,84 +417,161 @@ VALUES
     (3, 16, 5),
 	(4, 17, 2);
 
-INSERT INTO `ATTRIBUTE_TYPE` (`NAME`, `ATTRIBUTE_DATA_TYPE_ID`)
+INSERT INTO `ATTRIBUTE_TYPE` (`ATTRIBUTE_DATA_TYPE_ID`)
 VALUES
+    -- Brand
+    ('VAR'),
 
-	-- Brand
-	('Brand', 'VAR'),
-
-	-- Procesor attributes
-	('Base Frequency (MHz)', 'INT'),
-	('Boost Frequency (MHz)', 'INT'),
-	('Number of Cores', 'INT'),
-	('Number of Threads', 'INT'),
-	('L1 Cache Memory (KB)', 'INT'),
-	('L2 Cache Memory (KB)', 'INT'),
-	('L3 Cache Memory (MB)', 'INT'),
-	('TDP (Thermal Design Power, W)', 'INT'),
-	('Socket', 'VAR'),
-	('Manufacturing Process (nm)', 'INT'),
-	('Integrated Graphics', 'BOO'),
-	('Integrated Graphics Processor', 'VAR'),
-	('Integrated Graphics Base Frequency (MHz)', 'INT'),
-	('Integrated Graphics Max Frequency (MHz)', 'INT'),
-	('Integrated Graphics Execution Units', 'INT'),
-	('Integrated Graphics Cores', 'INT'),
-    ('Memory Type', 'VAR'),
+    -- Processor attributes
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('VAR'),
+    ('INT'),
+    ('BOO'),
+    ('VAR'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('VAR'),
     
     -- Motherboard attributes
-    ('Form Factor', 'VAR'),
-    ('Chipset', 'VAR'),
-    ('Memory Slots', 'INT'),
-    ('Max Memory (GB)', 'INT'),
-    ('PCIe x16 Slots', 'INT'),
-    ('PCIe x1 Slots', 'INT'),
-    ('SATA III Ports', 'INT'),
-    ('M.2 Slots', 'INT'),
+    ('VAR'),
+    ('VAR'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
     
     -- RAM attributes
-	('RAM Capacity (GB)', 'INT'),
-    ('Frequency (MHz)', 'INT'),
-    ('CAS Latency', 'INT'),
-    ('Voltage (V)', 'DEC'),
-    ('Heat Spreader', 'BOO'),
-    ('Number of RAM Modules', 'INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('DEC'),
+    ('BOO'),
+    ('INT'),
     
     -- Storage device attributes
-    ('Storage Form Factor', 'VAR'),
-    ('Storage Capacity (GB)', 'INT'),
-    ('Interface', 'VAR'),
-    ('Read Speed (MB/s)', 'INT'),
-    ('Write Speed (MB/s)', 'INT'),
+    ('VAR'),
+    ('INT'),
+    ('VAR'),
+    ('INT'),
+    ('INT'),
     
     -- SSD specific attributes
-	('NAND Type', 'VAR'),
-    ('Endurance (TBW)', 'INT'),
+    ('VAR'),
+    ('INT'),
     
-	-- HDD specific attributes
-    ('Rotational Speed (RPM)', 'INT'),
+    -- HDD specific attributes
+    ('INT'),
     
-	-- GPU specific attributes
-    ('CUDA Cores', 'INT'),
-    ('Memory Size (GB)', 'INT'),
-    ('Memory Bandwidth (GB/s)', 'INT'),
+    -- GPU specific attributes
+    ('INT'),
+    ('INT'),
+    ('INT'),
     
-	-- Power Supply specific attributes
-    ('Max Power Consumption (W)', 'INT'),
-    ('Efficiency Rating', 'VAR'),
-    ('Modularity', 'BOO'),
-    ('PCIe Connectors', 'INT'),
-    ('SATA Connectors', 'INT'),
-    ('Molex Connectors', 'INT'),
-    ('EPS Connectors', 'INT'),
+    -- Power Supply specific attributes
+    ('INT'),
+    ('VAR'),
+    ('BOO'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
 
     -- Case specific attributes
-    ('Maximum GPU Length (mm)', 'INT'),
-    ('Maximum CPU Cooler Height (mm)', 'INT'),
-    ('Maximum PSU Length (mm)', 'INT'),
-    ('External 5.25" Drive Bays', 'INT'),
-    ('Internal 3.5" Drive Bays', 'INT'),
-    ('Internal 2.5" Drive Bays', 'INT');
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT'),
+    ('INT');
+
+INSERT INTO `ATTRIBUTE_TYPE_LOCALE` (`ATTRIBUTE_TYPE_ID`, `LOCALE_ID`, `NAME`)
+VALUES
+    -- Brand
+    (1, 'en-GB', 'Brand'),
+
+    -- Processor attributes
+    (2, 'en-GB', 'Base Frequency (MHz)'),
+    (3, 'en-GB', 'Boost Frequency (MHz)'),
+    (4, 'en-GB', 'Number of Cores'),
+    (5, 'en-GB', 'Number of Threads'),
+    (6, 'en-GB', 'L1 Cache Memory (KB)'),
+    (7, 'en-GB', 'L2 Cache Memory (KB)'),
+    (8, 'en-GB', 'L3 Cache Memory (MB)'),
+    (9, 'en-GB', 'TDP (Thermal Design Power, W)'),
+    (10, 'en-GB', 'Socket'),
+    (11, 'en-GB', 'Manufacturing Process (nm)'),
+    (12, 'en-GB', 'Integrated Graphics'),
+    (13, 'en-GB', 'Integrated Graphics Processor'),
+    (14, 'en-GB', 'Integrated Graphics Base Frequency (MHz)'),
+    (15, 'en-GB', 'Integrated Graphics Max Frequency (MHz)'),
+    (16, 'en-GB', 'Integrated Graphics Execution Units'),
+    (17, 'en-GB', 'Integrated Graphics Cores'),
+    (18, 'en-GB', 'Memory Type'),
+    
+    -- Motherboard attributes
+    (19, 'en-GB', 'Form Factor'),
+    (20, 'en-GB', 'Chipset'),
+    (21, 'en-GB', 'Memory Slots'),
+    (22, 'en-GB', 'Max Memory (GB)'),
+    (23, 'en-GB', 'PCIe x16 Slots'),
+    (24, 'en-GB', 'PCIe x1 Slots'),
+    (25, 'en-GB', 'SATA III Ports'),
+    (26, 'en-GB', 'M.2 Slots'),
+    
+    -- RAM attributes
+    (27, 'en-GB', 'RAM Capacity (GB)'),
+    (28, 'en-GB', 'Frequency (MHz)'),
+    (29, 'en-GB', 'CAS Latency'),
+    (30, 'en-GB', 'Voltage (V)'),
+    (31, 'en-GB', 'Heat Spreader'),
+    (32, 'en-GB', 'Number of RAM Modules'),
+    
+    -- Storage device attributes
+    (33, 'en-GB', 'Storage Form Factor'),
+    (34, 'en-GB', 'Storage Capacity (GB)'),
+    (35, 'en-GB', 'Interface'),
+    (36, 'en-GB', 'Read Speed (MB/s)'),
+    (37, 'en-GB', 'Write Speed (MB/s)'),
+    
+    -- SSD specific attributes
+    (38, 'en-GB', 'NAND Type'),
+    (39, 'en-GB', 'Endurance (TBW)'),
+    
+    -- HDD specific attributes
+    (40, 'en-GB', 'Rotational Speed (RPM)'),
+    
+    -- GPU specific attributes
+    (41, 'en-GB', 'CUDA Cores'),
+    (42, 'en-GB', 'Memory Size (GB)'),
+    (43, 'en-GB', 'Memory Bandwidth (GB/s)'),
+    
+    -- Power Supply specific attributes
+    (44, 'en-GB', 'Max Power Consumption (W)'),
+    (45, 'en-GB', 'Efficiency Rating'),
+    (46, 'en-GB', 'Modularity'),
+    (47, 'en-GB', 'PCIe Connectors'),
+    (48, 'en-GB', 'SATA Connectors'),
+    (49, 'en-GB', 'Molex Connectors'),
+    (50, 'en-GB', 'EPS Connectors'),
+
+    -- Case specific attributes
+    (51, 'en-GB', 'Maximum GPU Length (mm)'),
+    (52, 'en-GB', 'Maximum CPU Cooler Height (mm)'),
+    (53, 'en-GB', 'Maximum PSU Length (mm)'),
+    (54, 'en-GB', 'External 5.25" Drive Bays'),
+    (55, 'en-GB', 'Internal 3.5" Drive Bays'),
+    (56, 'en-GB', 'Internal 2.5" Drive Bays');
     
 INSERT INTO `CATEGORY_ATTRIBUTE_TYPE` (`CATEGORY_ID`, `ATTRIBUTE_TYPE_ID`)
 VALUES

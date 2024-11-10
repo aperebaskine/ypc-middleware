@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,10 +48,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 	private static final String FROM_TABLE = 
 			" FROM ATTRIBUTE_TYPE at"
-					+ " INNER JOIN ATTRIBUTE_TYPE_LOCALE atl"
-					+ " ON at.ID = atl.ATTRIBUTE_TYPE_ID"
 					+ " LEFT JOIN ATTRIBUTE_VALUE av"
 					+ " ON av.ATTRIBUTE_TYPE_ID = at.ID";
+	private static final String JOIN_LOCALE =
+			" INNER JOIN ATTRIBUTE_TYPE_LOCALE atl"
+					+ " ON at.ID = atl.ATTRIBUTE_TYPE_ID"
+					+ " AND atl.LOCALE_ID = ?";
 	private static final String JOIN_CATEGORY = 
 			" INNER JOIN CATEGORY_ATTRIBUTE_TYPE cat"
 					+ " ON cat.ATTRIBUTE_TYPE_ID = at.ID";
@@ -59,12 +63,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static final String ON_PRODUCT_ID = " AND pav.PRODUCT_ID = ?";
 	private static final String ON_CATEGORY_PLACEHOLDER_CONDITION = " AND cat.CATEGORY_ID";
 	private static final String WHERE_PLACEHOLDER_VALUE_AND_NAME = 
-			" WHERE av.%1$s = ?" +" AND at." +NAME_COLUMN +" = ?";
-	private static final String GROUP_BY_VALUE = " GROUP BY av.ID";
+			" WHERE av.%1$s = ?" +" AND at.ID = ?";
+	private static final String GROUP_BY_VALUE = " GROUP BY at.ID, atl.ID, av.ID";
 	private static final String ORDER_BY_CLAUSE = 
-			" ORDER BY at.NAME ASC, av.VALUE_VARCHAR ASC, av.VALUE_BIGINT ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC";
+			" ORDER BY atl.NAME ASC, av.VALUE_VARCHAR ASC, av.VALUE_BIGINT ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC";
 
-	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE;
+	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE +JOIN_LOCALE;
 	private static final String FIND_BY_CATEGORY_PLACEHOLDER_CONDITION_QUERY = 
 			FINDBY_QUERY +JOIN_CATEGORY +ON_CATEGORY_PLACEHOLDER_CONDITION;
 	private static final String FINDBYPRODUCT_QUERY = FINDBY_QUERY +JOIN_PRODUCT +ON_PRODUCT_ID +ORDER_BY_CLAUSE;
@@ -80,26 +84,19 @@ public class AttributeDAOImpl implements AttributeDAO {
 	// Value column name is a placeholder to be set by the method
 	private static final String CREATE_IF_ABSENT_QUERY =
 			" INSERT INTO ATTRIBUTE_VALUE(ATTRIBUTE_TYPE_ID, %1$s)"
-					+ " SELECT ID AS ATTRIBUTE_TYPE_ID, ? AS %1$s" 
-					+ " FROM ATTRIBUTE_TYPE WHERE NAME = ?";
+					+ " VALUES (?, ?)";
 
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 
 	@Override
 	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned)
 			throws DataException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned) throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			query.append(JOIN_PRODUCT);
 		}
-		query.append(" WHERE at.NAME = ?");
+		query.append(" WHERE at.ID = ?");
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
 			query.append(GROUP_BY_VALUE);
 		}
@@ -115,6 +112,47 @@ public class AttributeDAOImpl implements AttributeDAO {
 					ResultSet.CONCUR_READ_ONLY
 					);
 			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setInt(i++, id);
+
+			rs = stmt.executeQuery();
+			Collection<AttributeDTO<?>> results = loadResults(rs).values();
+			Iterator<AttributeDTO<?>> iterator = results.iterator();
+
+			return iterator.hasNext() ? iterator.next() : null;
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+
+	@Override
+	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned) throws DataException {
+
+		StringBuilder query = new StringBuilder(FINDBY_QUERY);
+		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
+			query.append(JOIN_PRODUCT);
+		}
+		query.append(" WHERE atl.NAME = ?");
+		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
+			query.append(GROUP_BY_VALUE);
+		}
+		query.append(ORDER_BY_CLAUSE);
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(
+					query.toString(), 
+					ResultSet.TYPE_FORWARD_ONLY, 
+					ResultSet.CONCUR_READ_ONLY
+					);
+			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
 			stmt.setString(i++, name);
 
 			rs = stmt.executeQuery();
@@ -129,7 +167,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, Locale locale, boolean returnUnassigned)
 			throws DataException {
 
 		Map<Short, CategoryDTO> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
@@ -151,6 +189,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 					ResultSet.CONCUR_READ_ONLY
 					);
 			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
 			for (Short id : upperHierarchy.keySet()) {
 				stmt.setShort(i++, id);
 			}
@@ -167,7 +206,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId) throws DataException {
+	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId, Locale locale) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -178,7 +217,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 					ResultSet.TYPE_FORWARD_ONLY, 
 					ResultSet.CONCUR_READ_ONLY
 					);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, productId);
+
+			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setLong(i++, productId);
 
 			rs = stmt.executeQuery();
 			return loadResults(rs);
@@ -280,7 +322,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 				for (int valueIndex = 0; valueIndex < attribute.getValues().size(); valueIndex++) {
 					AttributeValueDTO<?> av = attribute.getValues().get(valueIndex);
 					if (av.getId() == null) { // Attribute value was not previously retrieved from database
-						identifyOrCreate(conn, av, attribute.getName(), attribute.getDataTypeIdentifier());
+						identifyOrCreate(conn, av, attribute.getId(), attribute.getDataTypeIdentifier());
 					}
 					stmt.setLong(stmtIndex++, p.getId());
 					stmt.setLong(stmtIndex++, av.getId());
@@ -347,11 +389,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 	 * @param conn Connection to use to execute the querias
 	 * @param av Attribute value containing the object to insert
 	 * @param dataType Data type of the object to insert
-	 * @param attributeName Name of the attribute type of the object to insert
+	 * @param attributeId Name of the attribute type of the object to insert
 	 * @return Database ID for the attribute value
 	 * @throws DataException if driver throws SQLException
 	 */
-	private Long identifyOrCreate(Connection conn, AttributeValueDTO<?> attributeValue, String attributeName, String dataTypeIdentifier) 
+	private Long identifyOrCreate(Connection conn, AttributeValueDTO<?> attributeValue, Integer attributeId, String dataTypeIdentifier) 
 			throws DataException {
 
 		String columnName = AttributeUtils.getValueColumnName(dataTypeIdentifier);
@@ -359,7 +401,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		Object value = attributeValue.getValue();
 
 		// Double-check that attribute value isn't in the database already
-		Long id = findValueId(conn, value, attributeName, columnName, targetSqlType);
+		Long id = findValueId(conn, value, attributeId, columnName, targetSqlType);
 
 		if (id == null) { // Insert into database
 
@@ -372,8 +414,9 @@ public class AttributeDAOImpl implements AttributeDAO {
 						Statement.RETURN_GENERATED_KEYS
 						);
 				int i = 1;
+				stmt.setInt(i++, attributeId);
 				stmt.setObject(i++, value, targetSqlType);
-				stmt.setString(i++, attributeName);
+
 
 				int affectedRows = stmt.executeUpdate();
 				if (affectedRows != 1) { 
@@ -395,7 +438,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 		return id;
 	} 
 
-	private Long findValueId(Connection conn, Object value, String attributeName, String columnName, int targetSqlType) 
+	private Long findValueId(Connection conn, Object value, Integer attributeId, String columnName, int targetSqlType) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -410,7 +453,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 					);
 			int i = 1;
 			stmt.setObject(i++, value, targetSqlType);
-			stmt.setString(i++, attributeName);
+			stmt.setInt(i++, attributeId);
 
 			rs = stmt.executeQuery();
 			if (rs.next()) {

@@ -79,7 +79,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return attributeDAO.findByCategory(conn, categoryId, returnUnassigned);
+			return attributeDAO.findByCategory(conn, categoryId, locale, returnUnassigned);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

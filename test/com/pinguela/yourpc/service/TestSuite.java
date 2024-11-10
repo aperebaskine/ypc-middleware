@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +32,8 @@ import com.pinguela.yourpc.util.JDBCUtils;
 	ProductServiceTest.class,
 	ProvinceServiceTest.class})
 public class TestSuite {
+	
+	private static final Locale LOCALE = Locale.forLanguageTag("en-GB");
 
 	private static final Map<String, Integer> TABLE_EXPECTED_ROW_COUNTS;
 	
@@ -154,6 +157,10 @@ public class TestSuite {
 		}
 		
 		return readLine;
+	}
+	
+	public static Locale getLocale() {
+		return LOCALE;
 	}
 	
 }

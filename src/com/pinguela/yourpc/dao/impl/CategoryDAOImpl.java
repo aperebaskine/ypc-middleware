@@ -23,7 +23,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 			+ " FROM CATEGORY c"
 			+ " INNER JOIN CATEGORY_LOCALE cl"
 			+ " ON cl.CATEGORY_ID = c.ID"
-			+ " AND cl.LOCALE = ?";
+			+ " AND cl.LOCALE_ID = ?";
 	
 	private static final String WHERE_PARENT_ID_EQUALS = " WHERE c.PARENT_ID = ?";
 	private static final String WHERE_PARENT_ID_IS_NULL = " WHERE c.PARENT_ID IS NULL";

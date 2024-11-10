@@ -309,7 +309,7 @@ implements TicketDAO {
 		t.setTitle(rs.getString(i++));
 		t.setDescription(rs.getString(i++));
 		t.setMessageList(ticketMessageDAO.findByTicket(conn, t.getId()));
-		t.setOrderLines(orderLineDAO.findByTicket(conn, t.getId()));
+		t.setOrderLines(orderLineDAO.findByTicket(conn, t.getId(), null));
 		return t;
 	}
 

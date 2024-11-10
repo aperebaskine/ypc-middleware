@@ -21,16 +21,16 @@ public interface ProductService {
 	public Boolean delete(Long productId)
 			throws ServiceException, DataException;
 	
-	public ProductDTO findById(Long id)
+	public ProductDTO findById(Long id, Locale locale)
 			throws ServiceException, DataException;
 	
-	public LocalizedProductDTO findById(Long id, Locale locale)
+	public LocalizedProductDTO findByIdLocalized(Long id, Locale locale)
 			throws ServiceException, DataException;
 	
-	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)
+	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, Locale locale, int startPos, int pageSize)
 			throws ServiceException, DataException;
 	
-	public ProductRanges getRanges(ProductCriteria criteria) 
+	public ProductRanges getRanges(ProductCriteria criteria, Locale locale) 
 			throws ServiceException, DataException;
 
 }

@@ -23,13 +23,14 @@ public interface AttributeDAO {
 	 * 
 	 * @param conn Connection to the database that is being used to execute the queries
 	 * @param categoryId Primary key identifier of the category
+	 * @param locale TODO
 	 * @param returnUnassigned Indicates whether to return values that aren't assigned to a
 	 * non-discontinued product
 	 * @return Map containing the set of attributes, mapped to their name, and containing all their 
 	 * possible values for a given category
 	 * @throws DataException if driver throws SQLException
 	 */
-	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, boolean returnUnassigned)
+	public Map<String, AttributeDTO<?>> findByCategory(Connection conn, Short categoryId, Locale locale, boolean returnUnassigned)
 			throws DataException;
 	
 	/**
@@ -37,10 +38,11 @@ public interface AttributeDAO {
 	 * 
 	 * @param conn Connection to the database that is being used to execute the query
 	 * @param productId Primary key identifier of the product
+	 * @param locale TODO
 	 * @return Map containing a product's set of attributes, mapped to their name.
 	 * @throws DataException if driver throws SQLException
 	 */
-	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId)
+	public Map<String, AttributeDTO<?>> findByProduct(Connection conn, Long productId, Locale locale)
 			throws DataException;
 
 	/**

@@ -201,7 +201,7 @@ implements RMADAO {
 		r.setState(rs.getString(i++));
 		r.setCreationDate(rs.getTimestamp(i++));
 		r.setTrackingNumber(rs.getString(i++));
-		r.setOrderLines(orderLineDAO.findByRMA(conn, r.getId()));
+		r.setOrderLines(orderLineDAO.findByRMA(conn, r.getId(), null));
 		return r;
 	}
 

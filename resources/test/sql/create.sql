@@ -13,6 +13,17 @@ CREATE DATABASE IF NOT EXISTS `yourpc_test`;
 USE `yourpc_test`;
 
 -- -----------------------------------------------------
+-- Table `LOCALE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LOCALE` (
+	`ID` VARCHAR(40) NOT NULL,
+    `NAME` VARCHAR(80) NOT NULL UNIQUE,
+    PRIMARY KEY (`ID`)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+-- -----------------------------------------------------
 -- Table `COUNTRY`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `COUNTRY` (
@@ -167,10 +178,8 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `CATEGORY` (
   `ID` SMALLINT NOT NULL,
-  `NAME` VARCHAR(40) NOT NULL,
   `PARENT_ID` SMALLINT NULL,
   PRIMARY KEY (`ID`),
-  UNIQUE INDEX `NAME_UNIQUE` (`NAME` ASC) VISIBLE,
   INDEX `fk_category_category1_idx` (`PARENT_ID` ASC) VISIBLE,
   CONSTRAINT `fk_category_category1`
     FOREIGN KEY (`PARENT_ID`)
@@ -180,6 +189,29 @@ CREATE TABLE IF NOT EXISTS `CATEGORY` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
+-- -----------------------------------------------------
+-- Table `yourpc_test`.`CATEGORY_LOCALE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `CATEGORY_LOCALE` (
+	`ID` INT NOT NULL AUTO_INCREMENT,
+    `CATEGORY_ID` SMALLINT NOT NULL,
+    `LOCALE_ID` VARCHAR(40) NOT NULL,
+    NAME VARCHAR(80) NOT NULL,
+    PRIMARY KEY (`ID`),
+	UNIQUE INDEX `CATEGORY_ID_LOCALE_ID_UNIQUE` (`CATEGORY_ID` ASC, `LOCALE_ID` ASC) VISIBLE,
+    CONSTRAINT `fk_CATEGORY_CATEGORY_LOCALE`
+		FOREIGN KEY (`CATEGORY_ID`)
+        REFERENCES `yourpc_test`.`category` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT `fk_CATEGORY_LOCALE_LOCALE`
+		FOREIGN KEY (`LOCALE_ID`)
+        REFERENCES `yourpc_test`.`locale` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+	)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 -- -----------------------------------------------------
 -- Table `DEPARTMENT`
@@ -265,9 +297,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `PRODUCT` (
   `ID` BIGINT NOT NULL AUTO_INCREMENT,
-  `NAME` VARCHAR(80) NOT NULL,
   `CATEGORY_ID` SMALLINT NOT NULL,
-  `DESCRIPTION` VARCHAR(2048) NULL DEFAULT NULL,
   `LAUNCH_DATE` DATETIME NULL DEFAULT NULL,
   `DISCONTINUATION_DATE` DATETIME NULL,
   `STOCK` INT NOT NULL DEFAULT '0',
@@ -286,6 +316,30 @@ CREATE TABLE IF NOT EXISTS `PRODUCT` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
+-- -----------------------------------------------------
+-- Table `yourpc_test`.`PRODUCT_LOCALE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PRODUCT_LOCALE` (
+	`ID` BIGINT NOT NULL AUTO_INCREMENT,
+    `PRODUCT_ID` BIGINT NOT NULL,
+    `LOCALE_ID` VARCHAR(40) NOT NULL,
+	`NAME` VARCHAR(80) NOT NULL,
+    `DESCRIPTION` VARCHAR(2048) NOT NULL,
+    PRIMARY KEY (`ID`),
+    UNIQUE INDEX `PRODUCT_ID_LOCALE_ID_UNIQUE` (`PRODUCT_ID` ASC, `LOCALE_ID` ASC) VISIBLE,
+    CONSTRAINT `fk_PRODUCT_PRODUCT_LOCALE`
+		FOREIGN KEY (`PRODUCT_ID`)
+		REFERENCES `yourpc_test`.`product` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT `fk_PRODUCT_LOCALE_LOCALE`
+		FOREIGN KEY (`LOCALE_ID`)
+		REFERENCES `yourpc_test`.`locale` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 -- -----------------------------------------------------
 -- Table `ORDER_LINE`
@@ -327,10 +381,8 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `ATTRIBUTE_TYPE` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `ATTRIBUTE_DATA_TYPE_ID` CHAR(3) NOT NULL,
-  `NAME` VARCHAR(40) NOT NULL,
   PRIMARY KEY (`ID`),
   INDEX `fk_attribute_type_attribute_data_type1_idx` (`ATTRIBUTE_DATA_TYPE_ID` ASC) VISIBLE,
-  UNIQUE INDEX `NAME_UNIQUE` (`NAME` ASC) VISIBLE,
   CONSTRAINT `fk_attribute_type_attribute_data_type1`
     FOREIGN KEY (`ATTRIBUTE_DATA_TYPE_ID`)
     REFERENCES `ATTRIBUTE_DATA_TYPE` (`ID`)
@@ -338,6 +390,29 @@ CREATE TABLE IF NOT EXISTS `ATTRIBUTE_TYPE` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `yourpc_test`.`ATTRIBUTE_TYPE_LOCALE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ATTRIBUTE_TYPE_LOCALE` (
+	`ID` INT NOT NULL AUTO_INCREMENT,
+    `ATTRIBUTE_TYPE_ID` INT NOT NULL,
+    `LOCALE_ID` VARCHAR(40) NOT NULL,
+    `NAME` VARCHAR(80) NOT NULL,
+    PRIMARY KEY (`ID`),
+    UNIQUE INDEX (`NAME` ASC, `LOCALE_ID` ASC) VISIBLE,
+    CONSTRAINT `fk_ATTRIBUTE_TYPE_ATTRIBUTE_TYPE_LOCALE`
+		FOREIGN KEY (`ATTRIBUTE_TYPE_ID`)
+        REFERENCES `yourpc_test`.`attribute_type` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT `fk_ATTRIBUTE_TYPE_LOCALE_LOCALE` 
+		FOREIGN KEY (`LOCALE_ID`)
+        REFERENCES `yourpc_test`.`locale` (`ID`)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+	)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 -- -----------------------------------------------------
 -- Table `ATTRIBUTE_VALUE`
@@ -350,6 +425,13 @@ CREATE TABLE IF NOT EXISTS `ATTRIBUTE_VALUE` (
   `VALUE_DECIMAL` DECIMAL(20,8) NULL DEFAULT NULL,
   `VALUE_BOOLEAN` TINYINT(1) NULL DEFAULT NULL,
   PRIMARY KEY (`ID`),
+  UNIQUE INDEX `ATTRIBUTE_TYPE_ID_VALUE_COLUMNS_UNIQUE` (
+	`ATTRIBUTE_TYPE_ID` ASC,
+    (COALESCE(`VALUE_BIGINT`, '')) ASC,
+    (COALESCE(`VALUE_VARCHAR`, '')) ASC,
+    (COALESCE(`VALUE_DECIMAL`, '')) ASC,
+    (COALESCE(`VALUE_BOOLEAN`, '')) ASC
+    ),
   INDEX `fk_attribute_value_attribute_type1_idx` (`ATTRIBUTE_TYPE_ID` ASC) VISIBLE,
   CONSTRAINT `fk_attribute_value_attribute_type1`
     FOREIGN KEY (`ATTRIBUTE_TYPE_ID`)

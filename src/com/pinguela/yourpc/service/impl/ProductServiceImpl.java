@@ -108,26 +108,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductDTO findById(Long id)  
+	public ProductDTO findById(Long id, Locale locale)  
 			throws ServiceException, DataException {
 
-		Connection conn = null;
-
-		try {
-			conn = JDBCUtils.getConnection();
-			return productDAO.findById(conn, id);
-
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
-	
-	@Override
-	public LocalizedProductDTO findById(Long id, Locale locale) throws ServiceException, DataException {
-		
 		Connection conn = null;
 
 		try {
@@ -141,9 +124,26 @@ public class ProductServiceImpl implements ProductService {
 			JDBCUtils.close(conn);
 		}
 	}
+	
+	@Override
+	public LocalizedProductDTO findByIdLocalized(Long id, Locale locale) throws ServiceException, DataException {
+		
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return productDAO.findByIdLocalized(conn, id, locale);
+
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
 
 	@Override
-	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, int startPos, int pageSize)  
+	public Results<LocalizedProductDTO> findBy(ProductCriteria criteria, Locale locale, int startPos, int pageSize)  
 			throws ServiceException, DataException {
 		
 		if (criteria == null) {
@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return productDAO.findBy(conn, criteria, startPos, pageSize);
+			return productDAO.findBy(conn, criteria, locale, startPos, pageSize);
 
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
@@ -165,13 +165,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
-	public ProductRanges getRanges(ProductCriteria criteria) throws ServiceException, DataException {
+	public ProductRanges getRanges(ProductCriteria criteria, Locale locale) throws ServiceException, DataException {
 		
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return productDAO.getRanges(conn, criteria);
+			return productDAO.getRanges(conn, criteria, locale);
 
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);

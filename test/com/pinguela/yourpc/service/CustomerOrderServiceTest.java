@@ -1,8 +1,8 @@
 package com.pinguela.yourpc.service;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -35,7 +36,7 @@ class CustomerOrderServiceTest {
 
 	private CustomerOrderService customerOrderService;
 	private CustomerService customerService;
-
+	
 	@BeforeAll
 	void setUpBeforeClass() throws Exception {
 		customerOrderService = new CustomerOrderServiceImpl();
@@ -56,11 +57,13 @@ class CustomerOrderServiceTest {
 
 	@Nested
 	class TestFindById {
+		
+		private Locale locale = TestSuite.getLocale();
 
 		@Test
 		void testWithValidId() {
 			try {
-				CustomerOrder o = customerOrderService.findById(1l);
+				CustomerOrder o = customerOrderService.findById(1l, locale);
 				assertEquals(1l, o.getId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -70,7 +73,7 @@ class CustomerOrderServiceTest {
 		@Test
 		void testWithInvalidId() {
 			try {
-				CustomerOrder o = customerOrderService.findById(0l);
+				CustomerOrder o = customerOrderService.findById(0l, locale);
 				assertNull(o);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -80,7 +83,7 @@ class CustomerOrderServiceTest {
 		@Test
 		void testWithNullId() {
 			try {
-				CustomerOrder o = customerOrderService.findById(null);
+				CustomerOrder o = customerOrderService.findById(null, locale);
 				assertNull(o);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -90,11 +93,13 @@ class CustomerOrderServiceTest {
 	
 	@Nested
 	class TestFindByCustomer {
+		
+		private Locale locale = TestSuite.getLocale();
 
 		@Test
 		void testWithValidId() {
 			try {
-				List<CustomerOrder> results = customerOrderService.findByCustomer(1);
+				List<CustomerOrder> results = customerOrderService.findByCustomer(1, locale);
 				assertEquals(5l, results.size());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -104,7 +109,7 @@ class CustomerOrderServiceTest {
 		@Test
 		void testWithInvalidId() {
 			try {
-				List<CustomerOrder> results = customerOrderService.findByCustomer(0);
+				List<CustomerOrder> results = customerOrderService.findByCustomer(0, locale);
 				assertTrue(results.isEmpty());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -114,7 +119,7 @@ class CustomerOrderServiceTest {
 		@Test
 		void testWithNullId() {
 			try {
-				List<CustomerOrder> results = customerOrderService.findByCustomer(null);
+				List<CustomerOrder> results = customerOrderService.findByCustomer(null, locale);
 				assertNull(results);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -126,6 +131,7 @@ class CustomerOrderServiceTest {
 	@Nested
 	class TestFindBy {
 
+		private Locale locale = TestSuite.getLocale();
 		private CustomerOrderCriteria criteria;
 
 		@BeforeEach
@@ -136,7 +142,7 @@ class CustomerOrderServiceTest {
 		@Test
 		void testFindByEmptyCriteria() {
 			try {
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertTrue(orders.size() >= 22);
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -145,14 +151,14 @@ class CustomerOrderServiceTest {
 
 		@Test
 		void testFindByNullCriteria() {
-			assertThrows(IllegalArgumentException.class, () -> customerOrderService.findBy(null));
+			assertThrows(IllegalArgumentException.class, () -> customerOrderService.findBy(null, locale));
 		}
 
 		@Test
 		void testFindByCustomerId() {
 			try {
 				criteria.setCustomerId(1);
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -167,7 +173,7 @@ class CustomerOrderServiceTest {
 		void testFindByCustomerEmail() {
 			try {
 				criteria.setCustomerEmail("cant@see.me");
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -183,7 +189,7 @@ class CustomerOrderServiceTest {
 		void testFindByMinAmount() {
 			try {
 				criteria.setMinAmount(600.0d);
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -198,7 +204,7 @@ class CustomerOrderServiceTest {
 		void testFindByMaxAmount() {
 			try {
 				criteria.setMaxAmount(500.0d);
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -214,7 +220,7 @@ class CustomerOrderServiceTest {
 			try {
 				Date date = DateUtils.getDate(2023, Calendar.NOVEMBER, 1);
 				criteria.setMinDate(date);
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -230,7 +236,7 @@ class CustomerOrderServiceTest {
 			try {
 				Date date = DateUtils.getDate(2023, Calendar.NOVEMBER, 1);
 				criteria.setMaxDate(date);
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -246,7 +252,7 @@ class CustomerOrderServiceTest {
 			for (String state : new String[]{"PND", "PRS", "DEL", "SPD"}) {
 				try {
 					criteria.setState(state);
-					List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+					List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 					assertFalse(orders.isEmpty());
 
 					for (CustomerOrder o : orders) {
@@ -267,7 +273,7 @@ class CustomerOrderServiceTest {
 				criteria.setState("PND");
 				criteria.setMinAmount(1000.0d);
 
-				List<CustomerOrder> orders = customerOrderService.findBy(criteria);
+				List<CustomerOrder> orders = customerOrderService.findBy(criteria, locale);
 				assertFalse(orders.isEmpty());
 
 				for (CustomerOrder o : orders) {
@@ -289,6 +295,7 @@ class CustomerOrderServiceTest {
 	@TestInstance(Lifecycle.PER_CLASS)
 	class TestCreate {
 
+		private Locale locale = TestSuite.getLocale();
 		private CustomerOrder o;
 		
 		@AfterAll
@@ -329,7 +336,7 @@ class CustomerOrderServiceTest {
 		void testWithValidData() {
 			try {
 				Long id = customerOrderService.create(o);
-				CustomerOrder p = customerOrderService.findById(id);
+				CustomerOrder p = customerOrderService.findById(id, locale);
 				assertEquals(id, p.getId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -341,7 +348,7 @@ class CustomerOrderServiceTest {
 			try {
 				o.getOrderLines().remove(1);
 				Long id = customerOrderService.create(o);
-				CustomerOrder p = customerOrderService.findById(id);
+				CustomerOrder p = customerOrderService.findById(id, locale);
 				assertEquals(id, p.getId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
@@ -355,7 +362,7 @@ class CustomerOrderServiceTest {
 				try {
 					o.setState(state);
 					Long id = customerOrderService.create(o);
-					CustomerOrder p = customerOrderService.findById(id);
+					CustomerOrder p = customerOrderService.findById(id, locale);
 					assertEquals(id, p.getId());
 				} catch (YPCException e) {
 					fail(e.getMessage(), e);
@@ -426,13 +433,16 @@ class CustomerOrderServiceTest {
 
 	@Test
 	void testUpdate() {
+		
+		Locale locale = TestSuite.getLocale();
+		
 		try {
-			CustomerOrder o = customerOrderService.findById(1l);
+			CustomerOrder o = customerOrderService.findById(1l, locale);
 			o.setTrackingNumber("TESTUPDATE" +System.currentTimeMillis());
 			o.setState("SPD");
 			assertTrue(customerOrderService.update(o));
 
-			CustomerOrder p = customerOrderService.findById(o.getId());
+			CustomerOrder p = customerOrderService.findById(o.getId(), locale);
 			assertEquals(o.getTrackingNumber(), p.getTrackingNumber());
 		} catch (YPCException e) {
 			fail(e.getMessage(), e);

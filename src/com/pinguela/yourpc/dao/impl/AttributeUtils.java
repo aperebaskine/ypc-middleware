@@ -103,7 +103,7 @@ class AttributeUtils {
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
 		for (AttributeDTO<?> attribute : attributes.values()) {
-			StringBuilder condition = new StringBuilder(" (at.NAME = ? AND");
+			StringBuilder condition = new StringBuilder(" (atl.NAME = ? AND");
 
 			if (attribute.getValues().size() == 1) {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));

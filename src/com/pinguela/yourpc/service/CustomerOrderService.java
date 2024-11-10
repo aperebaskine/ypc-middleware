@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -16,13 +17,13 @@ public interface CustomerOrderService {
 	public Boolean update(CustomerOrder po)
 			throws ServiceException, DataException;
 	
-	public CustomerOrder findById(Long id)
+	public CustomerOrder findById(Long id, Locale locale)
 			throws ServiceException, DataException;
 	
-	public List<CustomerOrder> findByCustomer(Integer customerId)
+	public List<CustomerOrder> findByCustomer(Integer customerId, Locale locale)
 			throws ServiceException, DataException;
 	
-	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria)
+	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria, Locale locale)
 			throws ServiceException, DataException;
 	
 	public CustomerOrderRanges getRanges(CustomerOrderCriteria criteria)

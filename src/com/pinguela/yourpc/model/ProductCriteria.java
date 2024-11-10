@@ -10,7 +10,7 @@ import com.pinguela.yourpc.model.dto.AttributeDTO;
 public class ProductCriteria
 extends AbstractCriteria<Long, AbstractProductDTO> {
 	
-	public static final String ORDER_BY_NAME = " p.NAME";
+	public static final String ORDER_BY_NAME = " pl.NAME";
 	public static final String ORDER_BY_LAUNCH_DATE = " p.LAUNCH_DATE";
 	public static final String ORDER_BY_STOCK = " p.STOCK";
 	public static final String ORDER_BY_PRICE = " p.SALE_PRICE";

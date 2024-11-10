@@ -3,6 +3,7 @@ package com.pinguela.yourpc.service.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,14 +92,14 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 	}
 
 	@Override
-	public CustomerOrder findById(Long id) 
+	public CustomerOrder findById(Long id, Locale locale) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findById(conn, id);
+			return customerOrderDAO.findById(conn, id, locale);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
@@ -108,14 +109,14 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 	}
 	
 	@Override
-	public List<CustomerOrder> findByCustomer(Integer customerId) 
+	public List<CustomerOrder> findByCustomer(Integer customerId, Locale locale) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findByCustomer(conn, customerId);
+			return customerOrderDAO.findByCustomer(conn, customerId, locale);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
@@ -126,7 +127,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
 
 	@Override
-	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria) 
+	public List<CustomerOrder> findBy(CustomerOrderCriteria criteria, Locale locale) 
 			throws ServiceException, DataException {
 		
 		if (criteria == null) {
@@ -137,7 +138,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return customerOrderDAO.findBy(conn, criteria);
+			return customerOrderDAO.findBy(conn, criteria, locale);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

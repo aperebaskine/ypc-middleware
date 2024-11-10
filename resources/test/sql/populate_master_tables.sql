@@ -1,8 +1,49 @@
-INSERT INTO `CATEGORY` (`ID`, `NAME`, `PARENT_ID`) 
+INSERT INTO LOCALE (ID, NAME) 
+VALUES 
+('en-GB', 'English (United Kingdom)'),
+('es-ES', 'Español (España)'),
+('fr-FR', 'Français');
+
+INSERT INTO `CATEGORY` (`ID`, `PARENT_ID`) 
 VALUES
-	(1, 'Processor', NULL), (2, 'Motherboard', NULL), (3, 'RAM', NULL), (4, 'Storage', NULL), (5, 'Graphics Card', NULL),
-	(6, 'Power Supply', NULL), (7, 'Case', NULL), (8, 'Cooling', NULL), (9, 'SSD', 4), (10, 'HDD', 4), (11, 'NVIDIA Graphics Card', 5), (12, 'AMD Graphics Card', 5),
-	(13, 'GTX Graphics Card', 11), (14, 'RTX Graphics Card', 11), (15, 'RTX 2000-series', 14), (16, 'RTX 3000-series', 14), (17, 'RTX 4000-series', 14);
+    (1, NULL),
+    (2, NULL),
+    (3, NULL),
+    (4, NULL),
+    (5, NULL),
+    (6, NULL),
+    (7, NULL),
+    (8, NULL),
+    (9, 4),
+    (10, 4),
+    (11, 5),
+    (12, 5),
+    (13, 11),
+    (14, 11),
+    (15, 14),
+    (16, 14),
+    (17, 14);
+
+INSERT INTO `CATEGORY_LOCALE` (`CATEGORY_ID`, `LOCALE_ID`, `NAME`) 
+VALUES
+    (1, 'en-GB', 'Processor'),
+    (2, 'en-GB', 'Motherboard'),
+    (3, 'en-GB', 'RAM'),
+    (4, 'en-GB', 'Storage'),
+    (5, 'en-GB', 'Graphics Card'),
+    (6, 'en-GB', 'Power Supply'),
+    (7, 'en-GB', 'Case'),
+    (8, 'en-GB', 'Cooling'),
+    (9, 'en-GB', 'SSD'),
+    (10, 'en-GB', 'HDD'),
+    (11, 'en-GB', 'NVIDIA Graphics Card'),
+    (12, 'en-GB', 'AMD Graphics Card'),
+    (13, 'en-GB', 'GTX Graphics Card'),
+    (14, 'en-GB', 'RTX Graphics Card'),
+    (15, 'en-GB', 'RTX 2000-series'),
+    (16, 'en-GB', 'RTX 3000-series'),
+    (17, 'en-GB', 'RTX 4000-series');
+
     
 INSERT INTO `COUNTRY` (`ID`, `NAME`)
 VALUES

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,21 +26,25 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	private static final String ORDER_LINE_ALIAS = "ol";
 	private static final String TICKET_ORDER_LINE_ALIAS = "tol";
 	private static final String RMA_ORDER_LINE_ALIAS = "rol";
-	private static final String PRODUCT_ALIAS = "p";
+	private static final String PRODUCT_LOCALE_ALIAS = "pl";
 
 	// Quantity column table alias is a placeholder to be set in the formatted query constants
 	private static final String SELECT_COLUMNS =
 			" SELECT " +ORDER_LINE_ALIAS +".ID,"
 					+ " " +ORDER_LINE_ALIAS +".CUSTOMER_ORDER_ID,"
 					+ " " +ORDER_LINE_ALIAS +".PRODUCT_ID,"
-					+ " " +PRODUCT_ALIAS +".NAME,"
+					+ " " +PRODUCT_LOCALE_ALIAS +".NAME,"
 					+ " %1$s.QUANTITY,"
 					+ " " +ORDER_LINE_ALIAS +".PURCHASE_PRICE,"
 					+ " " +ORDER_LINE_ALIAS +".SALE_PRICE";
 	private static final String FROM_TABLE =
 			" FROM ORDER_LINE ol"
-			+ " INNER JOIN PRODUCT p"
-			+ " ON ol.PRODUCT_ID = p.ID";
+					+ " INNER JOIN PRODUCT p"
+					+ " ON ol.PRODUCT_ID = p.ID";
+	private static final String JOIN_PRODUCT_LOCALE = 
+			" INNER JOIN PRODUCT_LOCALE pl"
+					+ " ON pl.PRODUCT_ID = p.ID"
+					+ " AND pl.LOCALE_ID = ?";
 	private static final String JOIN_TICKET_ORDER_LINE =
 			" INNER JOIN TICKET_ORDER_LINE tol"
 					+ " ON ol.ID = tol.ORDER_LINE_ID";
@@ -55,11 +60,11 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 
 	// Formatted queries with the quantity column table alias set
 	private static final String FIND_BY_CUSTOMER_ORDER_QUERY = 
-			String.format(SELECT_COLUMNS, ORDER_LINE_ALIAS) +FROM_TABLE +WHERE_CUSTOMER_ORDER_ID;
+			String.format(SELECT_COLUMNS, ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_PRODUCT_LOCALE +WHERE_CUSTOMER_ORDER_ID;
 	private static final String FIND_BY_TICKET_QUERY = 
-			String.format(SELECT_COLUMNS, TICKET_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_TICKET_ORDER_LINE +WHERE_TICKET_ID;
+			String.format(SELECT_COLUMNS, TICKET_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_PRODUCT_LOCALE +JOIN_TICKET_ORDER_LINE +WHERE_TICKET_ID;
 	private static final String FIND_BY_RMA_QUERY = 
-			String.format(SELECT_COLUMNS, RMA_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_RMA_ORDER_LINE +WHERE_RMA_ID;
+			String.format(SELECT_COLUMNS, RMA_ORDER_LINE_ALIAS) +FROM_TABLE +JOIN_PRODUCT_LOCALE +JOIN_RMA_ORDER_LINE +WHERE_RMA_ID;
 
 	private static final String CREATE_QUERY = 
 			" INSERT INTO ORDER_LINE(CUSTOMER_ORDER_ID, PRODUCT_ID, QUANTITY, PURCHASE_PRICE, SALE_PRICE)";
@@ -83,19 +88,19 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	private static Logger logger = LogManager.getLogger(OrderLineDAOImpl.class);
 
 	@Override
-	public List<OrderLine> findByCustomerOrder(Connection conn, long orderId) 
+	public List<OrderLine> findByCustomerOrder(Connection conn, long orderId, Locale locale) 
 			throws DataException {
-		return findByKey(conn, FIND_BY_CUSTOMER_ORDER_QUERY, orderId);
+		return findByKey(conn, FIND_BY_CUSTOMER_ORDER_QUERY, orderId, locale);
 	}
 
 	@Override
-	public List<OrderLine> findByTicket(Connection conn, long ticketId) throws DataException {
-		return findByKey(conn, FIND_BY_TICKET_QUERY, ticketId);
+	public List<OrderLine> findByTicket(Connection conn, long ticketId, Locale locale) throws DataException {
+		return findByKey(conn, FIND_BY_TICKET_QUERY, ticketId, locale);
 	}
 
 	@Override
-	public List<OrderLine> findByRMA(Connection conn, long rmaId) throws DataException {
-		return findByKey(conn, FIND_BY_RMA_QUERY, rmaId);
+	public List<OrderLine> findByRMA(Connection conn, long rmaId, Locale locale) throws DataException {
+		return findByKey(conn, FIND_BY_RMA_QUERY, rmaId, locale);
 	}
 
 	/**
@@ -105,10 +110,11 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 	 * @param conn Connection to use while executing query
 	 * @param formattedQuery Complete query containing a single placeholder character for the primary key
 	 * @param key Primary key to set to the placeholder character within the statement
+	 * @param locale TODO
 	 * @return List of order lines returned by the query
 	 * @throws DataException if an SQLException is thrown by the driver
 	 */
-	private List<OrderLine> findByKey(Connection conn, String formattedQuery, long key) 
+	private List<OrderLine> findByKey(Connection conn, String formattedQuery, long key, Locale locale) 
 			throws DataException {
 
 		PreparedStatement stmt = null;
@@ -117,7 +123,10 @@ public class OrderLineDAOImpl implements OrderLineDAO {
 
 		try {
 			stmt = conn.prepareStatement(formattedQuery);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, key);
+
+			int i = 1;
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setLong(i++, key);
 
 			rs = stmt.executeQuery();
 			while (rs.next()) {

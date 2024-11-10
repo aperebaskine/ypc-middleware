@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.model.dto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class CategoryDTO
@@ -10,6 +11,7 @@ extends AbstractDTO<Short> {
 	private Set<CategoryDTO> children;
 
 	public CategoryDTO() {
+		children = new HashSet<CategoryDTO>();
 	}
 
 	public String getName() {

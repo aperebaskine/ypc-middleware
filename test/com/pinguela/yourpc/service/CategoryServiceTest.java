@@ -3,7 +3,6 @@ package com.pinguela.yourpc.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +32,7 @@ class CategoryServiceTest {
 	@Test
 	void testFindAll() {
 		try {
-			Map<Short, CategoryDTO> categories = categoryService.findAll(Locale.forLanguageTag("en_GB"));
+			Map<Short, CategoryDTO> categories = categoryService.findAll(TestSuite.getLocale());
 			assertEquals(17, categories.size());
 		} catch (YPCException e) {
 			fail(e);
