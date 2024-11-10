@@ -66,23 +66,23 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
-	private static final String EMAIL_SUBJECT = "Registración en YourPC confirmada!";
-	private static final String REGISTRATION_MESSAGE;
-	
-	static {
-		InputStream inputStream = ClassLoader.getSystemResourceAsStream("email.html");
-		StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-        } catch (IOException e) {
-        	logger.fatal(e.getMessage(), e);
-        	throw new ExceptionInInitializerError();
-        }
-        REGISTRATION_MESSAGE = stringBuilder.toString();
-	}
+//	private static final String EMAIL_SUBJECT = "Registración en YourPC confirmada!";
+//	private static final String REGISTRATION_MESSAGE;
+//	
+//	static {
+//		InputStream inputStream = ClassLoader.getSystemResourceAsStream("email.html");
+//		StringBuilder stringBuilder = new StringBuilder();
+//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                stringBuilder.append(line).append("\n");
+//            }
+//        } catch (IOException e) {
+//        	logger.fatal(e.getMessage(), e);
+//        	throw new ExceptionInInitializerError();
+//        }
+//        REGISTRATION_MESSAGE = stringBuilder.toString();
+//	}
 
 	// TODO: Use customer email instead of temporary test email
 	private static final String TEST_EMAIL = "pereb_test@outlook.com";
