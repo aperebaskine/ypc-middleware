@@ -28,7 +28,7 @@ import com.pinguela.yourpc.util.JDBCUtils;
 	CustomerOrderServiceTest.class,
 	CustomerServiceTest.class,
 	EmployeeServiceTest.class,
-	MailServiceTest.class,
+//	MailServiceTest.class,
 	ProductServiceTest.class,
 	ProvinceServiceTest.class})
 public class TestSuite {

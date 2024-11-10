@@ -110,13 +110,13 @@ public class CustomerServiceImpl implements CustomerService {
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
 			Integer id = customerDAO.create(conn, c);
 			commit = (id != null);
-			mailService.send(EMAIL_SUBJECT, String.format(REGISTRATION_MESSAGE, 
-					c.getFirstName(), c.getEmail(), c.getUnencryptedPassword()), TEST_EMAIL);
+//			mailService.send(EMAIL_SUBJECT, String.format(REGISTRATION_MESSAGE, 
+//					c.getFirstName(), c.getEmail(), c.getUnencryptedPassword()), TEST_EMAIL);
 
 			return id;
-		} catch (MailException me) {
-			logger.error(me);
-			throw new ServiceException(me);
+//		} catch (MailException me) {
+//			logger.error(me);
+//			throw new ServiceException(me);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
