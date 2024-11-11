@@ -34,10 +34,10 @@ public class JDBCUtils {
 
 	static {
 		try {
-			cpds.setDriverClass(ConfigManager.getValue(DB_DRIVER_CLASS_PNAME));
-			cpds.setJdbcUrl(ConfigManager.getValue(DB_URL_PNAME));
-			cpds.setUser(ConfigManager.getValue(USER_PNAME));
-			cpds.setPassword(ConfigManager.getValue(PASS_PNAME));
+			cpds.setDriverClass(ConfigManager.getParameter(DB_DRIVER_CLASS_PNAME));
+			cpds.setJdbcUrl(ConfigManager.getParameter(DB_URL_PNAME));
+			cpds.setUser(ConfigManager.getParameter(USER_PNAME));
+			cpds.setPassword(ConfigManager.getParameter(PASS_PNAME));
 		} catch (PropertyVetoException e) {
 			logger.fatal(e);
 		}

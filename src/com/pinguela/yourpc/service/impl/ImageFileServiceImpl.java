@@ -23,7 +23,7 @@ implements ImageFileService {
 	private static Logger logger = LogManager.getLogger(ImageFileServiceImpl.class);
 
 	private static final String IMAGE_DIRECTORY_PNAME = "service.image.directory";
-	private static final String IMAGE_DIRECTORY = ConfigManager.getValue(IMAGE_DIRECTORY_PNAME);
+	private static final String IMAGE_DIRECTORY = ConfigManager.getParameter(IMAGE_DIRECTORY_PNAME);
 	private static final String EXTENSION = "png";
 
 	@Override

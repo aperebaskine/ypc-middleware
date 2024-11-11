@@ -27,13 +27,17 @@ public class ConfigManager {
 		}
 	}
 	
-	public static final String DELIMITER = getValue("delimiter");
+	public static final String DELIMITER = getParameter("delimiter");
 	
 	private ConfigManager() {
 	}
 
-	public static final String getValue(String parameterName) {
+	public static final String getParameter(String parameterName) {
 		return propertiesCfg.getProperty(parameterName);
+	}
+	
+	public static final String[] getParameters(String parameterName) {
+		return propertiesCfg.getProperty(parameterName).split(DELIMITER);
 	}
 
 }

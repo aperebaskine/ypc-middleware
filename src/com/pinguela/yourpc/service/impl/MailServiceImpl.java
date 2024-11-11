@@ -25,8 +25,8 @@ public class MailServiceImpl implements MailService {
 
 	public MailServiceImpl() {
 		authenticator = new DefaultAuthenticator(
-				ConfigManager.getValue(EMAIL_USER_PNAME), 
-				ConfigManager.getValue(EMAIL_PASSWORD_PNAME));
+				ConfigManager.getParameter(EMAIL_USER_PNAME), 
+				ConfigManager.getParameter(EMAIL_PASSWORD_PNAME));
 	}
 
 	@Override
@@ -46,11 +46,11 @@ public class MailServiceImpl implements MailService {
 	    try {
 	        email = new HtmlEmail();
 	        email.setCharset("UTF-8");
-	        email.setHostName(ConfigManager.getValue(SMTP_SERVER_PNAME));
-	        email.setSmtpPort(Integer.valueOf(ConfigManager.getValue(SMTP_PORT_PNAME)));
+	        email.setHostName(ConfigManager.getParameter(SMTP_SERVER_PNAME));
+	        email.setSmtpPort(Integer.valueOf(ConfigManager.getParameter(SMTP_PORT_PNAME)));
 	        email.setAuthenticator(authenticator);
-	        email.setStartTLSEnabled(Boolean.valueOf(ConfigManager.getValue(TLS_ENABLED_PNAME)));
-	        email.setFrom(ConfigManager.getValue(EMAIL_USER_PNAME));
+	        email.setStartTLSEnabled(Boolean.valueOf(ConfigManager.getParameter(TLS_ENABLED_PNAME)));
+	        email.setFrom(ConfigManager.getParameter(EMAIL_USER_PNAME));
 	        email.setSubject(subject);
 	        email.setHtmlMsg(message);  // Set the HTML message
 	        email.setTextMsg("Your email client does not support HTML messages");  // Fallback text message
