@@ -44,6 +44,48 @@ VALUES
     (16, 'en-GB', 'RTX 3000-series'),
     (17, 'en-GB', 'RTX 4000-series');
 
+-- SQL Script for fr-FR (French)
+INSERT INTO `CATEGORY_LOCALE` (`CATEGORY_ID`, `LOCALE_ID`, `NAME`) 
+VALUES
+    (1, 'fr-FR', 'Processeur'),
+    (2, 'fr-FR', 'Carte Mère'),
+    (3, 'fr-FR', 'RAM'),
+    (4, 'fr-FR', 'Stockage'),
+    (5, 'fr-FR', 'Carte Graphique'),
+    (6, 'fr-FR', 'Alimentation'),
+    (7, 'fr-FR', 'Boîtier'),
+    (8, 'fr-FR', 'Refroidissement'),
+    (9, 'fr-FR', 'SSD'),
+    (10, 'fr-FR', 'HDD'),
+    (11, 'fr-FR', 'Carte Graphique NVIDIA'),
+    (12, 'fr-FR', 'Carte Graphique AMD'),
+    (13, 'fr-FR', 'Carte Graphique GTX'),
+    (14, 'fr-FR', 'Carte Graphique RTX'),
+    (15, 'fr-FR', 'RTX série 2000'),
+    (16, 'fr-FR', 'RTX série 3000'),
+    (17, 'fr-FR', 'RTX série 4000');
+
+-- SQL Script for es-ES (Spanish)
+INSERT INTO `CATEGORY_LOCALE` (`CATEGORY_ID`, `LOCALE_ID`, `NAME`) 
+VALUES
+    (1, 'es-ES', 'Procesador'),
+    (2, 'es-ES', 'Placa Base'),
+    (3, 'es-ES', 'RAM'),
+    (4, 'es-ES', 'Almacenamiento'),
+    (5, 'es-ES', 'Tarjeta Gráfica'),
+    (6, 'es-ES', 'Fuente de Alimentación'),
+    (7, 'es-ES', 'Caja'),
+    (8, 'es-ES', 'Refrigeración'),
+    (9, 'es-ES', 'SSD'),
+    (10, 'es-ES', 'HDD'),
+    (11, 'es-ES', 'Tarjeta Gráfica NVIDIA'),
+    (12, 'es-ES', 'Tarjeta Gráfica AMD'),
+    (13, 'es-ES', 'Tarjeta Gráfica GTX'),
+    (14, 'es-ES', 'Tarjeta Gráfica RTX'),
+    (15, 'es-ES', 'RTX serie 2000'),
+    (16, 'es-ES', 'RTX serie 3000'),
+    (17, 'es-ES', 'RTX serie 4000');
+
     
 INSERT INTO `COUNTRY` (`ID`, `NAME`)
 VALUES

@@ -216,6 +216,141 @@ VALUES
     (53, 'en-GB', 'EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular', 'Description of EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Fully Modular'),
     (54, 'en-GB', 'Corsair RM850x, 850W, 80 Plus Gold, Fully Modular', 'Description of Corsair RM850x, 850W, 80 Plus Gold, Fully Modular'),
     (55, 'en-GB', 'Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular', 'Description of Corsair HX1200i, 1200W, 80 Plus Platinum, Fully Modular');
+    
+INSERT INTO `PRODUCT_LOCALE` (`PRODUCT_ID`, `LOCALE_ID`, `NAME`, `DESCRIPTION`)
+VALUES
+    -- AMD processors
+    (1, 'fr-FR', 'AMD Ryzen 9 7950X3D 4,2 GHz/5,7 GHz', 'Description du AMD Ryzen 9 7950X3D 4,2 GHz/5,7 GHz'),
+    (1, 'es-ES', 'AMD Ryzen 9 7950X3D 4,2 GHz/5,7 GHz', 'Descripción del AMD Ryzen 9 7950X3D 4,2 GHz/5,7 GHz'),
+    (2, 'fr-FR', 'AMD Ryzen 9 5950X 3,4 GHz', 'Description du AMD Ryzen 9 5950X 3,4 GHz'),
+    (2, 'es-ES', 'AMD Ryzen 9 5950X 3,4 GHz', 'Descripción del AMD Ryzen 9 5950X 3,4 GHz'),
+    (3, 'fr-FR', 'AMD Ryzen 7 7800X3D 4,2 GHz/5 GHz', 'Description du AMD Ryzen 7 7800X3D 4,2 GHz/5 GHz'),
+    (3, 'es-ES', 'AMD Ryzen 7 7800X3D 4,2 GHz/5 GHz', 'Descripción del AMD Ryzen 7 7800X3D 4,2 GHz/5 GHz'),
+    (4, 'fr-FR', 'AMD Ryzen 7 5800X3D 3,4 GHz', 'Description du AMD Ryzen 7 5800X3D 3,4 GHz'),
+    (4, 'es-ES', 'AMD Ryzen 7 5800X3D 3,4 GHz', 'Descripción del AMD Ryzen 7 5800X3D 3,4 GHz'),
+    (5, 'fr-FR', 'AMD Ryzen 5 7600X 4,7 GHz', 'Description du AMD Ryzen 5 7600X 4,7 GHz'),
+    (5, 'es-ES', 'AMD Ryzen 5 7600X 4,7 GHz', 'Descripción del AMD Ryzen 5 7600X 4,7 GHz'),
+    (6, 'fr-FR', 'AMD Ryzen 5 5600X 3,7 GHz', 'Description du AMD Ryzen 5 5600X 3,7 GHz'),
+    (6, 'es-ES', 'AMD Ryzen 5 5600X 3,7 GHz', 'Descripción del AMD Ryzen 5 5600X 3,7 GHz'),
+    
+    -- Intel processors
+    (7, 'fr-FR', 'Intel Core i7-14700K 3,4/5,6 GHz', 'Description du Intel Core i7-14700K 3,4/5,6 GHz'),
+    (7, 'es-ES', 'Intel Core i7-14700K 3,4/5,6 GHz', 'Descripción del Intel Core i7-14700K 3,4/5,6 GHz'),
+    (8, 'fr-FR', 'Intel Core i7-13700K 3,4 GHz', 'Description du Intel Core i7-13700K 3,4 GHz'),
+    (8, 'es-ES', 'Intel Core i7-13700K 3,4 GHz', 'Descripción del Intel Core i7-13700K 3,4 GHz'),
+    (9, 'fr-FR', 'Intel Core i7-12700K 3,6 GHz', 'Description du Intel Core i7-12700K 3,6 GHz'),
+    (9, 'es-ES', 'Intel Core i7-12700K 3,6 GHz', 'Descripción del Intel Core i7-12700K 3,6 GHz'),
+    (10, 'fr-FR', 'Intel Core i9-14900K 3,2/6 GHz', 'Description du Intel Core i9-14900K 3,2/6 GHz'),
+    (10, 'es-ES', 'Intel Core i9-14900K 3,2/6 GHz', 'Descripción del Intel Core i9-14900K 3,2/6 GHz'),
+    (11, 'fr-FR', 'Intel Core i9-13900K 3 GHz', 'Description du Intel Core i9-13900K 3 GHz'),
+    (11, 'es-ES', 'Intel Core i9-13900K 3 GHz', 'Descripción del Intel Core i9-13900K 3 GHz'),
+    (12, 'fr-FR', 'Intel Core i9-12900K 3,2 GHz', 'Description du Intel Core i9-12900K 3,2 GHz'),
+    (12, 'es-ES', 'Intel Core i9-12900K 3,2 GHz', 'Descripción del Intel Core i9-12900K 3,2 GHz'),
+    
+    -- Motherboards for Gigabyte brand
+    (13, 'fr-FR', 'Gigabyte B650 Aorus Elite AX', 'Description du Gigabyte B650 Aorus Elite AX'),
+    (13, 'es-ES', 'Gigabyte B650 Aorus Elite AX', 'Descripción del Gigabyte B650 Aorus Elite AX'),
+    (14, 'fr-FR', 'Gigabyte B550 Aorus Elite AX', 'Description du Gigabyte B550 Aorus Elite AX'),
+    (14, 'es-ES', 'Gigabyte B550 Aorus Elite AX', 'Descripción del Gigabyte B550 Aorus Elite AX'),
+    (15, 'fr-FR', 'Gigabyte Z790 Aorus Elite AX', 'Description du Gigabyte Z790 Aorus Elite AX'),
+    (15, 'es-ES', 'Gigabyte Z790 Aorus Elite AX', 'Descripción del Gigabyte Z790 Aorus Elite AX'),
+    (16, 'fr-FR', 'Gigabyte Z690 Gaming X DDR4', 'Description du Gigabyte Z690 Gaming X DDR4'),
+    (16, 'es-ES', 'Gigabyte Z690 Gaming X DDR4', 'Descripción del Gigabyte Z690 Gaming X DDR4'),
+    (17, 'fr-FR', 'Gigabyte Z590 Aorus Master', 'Description du Gigabyte Z590 Aorus Master'),
+    (17, 'es-ES', 'Gigabyte Z590 Aorus Master', 'Descripción del Gigabyte Z590 Aorus Master'),
+
+    -- Motherboards for ASUS brand
+    (18, 'fr-FR', 'ASUS ROG STRIX X670E-F GAMING WIFI', 'Description de ASUS ROG STRIX X670E-F GAMING WIFI'),
+    (18, 'es-ES', 'ASUS ROG STRIX X670E-F GAMING WIFI', 'Descripción de ASUS ROG STRIX X670E-F GAMING WIFI'),
+    (19, 'fr-FR', 'ASUS ROG Strix B550-F GAMING', 'Description de ASUS ROG Strix B550-F GAMING'),
+    (19, 'es-ES', 'ASUS ROG Strix B550-F GAMING', 'Descripción de ASUS ROG Strix B550-F GAMING'),
+    (20, 'fr-FR', 'Asus ROG STRIX Z690-E GAMING WIFI', 'Description de Asus ROG STRIX Z690-E GAMING WIFI'),
+    (20, 'es-ES', 'Asus ROG STRIX Z690-E GAMING WIFI', 'Descripción de Asus ROG STRIX Z690-E GAMING WIFI'),
+    (21, 'fr-FR', 'Asus ROG STRIX Z590-E GAMING WIFI', 'Description de Asus ROG STRIX Z590-F GAMING WIFI'),
+    (21, 'es-ES', 'Asus ROG STRIX Z590-E GAMING WIFI', 'Descripción de Asus ROG STRIX Z590-F GAMING WIFI'),
+    (22, 'fr-FR', 'ASUS ROG Maximus Z790 Hero', 'Description de ASUS ROG Maximus Z790 Hero'),
+    (22, 'es-ES', 'ASUS ROG Maximus Z790 Hero', 'Descripción de ASUS ROG Maximus Z790 Hero'),
+
+    -- RAM for Corsair brand
+    (23, 'fr-FR', 'Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16', 'Description de Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16'),
+    (23, 'es-ES', 'Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16', 'Descripción de Corsair Dominator DDR4 3200MHz 16GB 2x8GB CL16'),
+    (24, 'fr-FR', 'Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16', 'Description de Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16'),
+    (24, 'es-ES', 'Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16', 'Descripción de Corsair Vengeance RGB Pro DDR4 3200 PC4-25600 32GB 2x16GB CL16'),
+    (25, 'fr-FR', 'Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Noire', 'Description de Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Noire'),
+    (25, 'es-ES', 'Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra', 'Descripción de Corsair Vengeance DDR5 6000MHz 32GB 2x16GB CL36 Negra'),
+    (26, 'fr-FR', 'Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32', 'Description de Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32'),
+    (26, 'es-ES', 'Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32', 'Descripción de Corsair Vengeance DDR5 6600MHz 64GB 2x32GB CL32'),
+    -- SSDs for Samsung brand
+    (27, 'fr-FR', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500 Go', 'Description du Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500 Go'),
+    (27, 'es-ES', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500GB', 'Descripción del Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 500GB'),
+    (28, 'fr-FR', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1 To', 'Description du Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1 To'),
+    (28, 'es-ES', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB', 'Descripción del Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 1TB'),
+    (29, 'fr-FR', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2 To', 'Description du Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2 To'),
+    (29, 'es-ES', 'Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB', 'Descripción del Samsung 990 Pro SSD PCIe 4.0 NVMe M.2 2TB'),
+    (30, 'fr-FR', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500 Go', 'Description du Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500 Go'),
+    (30, 'es-ES', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB', 'Descripción del Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 500GB'),
+    (31, 'fr-FR', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1 To', 'Description du Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1 To'),
+    (31, 'es-ES', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB', 'Descripción del Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 1TB'),
+    (32, 'fr-FR', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2 To', 'Description du Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2 To'),
+    (32, 'es-ES', 'Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB', 'Descripción del Samsung 980 Pro SSD PCIe 4.0 NVMe M.2 2TB'),
+    (33, 'fr-FR', 'Samsung 970 EVO Plus SSD NVMe M.2 500 Go', 'Description du Samsung 970 EVO Plus SSD NVMe M.2 500 Go'),
+    (33, 'es-ES', 'Samsung 970 EVO Plus SSD NVMe M.2 500GB', 'Descripción del Samsung 970 EVO Plus SSD NVMe M.2 500GB'),
+    (34, 'fr-FR', 'Samsung 970 EVO Plus SSD NVMe M.2 1 To', 'Description du Samsung 970 EVO Plus SSD NVMe M.2 1 To'),
+    (34, 'es-ES', 'Samsung 970 EVO Plus SSD NVMe M.2 1TB', 'Descripción del Samsung 970 EVO Plus SSD NVMe M.2 1TB'),
+    (35, 'fr-FR', 'Samsung 970 EVO Plus SSD NVMe M.2 2 To', 'Description du Samsung 970 EVO Plus SSD NVMe M.2 2 To'),
+    (35, 'es-ES', 'Samsung 970 EVO Plus SSD NVMe M.2 2TB', 'Descripción del Samsung 970 EVO Plus SSD NVMe M.2 2TB'),
+
+    -- SSDs for Western Digital brand
+    (36, 'fr-FR', 'WD Red SA500 NAS SSD SATA M.2 2280 500 Go', 'Description du WD Red SA500 NAS SSD SATA M.2 2280 500 Go'),
+    (36, 'es-ES', 'WD Red SA500 NAS SSD SATA M.2 2280 500GB', 'Descripción del WD Red SA500 NAS SSD SATA M.2 2280 500GB'),
+    (37, 'fr-FR', 'WD Red SA500 NAS SSD SATA M.2 2280 1 To', 'Description du WD Red SA500 NAS SSD SATA M.2 2280 1 To'),
+    (37, 'es-ES', 'WD Red SA500 NAS SSD SATA M.2 2280 1TB', 'Descripción del WD Red SA500 NAS SSD SATA M.2 2280 1TB'),
+    (38, 'fr-FR', 'WD Red SA500 NAS SSD SATA M.2 2280 2 To', 'Description du WD Red SA500 NAS SSD SATA M.2 2280 2 To'),
+    (38, 'es-ES', 'WD Red SA500 NAS SSD SATA M.2 2280 2TB', 'Descripción del WD Red SA500 NAS SSD SATA M.2 2280 2TB'),
+    (39, 'fr-FR', 'Western Digital Blue 2,5" SSD 1 To SATA 3', 'Description du Western Digital Blue 2,5" SSD 1 To SATA 3'),
+    (39, 'es-ES', 'Western Digital Blue 2,5" SSD 1TB SATA 3', 'Descripción del Western Digital Blue 2,5" SSD 1TB SATA 3'),
+
+    -- HDDs for Western Digital brand
+    (40, 'fr-FR', 'Western Digital Red Plus 3,5" SATA3 2 To', 'Description du Western Digital Red Plus 3,5" SATA3 2 To'),
+    (40, 'es-ES', 'Western Digital Red Plus 3,5" SATA3 2TB', 'Descripción del Western Digital Red Plus 3,5" SATA3 2TB'),
+    (41, 'fr-FR', 'Western Digital Red Plus 3,5" SATA3 3 To', 'Description du Western Digital Red Plus 3,5" SATA3 3 To'),
+    (41, 'es-ES', 'Western Digital Red Plus 3,5" SATA3 3TB', 'Descripción del Western Digital Red Plus 3,5" SATA3 3TB'),
+    (42, 'fr-FR', 'Western Digital Red Plus 3,5" SATA3 4 To', 'Description du Western Digital Red Plus 3,5" SATA3 4 To'),
+    (42, 'es-ES', 'Western Digital Red Plus 3,5" SATA3 4TB', 'Descripción del Western Digital Red Plus 3,5" SATA3 4TB'),
+    -- NVIDIA graphics cards
+    (43, 'fr-FR', 'EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10 Go GDDR6X', 'Description de EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10 Go GDDR6X'),
+    (43, 'es-ES', 'EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X', 'Descripción de EVGA GeForce RTX 3080 FTW3 ULTRA GAMING LHR 10GB GDDR6X'),
+    (44, 'fr-FR', 'EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8 Go GDDR6X', 'Description de EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8 Go GDDR6X'),
+    (44, 'es-ES', 'EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X', 'Descripción de EVGA GeForce RTX 2080 FTW3 Ultra Gaming iCX2 8GB GDDR6X'),
+    (45, 'fr-FR', 'ASUS ROG Strix GeForce RTX 4080 OC Edition 16 Go GDDR6X DLSS3', 'Description de ASUS ROG Strix GeForce RTX 4080 OC Edition 16 Go GDDR6X DLSS3'),
+    (45, 'es-ES', 'ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3', 'Descripción de ASUS ROG Strix GeForce RTX 4080 OC Edition 16GB GDDR6X DLSS3'),
+    
+    -- AMD graphics cards
+    (46, 'fr-FR', 'Gigabyte AMD Radeon RX 7700 XT GAMING OC 12 Go GDDR6', 'Description de Gigabyte AMD Radeon RX 7700 XT GAMING OC 12 Go GDDR6'),
+    (46, 'es-ES', 'Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6', 'Descripción de Gigabyte AMD Radeon RX 7700 XT GAMING OC 12GB GDDR6'),
+    (47, 'fr-FR', 'Gigabyte AMD Radeon RX 6700 XT GAMING OC 12 Go GDDR6', 'Description de Gigabyte AMD Radeon RX 6700 XT GAMING OC 12 Go GDDR6'),
+    (47, 'es-ES', 'Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6', 'Descripción de Gigabyte AMD Radeon RX 6700 XT GAMING OC 12GB GDDR6'),
+    (48, 'fr-FR', 'ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24 Go GDDR6', 'Description de ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24 Go GDDR6'),
+    (48, 'es-ES', 'ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6', 'Descripción de ASUS TUF Gaming Radeon RX 7900 XTX OC Edition 24GB GDDR6'),
+    
+    -- Cases
+    (49, 'fr-FR', 'Fractal Design Node 202 Mini ITX Desktop Case', 'Description de Fractal Design Node 202 Mini ITX Desktop Case'),
+    (49, 'es-ES', 'Fractal Design Node 202 Mini ITX Desktop Case', 'Descripción de Fractal Design Node 202 Mini ITX Desktop Case'),
+    (50, 'fr-FR', 'NZXT H510 Boîtier Compact ATX Tour Moyenne', 'Description de NZXT H510 Boîtier Compact ATX Tour Moyenne'),
+    (50, 'es-ES', 'NZXT H510 Caja Compacta ATX Torre Media', 'Descripción de NZXT H510 Caja Compacta ATX Torre Media'),
+    (51, 'fr-FR', 'Cooler Master MasterBox Q300L Boîtier mATX', 'Description de Cooler Master MasterBox Q300L Boîtier mATX'),
+    (51, 'es-ES', 'Cooler Master MasterBox Q300L Caja mATX', 'Descripción de Cooler Master MasterBox Q300L Caja mATX'),
+    (52, 'fr-FR', 'Fractal Design Meshify C Boîtier ATX Tour Moyenne', 'Description de Fractal Design Meshify C Boîtier ATX Tour Moyenne'),
+    (52, 'es-ES', 'Fractal Design Meshify C Caja ATX Torre Media', 'Descripción de Fractal Design Meshify C Caja ATX Torre Media'),
+    
+    -- Power Supplies
+    (53, 'fr-FR', 'EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Modulaire', 'Description de EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Modulaire'),
+    (53, 'es-ES', 'EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Totalmente Modular', 'Descripción de EVGA SuperNOVA 550 G5, 80 Plus Gold 550W, Totalmente Modular'),
+    (54, 'fr-FR', 'Corsair RM850x, 850W, 80 Plus Gold, Modulaire', 'Description de Corsair RM850x, 850W, 80 Plus Gold, Modulaire'),
+    (54, 'es-ES', 'Corsair RM850x, 850W, 80 Plus Gold, Totalmente Modular', 'Descripción de Corsair RM850x, 850W, 80 Plus Gold, Totalmente Modular'),
+    (55, 'fr-FR', 'Corsair HX1200i, 1200W, 80 Plus Platinum, Modulaire', 'Description de Corsair HX1200i, 1200W, 80 Plus Platinum, Modulaire'),
+    (55, 'es-ES', 'Corsair HX1200i, 1200W, 80 Plus Platinum, Totalmente Modular', 'Descripción de Corsair HX1200i, 1200W, 80 Plus Platinum, Totalmente Modular');
+
 
 INSERT INTO `CUSTOMER_ORDER` (`ORDER_STATE_ID`, `CUSTOMER_ID`, `ORDER_DATE`, `TRACKING_NUMBER`, `INVOICE_TOTAL`, `BILLING_ADDRESS_ID`, `SHIPPING_ADDRESS_ID`)
 VALUES
@@ -572,6 +707,140 @@ VALUES
     (54, 'en-GB', 'External 5.25" Drive Bays'),
     (55, 'en-GB', 'Internal 3.5" Drive Bays'),
     (56, 'en-GB', 'Internal 2.5" Drive Bays');
+    
+    INSERT INTO `ATTRIBUTE_TYPE_LOCALE` (`ATTRIBUTE_TYPE_ID`, `LOCALE_ID`, `NAME`)
+VALUES
+    -- Brand
+    (1, 'fr-FR', 'Marque'),
+    (1, 'es-ES', 'Marca'),
+
+    -- Processor attributes
+    (2, 'fr-FR', 'Fréquence de Base (MHz)'),
+    (2, 'es-ES', 'Frecuencia Base (MHz)'),
+    (3, 'fr-FR', 'Fréquence Boost (MHz)'),
+    (3, 'es-ES', 'Frecuencia Boost (MHz)'),
+    (4, 'fr-FR', 'Nombre de Cœurs'),
+    (4, 'es-ES', 'Número de Núcleos'),
+    (5, 'fr-FR', 'Nombre de Threads'),
+    (5, 'es-ES', 'Número de Hilos'),
+    (6, 'fr-FR', 'Mémoire Cache L1 (KB)'),
+    (6, 'es-ES', 'Memoria Caché L1 (KB)'),
+    (7, 'fr-FR', 'Mémoire Cache L2 (KB)'),
+    (7, 'es-ES', 'Memoria Caché L2 (KB)'),
+    (8, 'fr-FR', 'Mémoire Cache L3 (MB)'),
+    (8, 'es-ES', 'Memoria Caché L3 (MB)'),
+    (9, 'fr-FR', 'TDP (Puissance Thermique, W)'),
+    (9, 'es-ES', 'TDP (Potencia de Diseño Térmico, W)'),
+    (10, 'fr-FR', 'Socket'),
+    (10, 'es-ES', 'Socket'),
+    (11, 'fr-FR', 'Processus de Fabrication (nm)'),
+    (11, 'es-ES', 'Proceso de Fabricación (nm)'),
+    (12, 'fr-FR', 'Graphiques Intégrés'),
+    (12, 'es-ES', 'Gráficos Integrados'),
+    (13, 'fr-FR', 'Processeur Graphique Intégré'),
+    (13, 'es-ES', 'Procesador Gráfico Integrado'),
+    (14, 'fr-FR', 'Fréquence de Base des Graphiques Intégrés (MHz)'),
+    (14, 'es-ES', 'Frecuencia Base de los Gráficos Integrados (MHz)'),
+    (15, 'fr-FR', 'Fréquence Max des Graphiques Intégrés (MHz)'),
+    (15, 'es-ES', 'Frecuencia Máxima de los Gráficos Integrados (MHz)'),
+    (16, 'fr-FR', 'Unités d’Exécution des Graphiques Intégrés'),
+    (16, 'es-ES', 'Unidades de Ejecución de los Gráficos Integrados'),
+    (17, 'fr-FR', 'Cœurs Graphiques Intégrés'),
+    (17, 'es-ES', 'Núcleos de los Gráficos Integrados'),
+    (18, 'fr-FR', 'Type de Mémoire'),
+    (18, 'es-ES', 'Tipo de Memoria'),
+
+    -- Motherboard attributes
+    (19, 'fr-FR', 'Format'),
+    (19, 'es-ES', 'Formato'),
+    (20, 'fr-FR', 'Chipset'),
+    (20, 'es-ES', 'Chipset'),
+    (21, 'fr-FR', 'Slots Mémoire'),
+    (21, 'es-ES', 'Ranuras de Memoria'),
+    (22, 'fr-FR', 'Mémoire Max (GB)'),
+    (22, 'es-ES', 'Memoria Máxima (GB)'),
+    (23, 'fr-FR', 'Slots PCIe x16'),
+    (23, 'es-ES', 'Ranuras PCIe x16'),
+    (24, 'fr-FR', 'Slots PCIe x1'),
+    (24, 'es-ES', 'Ranuras PCIe x1'),
+    (25, 'fr-FR', 'Ports SATA III'),
+    (25, 'es-ES', 'Puertos SATA III'),
+    (26, 'fr-FR', 'Slots M.2'),
+    (26, 'es-ES', 'Ranuras M.2'),
+
+    -- RAM attributes
+    (27, 'fr-FR', 'Capacité RAM (GB)'),
+    (27, 'es-ES', 'Capacidad RAM (GB)'),
+    (28, 'fr-FR', 'Fréquence (MHz)'),
+    (28, 'es-ES', 'Frecuencia (MHz)'),
+    (29, 'fr-FR', 'Latence CAS'),
+    (29, 'es-ES', 'Latencia CAS'),
+    (30, 'fr-FR', 'Tension (V)'),
+    (30, 'es-ES', 'Voltaje (V)'),
+    (31, 'fr-FR', 'Dissipateur Thermique'),
+    (31, 'es-ES', 'Disipador Térmico'),
+    (32, 'fr-FR', 'Nombre de Modules RAM'),
+    (32, 'es-ES', 'Número de Módulos RAM'),
+
+    -- Storage device attributes
+    (33, 'fr-FR', 'Format de Stockage'),
+    (33, 'es-ES', 'Formato de Almacenamiento'),
+    (34, 'fr-FR', 'Capacité de Stockage (GB)'),
+    (34, 'es-ES', 'Capacidad de Almacenamiento (GB)'),
+    (35, 'fr-FR', 'Interface'),
+    (35, 'es-ES', 'Interfaz'),
+    (36, 'fr-FR', 'Vitesse de Lecture (MB/s)'),
+    (36, 'es-ES', 'Velocidad de Lectura (MB/s)'),
+    (37, 'fr-FR', 'Vitesse d’Écriture (MB/s)'),
+    (37, 'es-ES', 'Velocidad de Escritura (MB/s)'),
+
+    -- SSD specific attributes
+    (38, 'fr-FR', 'Type de NAND'),
+    (38, 'es-ES', 'Tipo de NAND'),
+    (39, 'fr-FR', 'Endurance (TBW)'),
+    (39, 'es-ES', 'Resistencia (TBW)'),
+
+    -- HDD specific attributes
+    (40, 'fr-FR', 'Vitesse de Rotation (RPM)'),
+    (40, 'es-ES', 'Velocidad de Rotación (RPM)'),
+
+    -- GPU specific attributes
+    (41, 'fr-FR', 'Cœurs CUDA'),
+    (41, 'es-ES', 'Núcleos CUDA'),
+    (42, 'fr-FR', 'Taille de Mémoire (GB)'),
+    (42, 'es-ES', 'Tamaño de Memoria (GB)'),
+    (43, 'fr-FR', 'Bande Passante de Mémoire (GB/s)'),
+    (43, 'es-ES', 'Ancho de Banda de Memoria (GB/s)'),
+
+    -- Power Supply specific attributes
+    (44, 'fr-FR', 'Consommation Électrique Max (W)'),
+    (44, 'es-ES', 'Consumo Máximo de Energía (W)'),
+    (45, 'fr-FR', 'Classification d’Efficacité'),
+    (45, 'es-ES', 'Clasificación de Eficiencia'),
+    (46, 'fr-FR', 'Modularité'),
+    (46, 'es-ES', 'Modularidad'),
+    (47, 'fr-FR', 'Connecteurs PCIe'),
+    (47, 'es-ES', 'Conectores PCIe'),
+    (48, 'fr-FR', 'Connecteurs SATA'),
+    (48, 'es-ES', 'Conectores SATA'),
+    (49, 'fr-FR', 'Connecteurs Molex'),
+    (49, 'es-ES', 'Conectores Molex'),
+    (50, 'fr-FR', 'Connecteurs EPS'),
+    (50, 'es-ES', 'Conectores EPS'),
+
+    -- Case specific attributes
+    (51, 'fr-FR', 'Longueur Max GPU (mm)'),
+    (51, 'es-ES', 'Longitud Máxima GPU (mm)'),
+    (52, 'fr-FR', 'Hauteur Max Refroidisseur CPU (mm)'),
+    (52, 'es-ES', 'Altura Máxima del Disipador CPU (mm)'),
+    (53, 'fr-FR', 'Longueur Max Bloc d’Alimentation (mm)'),
+    (53, 'es-ES', 'Longitud Máxima de la Fuente de Alimentación (mm)'),
+    (54, 'fr-FR', 'Baies de Lecteur Externe 5.25"'),
+    (54, 'es-ES', 'Bahías de Unidad Externa 5.25"'),
+    (55, 'fr-FR', 'Baies de Lecteur Interne 3.5"'),
+    (55, 'es-ES', 'Bahías de Unidad Interna 3.5"'),
+    (56, 'fr-FR', 'Baies de Lecteur Interne 2.5"'),
+    (56, 'es-ES', 'Bahías de Unidad Interna 2.5"');
     
 INSERT INTO `CATEGORY_ATTRIBUTE_TYPE` (`CATEGORY_ID`, `ATTRIBUTE_TYPE_ID`)
 VALUES
