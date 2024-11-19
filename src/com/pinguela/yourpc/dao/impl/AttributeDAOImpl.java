@@ -30,15 +30,18 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 	private static final String DATA_TYPE_COLUMN = "ATTRIBUTE_DATA_TYPE_ID";
 	private static final String NAME_COLUMN = "NAME";
-	private static final String VALUE_ID_COLUMN = "ID";
+	private static final String ID_COLUMN = "ID";
+	private static final String VALUE_ID_ALIAS = "VALUE_ID";
+	
 
 	private static final String SELECT_ID = 
-			" SELECT av." +VALUE_ID_COLUMN;
+			" SELECT av." +ID_COLUMN;
 	private static final String SELECT_COLUMNS;
 	static {
 		StringBuilder selectClause = new StringBuilder(" SELECT at.").append(DATA_TYPE_COLUMN)
+				.append(", at.").append(ID_COLUMN)
 				.append(", atl.").append(NAME_COLUMN)
-				.append(", av.").append(VALUE_ID_COLUMN);
+				.append(", av.").append(ID_COLUMN).append(" AS ").append(VALUE_ID_ALIAS);
 
 		for (String dataType : AttributeDTO.TYPE_PARAMETER_CLASSES.keySet()) {
 			selectClause.append(", av.").append(AttributeUtils.getValueColumnName(dataType));
@@ -59,7 +62,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 					+ " ON cat.ATTRIBUTE_TYPE_ID = at.ID";
 	private static final String JOIN_PRODUCT = 
 			" INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav"
-					+ " ON pav.ATTRIBUTE_VALUE_ID = av." +VALUE_ID_COLUMN;
+					+ " ON pav.ATTRIBUTE_VALUE_ID = av." +ID_COLUMN;
 	private static final String ON_PRODUCT_ID = " AND pav.PRODUCT_ID = ?";
 	private static final String ON_CATEGORY_PLACEHOLDER_CONDITION = " AND cat.CATEGORY_ID";
 	private static final String WHERE_PLACEHOLDER_VALUE_AND_NAME = 
@@ -285,11 +288,12 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private AttributeDTO<?> loadNext(ResultSet rs) throws SQLException {
 
 		AttributeDTO<?> attribute = AttributeDTO.getInstance(rs.getString(DATA_TYPE_COLUMN));
+		attribute.setId(rs.getInt(ID_COLUMN));
 		attribute.setName(rs.getString(NAME_COLUMN));
 
 		// Add value to list
 		Class<?> parameterizedTypeClass = (Class<?>) attribute.getTypeParameterClass();
-		Long id = rs.getLong(VALUE_ID_COLUMN);
+		Long id = rs.getLong(VALUE_ID_ALIAS);
 
 		if (!rs.wasNull()) { // Attribute without values
 			Object value = rs.getObject(AttributeUtils.getValueColumnName(attribute), parameterizedTypeClass);
@@ -457,7 +461,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				id = rs.getLong(VALUE_ID_COLUMN);
+				id = rs.getLong(ID_COLUMN);
 			}
 			return id;
 
