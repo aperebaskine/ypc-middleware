@@ -94,20 +94,24 @@ class ProductServiceTest {
 			locale = TestSuite.getLocale();
 			
 			varcharAttribute = AttributeDTO.getInstance(String.class);
+			varcharAttribute.setId(1);
 			varcharAttribute.setName("Brand");
 			varcharAttribute.addValue(null, "AMD");
 			
 			bigintAttribute = AttributeDTO.getInstance(Long.class);
+			bigintAttribute.setId(4);
 			bigintAttribute.setName("Number of Cores");
 			bigintAttribute.addValue(null, 12l);
 			bigintAttribute.addValue(null, 20l);
 			
 			decimalAttribute = AttributeDTO.getInstance(Double.class);
+			decimalAttribute.setId(30);
 		    decimalAttribute.setName("Voltage (V)");
 		    decimalAttribute.addValue(null, 1.1d);
 		    decimalAttribute.addValue(null, 1.2d);
 		    
 		    booleanAttribute = AttributeDTO.getInstance(Boolean.class);
+		    booleanAttribute.setId(12);
 		    booleanAttribute.setName("Integrated Graphics");
 		    booleanAttribute.addValue(null, false);
 		}
