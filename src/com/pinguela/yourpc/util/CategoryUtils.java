@@ -66,7 +66,7 @@ public class CategoryUtils {
 
 		if (c.getParentId() != null) { // Add parent's parent
 			CategoryDTO parent = CATEGORIES.get(c.getParentId());
-			map.put(c.getId(), parent);
+			map.put(parent.getId(), parent);
 
 			putParents(map, parent);
 		}	
