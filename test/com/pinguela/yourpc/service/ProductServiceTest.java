@@ -359,7 +359,7 @@ class ProductServiceTest {
 		@Test
 		void testFindByVarcharAttribute() {
 
-			criteria.getAttributes().put(varcharAttribute.getName(), varcharAttribute);
+			criteria.getAttributes().add(varcharAttribute);
 			criteria.setCategoryId((short) 1);
 
 			try {
@@ -378,7 +378,7 @@ class ProductServiceTest {
 		@Test
 		void testFindByBigintAttribute() {
 
-			criteria.getAttributes().put(bigintAttribute.getName(), bigintAttribute);
+			criteria.getAttributes().add(bigintAttribute);
 
 			try {
 				results = productService.findBy(criteria, locale, pos, pageSize);
@@ -396,7 +396,7 @@ class ProductServiceTest {
 		@Test
 		void testFindByDecimalAttribute() {
 		    
-		    criteria.getAttributes().put(decimalAttribute.getName(), decimalAttribute);
+		    criteria.getAttributes().add(decimalAttribute);
 		    
 			try {
 				results = productService.findBy(criteria, locale, pos, pageSize);
@@ -415,7 +415,7 @@ class ProductServiceTest {
 		@Test
 		void testFindByBooleanAttribute() {
 		    
-		    criteria.getAttributes().put(booleanAttribute.getName(), booleanAttribute);
+		    criteria.getAttributes().add(booleanAttribute);
 		    
 			try {
 				results = productService.findBy(criteria, locale, pos, pageSize);
@@ -437,8 +437,8 @@ class ProductServiceTest {
 		    criteria.setCategoryId((short) 1);
 		    criteria.setStockMin(20);
 		    criteria.setPriceMax(600.0d);
-		    criteria.getAttributes().put(varcharAttribute.getName(), varcharAttribute);
-		    criteria.getAttributes().put(booleanAttribute.getName(), booleanAttribute);
+		    criteria.getAttributes().add(varcharAttribute);
+		    criteria.getAttributes().add(booleanAttribute);
 		    
 			try {
 				results = productService.findBy(criteria, locale, pos, pageSize);
@@ -455,7 +455,7 @@ class ProductServiceTest {
 					assertEquals(varcharAttribute.getValueAt(0), brand);
 					
 					Boolean hasIntegratedGraphics = (Boolean) p.getAttributes().get(booleanAttribute.getName()).getValueAt(0);
-					assertEquals(criteria.getAttributes().get(booleanAttribute.getName()).getValueAt(0), hasIntegratedGraphics);
+					assertEquals(booleanAttribute.getValueAt(0), hasIntegratedGraphics);
 				}
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);

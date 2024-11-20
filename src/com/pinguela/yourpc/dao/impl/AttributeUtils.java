@@ -98,11 +98,11 @@ class AttributeUtils {
 		return getValueColumnName(attribute.getDataTypeIdentifier());
 	}
 
-	static String buildAttributeConditionClause(Map<String, AttributeDTO<?>> attributes) {
+	static String buildAttributeConditionClause(List<AttributeDTO<?>> attributes) {
 
 		List<StringBuilder> conditions = new ArrayList<StringBuilder>(attributes.size());
 
-		for (AttributeDTO<?> attribute : attributes.values()) {
+		for (AttributeDTO<?> attribute : attributes) {
 			StringBuilder condition = new StringBuilder(" (at.ID = ? AND");
 
 			if (attribute.getValues().size() == 1) {

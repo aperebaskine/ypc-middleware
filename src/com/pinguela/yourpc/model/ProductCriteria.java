@@ -1,8 +1,9 @@
 package com.pinguela.yourpc.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.pinguela.yourpc.model.dto.AbstractProductDTO;
 import com.pinguela.yourpc.model.dto.AttributeDTO;
@@ -23,10 +24,10 @@ extends AbstractCriteria<Long, AbstractProductDTO> {
 	private Double priceMin = null;
 	private Double priceMax = null;
 	private Short categoryId = null;
-	private Map<String, AttributeDTO<?>> attributes;
+	private List<AttributeDTO<?>> attributes;
 	
 	public ProductCriteria() {
-		attributes = new TreeMap<String, AttributeDTO<?>>();
+		attributes = new ArrayList<AttributeDTO<?>>();
 	}
 	
 	@Override
@@ -98,13 +99,13 @@ extends AbstractCriteria<Long, AbstractProductDTO> {
 	public void setCategoryId(Short categoryId) {
 		this.categoryId = categoryId;
 	}
-
-	public Map<String, AttributeDTO<?>> getAttributes() {
+	
+	public List<AttributeDTO<?>> getAttributes() {
 		return attributes;
 	}
-
-	public void setAttributes(Map<String, AttributeDTO<?>> attributes) {
+	
+	public void setAttributes(List<AttributeDTO<?>> attributes) {
 		this.attributes = attributes;
 	}
-
+	
 }

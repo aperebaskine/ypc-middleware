@@ -511,7 +511,7 @@ implements ProductDAO {
 			}
 		}
 		if (criteria.getAttributes() != null && !criteria.getAttributes().isEmpty()) {
-			for (AttributeDTO<?> attribute : criteria.getAttributes().values()) {
+			for (AttributeDTO<?> attribute : criteria.getAttributes()) {
 				stmt.setInt(i++, attribute.getId());
 				for (AttributeValueDTO<?> valueContainer : attribute.getValuesByHandlingMode()) {
 					stmt.setObject(i++, valueContainer.getValue(), AttributeUtils.getTargetSqlTypeIdentifier(attribute));
