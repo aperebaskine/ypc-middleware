@@ -175,6 +175,10 @@ extends AbstractDTO<Integer> {
 	public void clearValues() {
 		values.clear();
 	}
+	
+	public int valueCount() {
+		return values.size();
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
