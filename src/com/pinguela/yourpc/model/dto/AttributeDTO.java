@@ -16,12 +16,12 @@ import com.pinguela.yourpc.model.constants.AttributeValueHandlingModes;
 
 public abstract class AttributeDTO<T> 
 extends AbstractDTO<Integer> {
-	
+
 	/**
 	 * Maps type parameter classes to their corresponding subclasses.
 	 */
 	private static final Map<Class<?>, Class<?>> SUBCLASSES;
-	
+
 	/**
 	 * <p>Maps the SQL data type primary key (returned by {@link #getDataTypeIdentifier()})
 	 * to the name of the parameterised class used by the attribute instance.</p>
@@ -36,11 +36,11 @@ extends AbstractDTO<Integer> {
 
 		Reflections reflections = new Reflections(AttributeDTO.class.getPackageName());
 		for (Class<?> subclass : reflections.getSubTypesOf(AttributeDTO.class)) {
-			
+
 			if (!Modifier.isFinal(subclass.getModifiers())) {
 				continue;
 			}
-			
+
 			try {
 				AttributeDTO<?> attribute = (AttributeDTO<?>) subclass.getDeclaredConstructor().newInstance();
 				Class<?> typeParameterClass = attribute.getTypeParameterClass();
@@ -51,11 +51,11 @@ extends AbstractDTO<Integer> {
 				throw new ExceptionInInitializerError(e);
 			}
 		}
-		
+
 		SUBCLASSES = Collections.unmodifiableMap(subclassMap);
 		TYPE_PARAMETER_CLASSES = Collections.unmodifiableMap(typeParameterClassMap);
 	}
-	
+
 	public static final AttributeDTO<?> getInstance(String dataType) {
 		return getInstance(TYPE_PARAMETER_CLASSES.get(dataType));
 	}
@@ -119,10 +119,15 @@ extends AbstractDTO<Integer> {
 	 */
 	public List<AttributeValueDTO<T>> getValuesByHandlingMode() {
 
-		List<AttributeValueDTO<T>> valuesToReturn = new ArrayList<AttributeValueDTO<T>>();
-
 		switch (getValueHandlingMode()) {
 		case AttributeValueHandlingModes.RANGE:
+
+			if (this.values.size() < 2) {
+				return this.values;
+			}
+
+			List<AttributeValueDTO<T>> valuesToReturn = new ArrayList<AttributeValueDTO<T>>();
+
 			AttributeValueDTO<T> min = values.get(0);
 			AttributeValueDTO<T> max = values.get(values.size()-1);
 
@@ -130,17 +135,19 @@ extends AbstractDTO<Integer> {
 			if (!min.getValue().equals(max.getValue())) {
 				valuesToReturn.add(max);
 			}
-			break;
+			return valuesToReturn;
 		case AttributeValueHandlingModes.SET:
-			valuesToReturn.addAll(this.values);
+			return this.values;
+		default:
+			throw new IllegalStateException("Unrecognized value handling mode.");
 		}
-
-		return valuesToReturn;
 	}
 
 	public T getValueAt(int index) {
 		return values.get(index).getValue();
 	}
+
+	public abstract void addValue(Long id, String valueStr);
 
 	@SuppressWarnings("unchecked")
 	public void addValue(Long id, Object value) {
@@ -175,7 +182,7 @@ extends AbstractDTO<Integer> {
 	public void clearValues() {
 		values.clear();
 	}
-	
+
 	public int valueCount() {
 		return values.size();
 	}
