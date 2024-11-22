@@ -914,7 +914,7 @@ VALUES
 	(5, 11), -- Manufacturing Process (nm)
 	(5, 18), -- Memory Type
 	(5, 35), -- Interface
-	(5, 41), -- CUDA Cores
+	(11, 41), -- CUDA Cores
 	(5, 42), -- Memory Size (GB)
 	(5, 43), -- Memory Bandwidth (GB/s)
 
