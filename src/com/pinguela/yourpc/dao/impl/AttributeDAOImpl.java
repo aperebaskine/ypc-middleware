@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -201,13 +202,15 @@ public class AttributeDAOImpl implements AttributeDAO {
 
 		Map<Short, CategoryDTO> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
 		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
+		
+		if (upperHierarchy.isEmpty() || lowerHierarchy.isEmpty()) {
+			return Collections.emptyMap();
+		}
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		query.append(JOIN_CATEGORY_ATTRIBUTE_TYPE_PLACEHOLDER)
 		.append(SQLQueryUtils.buildPlaceholderComparisonClause(upperHierarchy.keySet()));
-		if (returnUnassigned == AttributeService.RETURN_UNASSIGNED_VALUES) {
-			query.append(JOIN_CATEGORY_ATTRIBUTE_TYPE_PLACEHOLDER);
-		} else {
+		if (returnUnassigned == AttributeService.NO_UNASSIGNED_VALUES) {
 			query.append(JOIN_PRODUCT_ATTRIBUTE_VALUE)
 			.append(JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER)
 			.append(SQLQueryUtils.buildPlaceholderComparisonClause(lowerHierarchy.size()));
