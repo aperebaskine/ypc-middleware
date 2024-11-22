@@ -163,7 +163,7 @@ implements ProductDAO {
 
 	private boolean createLocale(Connection conn, ProductDTO p) 
 			throws DataException {
-		
+
 		String query = new StringBuffer(CREATE_I18N_QUERY)
 				.append(SQLQueryUtils.buildPlaceholderValuesClause(p.getNameI18n().size(), 4))
 				.toString();
