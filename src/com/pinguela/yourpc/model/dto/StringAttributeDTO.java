@@ -9,6 +9,11 @@ extends AttributeDTO<String> {
 	StringAttributeDTO() {
 		super();
 	}
+	
+	@Override
+	public void addValue(Long id, String valueStr) {
+		super.addValue(id, (Object) valueStr);
+	}
 
 	@Override
 	public String getDataTypeIdentifier() {

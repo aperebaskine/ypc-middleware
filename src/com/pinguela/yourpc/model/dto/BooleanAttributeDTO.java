@@ -9,6 +9,11 @@ extends AttributeDTO<Boolean> {
 	BooleanAttributeDTO() {
 		super();
 	}
+	
+	@Override
+	public void addValue(Long id, String valueStr) {
+		super.addValue(id, Boolean.valueOf(valueStr));
+	}
 
 	@Override
 	public String getDataTypeIdentifier() {

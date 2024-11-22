@@ -11,6 +11,11 @@ extends AttributeDTO<Long> {
 	}
 	
 	@Override
+	public void addValue(Long id, String valueStr) {
+		super.addValue(id, Long.valueOf(valueStr));
+	}
+	
+	@Override
 	public String getDataTypeIdentifier() {
 		return AttributeDataTypes.BIGINT;
 	}
