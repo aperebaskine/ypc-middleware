@@ -101,6 +101,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 			throws DataException {
 
 		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
+		
+		if (categoryId != null && lowerHierarchy.isEmpty()) {
+			return null;
+		}
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
@@ -152,6 +156,10 @@ public class AttributeDAOImpl implements AttributeDAO {
 	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned, Short categoryId) throws DataException {
 
 		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
+		
+		if (categoryId != null && lowerHierarchy.isEmpty()) {
+			return null;
+		}
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
