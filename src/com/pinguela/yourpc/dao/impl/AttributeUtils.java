@@ -105,7 +105,7 @@ class AttributeUtils {
 		for (AttributeDTO<?> attribute : attributes) {
 			StringBuilder condition = new StringBuilder(" (at.ID = ? AND");
 
-			if (attribute.getValues().size() == 1) {
+			if (attribute.getValuesByHandlingMode().size() == 1) {
 				condition.append(String.format(" av.%1$s = ?)", getValueColumnName(attribute)));
 			} else {
 				switch (attribute.getValueHandlingMode()) {
