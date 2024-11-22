@@ -32,7 +32,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static final String NAME_COLUMN = "NAME";
 	private static final String ID_COLUMN = "ID";
 	private static final String VALUE_ID_ALIAS = "VALUE_ID";
-	
+
 
 	private static final String SELECT_ID = 
 			" SELECT av." +ID_COLUMN;
@@ -57,14 +57,20 @@ public class AttributeDAOImpl implements AttributeDAO {
 			" INNER JOIN ATTRIBUTE_TYPE_LOCALE atl"
 					+ " ON at.ID = atl.ATTRIBUTE_TYPE_ID"
 					+ " AND atl.LOCALE_ID = ?";
-	private static final String JOIN_CATEGORY = 
+	private static final String JOIN_CATEGORY_ATTRIBUTE_TYPE_PLACEHOLDER = 
 			" INNER JOIN CATEGORY_ATTRIBUTE_TYPE cat"
-					+ " ON cat.ATTRIBUTE_TYPE_ID = at.ID";
-	private static final String JOIN_PRODUCT = 
+					+ " ON cat.ATTRIBUTE_TYPE_ID = at.ID"
+					+ " AND cat.CATEGORY_ID";
+	private static final String JOIN_PRODUCT_ATTRIBUTE_VALUE = 
 			" INNER JOIN PRODUCT_ATTRIBUTE_VALUE pav"
 					+ " ON pav.ATTRIBUTE_VALUE_ID = av." +ID_COLUMN;
 	private static final String ON_PRODUCT_ID = " AND pav.PRODUCT_ID = ?";
-	private static final String ON_CATEGORY_PLACEHOLDER_CONDITION = " AND cat.CATEGORY_ID";
+	private static final String JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER = 
+			" INNER JOIN PRODUCT p"
+					+ " ON p.ID = pav.PRODUCT_ID"
+					+ " INNER JOIN CATEGORY c"
+					+ " ON c.ID = p.CATEGORY_ID"
+					+ " AND c.ID";
 	private static final String WHERE_PLACEHOLDER_VALUE_AND_NAME = 
 			" WHERE av.%1$s = ?" +" AND at.ID = ?";
 	private static final String GROUP_BY_VALUE = " GROUP BY at.ID, atl.ID, av.ID";
@@ -72,9 +78,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 			" ORDER BY atl.NAME ASC, av.VALUE_VARCHAR ASC, av.VALUE_BIGINT ASC, av.VALUE_DECIMAL ASC, av.VALUE_BOOLEAN ASC";
 
 	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE +JOIN_LOCALE;
-	private static final String FIND_BY_CATEGORY_PLACEHOLDER_CONDITION_QUERY = 
-			FINDBY_QUERY +JOIN_CATEGORY +ON_CATEGORY_PLACEHOLDER_CONDITION;
-	private static final String FINDBYPRODUCT_QUERY = FINDBY_QUERY +JOIN_PRODUCT +ON_PRODUCT_ID +ORDER_BY_CLAUSE;
+	private static final String FINDBYPRODUCT_QUERY = FINDBY_QUERY +JOIN_PRODUCT_ATTRIBUTE_VALUE +ON_PRODUCT_ID +ORDER_BY_CLAUSE;
 	private static final String FINDIDBYVALUE_QUERY = SELECT_ID +FROM_TABLE +WHERE_PLACEHOLDER_VALUE_AND_NAME;
 
 	private static final String ASSIGN_QUERY =
@@ -92,12 +96,18 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static Logger logger = LogManager.getLogger(AttributeDAOImpl.class);
 
 	@Override
-	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws DataException {
+
+		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
-			query.append(JOIN_PRODUCT);
+			query.append(JOIN_PRODUCT_ATTRIBUTE_VALUE);
+			if (categoryId != null) {
+				query.append(JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER)
+				.append(SQLQueryUtils.buildPlaceholderComparisonClause(lowerHierarchy.keySet()));
+			}
 		}
 		query.append(" WHERE at.ID = ?");
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
@@ -116,6 +126,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 					);
 			int i = 1;
 			stmt.setString(i++, locale.toLanguageTag());
+			if (categoryId != null) {
+				for (CategoryDTO dto : lowerHierarchy.values()) {
+					stmt.setShort(i++, dto.getId());
+				}
+			}
 			stmt.setInt(i++, id);
 
 			rs = stmt.executeQuery();
@@ -133,11 +148,17 @@ public class AttributeDAOImpl implements AttributeDAO {
 	}
 
 	@Override
-	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned) throws DataException {
+	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned, Short categoryId) throws DataException {
+
+		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
-			query.append(JOIN_PRODUCT);
+			query.append(JOIN_PRODUCT_ATTRIBUTE_VALUE);
+			if (categoryId != null) {
+				query.append(JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER)
+				.append(SQLQueryUtils.buildPlaceholderComparisonClause(lowerHierarchy.keySet()));
+			}
 		}
 		query.append(" WHERE atl.NAME = ?");
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
@@ -156,6 +177,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 					);
 			int i = 1;
 			stmt.setString(i++, locale.toLanguageTag());
+			if (categoryId != null) {
+				for (CategoryDTO dto : lowerHierarchy.values()) {
+					stmt.setShort(i++, dto.getId());
+				}
+			}
 			stmt.setString(i++, name);
 
 			rs = stmt.executeQuery();
@@ -174,11 +200,22 @@ public class AttributeDAOImpl implements AttributeDAO {
 			throws DataException {
 
 		Map<Short, CategoryDTO> upperHierarchy = CategoryUtils.getUpperHierarchy(categoryId);
+		Map<Short, CategoryDTO> lowerHierarchy = CategoryUtils.getLowerHierarchy(categoryId);
 
-		StringBuilder query = new StringBuilder(FIND_BY_CATEGORY_PLACEHOLDER_CONDITION_QUERY)
-				.append(SQLQueryUtils.buildPlaceholderComparisonClause(upperHierarchy.keySet()));
+		StringBuilder query = new StringBuilder(FINDBY_QUERY);
+		query.append(JOIN_CATEGORY_ATTRIBUTE_TYPE_PLACEHOLDER)
+		.append(SQLQueryUtils.buildPlaceholderComparisonClause(upperHierarchy.keySet()));
+		if (returnUnassigned == AttributeService.RETURN_UNASSIGNED_VALUES) {
+			query.append(JOIN_CATEGORY_ATTRIBUTE_TYPE_PLACEHOLDER);
+		} else {
+			query.append(JOIN_PRODUCT_ATTRIBUTE_VALUE)
+			.append(JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER)
+			.append(SQLQueryUtils.buildPlaceholderComparisonClause(lowerHierarchy.size()));
+		}
+		
+
 		if (returnUnassigned != AttributeService.RETURN_UNASSIGNED_VALUES) {
-			query.append(JOIN_PRODUCT).append(GROUP_BY_VALUE);
+			query.append(GROUP_BY_VALUE);
 		}
 		query.append(ORDER_BY_CLAUSE);
 
@@ -195,6 +232,11 @@ public class AttributeDAOImpl implements AttributeDAO {
 			stmt.setString(i++, locale.toLanguageTag());
 			for (Short id : upperHierarchy.keySet()) {
 				stmt.setShort(i++, id);
+			}
+			if (!returnUnassigned) {
+				for (Short id : lowerHierarchy.keySet()) {
+					stmt.setShort(i++, id);
+				}
 			}
 
 			rs = stmt.executeQuery();

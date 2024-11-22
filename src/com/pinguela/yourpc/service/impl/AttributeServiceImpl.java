@@ -26,7 +26,7 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
-	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws ServiceException, DataException {
 		
 		if (id == null) {
@@ -37,7 +37,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return attributeDAO.findById(conn, id, locale, returnUnassigned);
+			return attributeDAO.findById(conn, id, locale, returnUnassigned, categoryId);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
@@ -47,7 +47,7 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 	
 	@Override
-	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned) 
+	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned, Short categoryId) 
 			throws ServiceException, DataException {
 		
 		if (name == null) {
@@ -58,7 +58,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return attributeDAO.findByName(conn, name, locale, returnUnassigned);
+			return attributeDAO.findByName(conn, name, locale, returnUnassigned, categoryId);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

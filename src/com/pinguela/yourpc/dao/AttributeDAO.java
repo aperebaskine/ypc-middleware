@@ -10,10 +10,10 @@ import com.pinguela.yourpc.model.dto.AttributeDTO;
 
 public interface AttributeDAO {
 	
-	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findById(Connection conn, Integer id, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws DataException;
 	
-	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findByName(Connection conn, String name, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws DataException;
 	
 	/**

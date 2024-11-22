@@ -32,8 +32,18 @@ class AttributeServiceTest {
 	@Test
 	void testFindById() {
 		try {
-			AttributeDTO<?> attribute = attributeService.findById(1, locale, true);
+			AttributeDTO<?> attribute = attributeService.findById(1, locale, true, null);
 			assertEquals(12, attribute.getValues().size());
+		} catch (YPCException e) {
+			fail(e);
+		} 
+	}
+	
+	@Test
+	void testFindByIdFilteredByCategory() {
+		try {
+			AttributeDTO<?> attribute = attributeService.findById(1, locale, false, (short) 1);
+			assertEquals(2, attribute.getValues().size());
 		} catch (YPCException e) {
 			fail(e);
 		} 
@@ -42,8 +52,18 @@ class AttributeServiceTest {
 	@Test
 	void testFindByName() {
 		try {
-			AttributeDTO<?> attribute = attributeService.findByName("Brand", locale, true);
+			AttributeDTO<?> attribute = attributeService.findByName("Brand", locale, true, null);
 			assertEquals(12, attribute.getValues().size());
+		} catch (YPCException e) {
+			fail(e);
+		} 
+	}
+	
+	@Test
+	void testFindByNameFilteredByCategory() {
+		try {
+			AttributeDTO<?> attribute = attributeService.findByName("Brand", locale, false, (short) 1);
+			assertEquals(2, attribute.getValues().size());
 		} catch (YPCException e) {
 			fail(e);
 		} 

@@ -33,6 +33,10 @@ public class CategoryUtils {
 	}
 
 	public static final Map<Short, CategoryDTO> getUpperHierarchy(Short categoryId) {
+		
+		if (categoryId == null) {
+			return Collections.emptyMap();
+		}
 
 		Map<Short, CategoryDTO> results = new TreeMap<Short, CategoryDTO>();
 		CategoryDTO c = CATEGORIES.get(categoryId);

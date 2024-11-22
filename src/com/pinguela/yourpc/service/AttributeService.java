@@ -12,10 +12,10 @@ public interface AttributeService {
 	public static final boolean RETURN_UNASSIGNED_VALUES = Boolean.TRUE;
 	public static final boolean NO_UNASSIGNED_VALUES = Boolean.FALSE;
 
-	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findById(Integer id, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws ServiceException, DataException;
 
-	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned)
+	public AttributeDTO<?> findByName(String name, Locale locale, boolean returnUnassigned, Short categoryId)
 			throws ServiceException, DataException;
 
 	public Map<String, AttributeDTO<?>> findByCategory(Short categoryId, Locale locale, boolean returnUnassigned)
