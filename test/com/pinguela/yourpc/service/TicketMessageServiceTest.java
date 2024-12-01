@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,8 @@ import com.pinguela.yourpc.service.impl.TicketServiceImpl;
 public class TicketMessageServiceTest {
 
 	private static Logger logger = LogManager.getLogger(TicketMessageServiceTest.class);
+	private Locale locale = Locale.forLanguageTag("en-GB");
+
 	private TicketService ticketService = null;
 	private TicketMessageService tmService = null;
 	private TicketMessage testMessage = null;
@@ -34,7 +37,7 @@ public class TicketMessageServiceTest {
 
 		
 		Long id = tmService.create(testMessage);
-		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId()).getMessageList();
+		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId(), locale).getMessageList();
 		
 		if (id == null || !testMessage.getText().equals(ticketMessageList.get(ticketMessageList.size()-1).getText())) {
 			logger.error("Error al crear mensaje: {}", testMessage);
@@ -47,7 +50,7 @@ public class TicketMessageServiceTest {
 			throws ServiceException, DataException {
 		
 		Boolean isDeleted = tmService.delete(testMessage.getId());
-		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId()).getMessageList();
+		List<TicketMessage> ticketMessageList = ticketService.findById(testMessage.getTicketId(), locale).getMessageList();
 		
 		if (!isDeleted
 				|| ticketMessageList.get(ticketMessageList.size()-1).getId() == testMessage.getId()) {

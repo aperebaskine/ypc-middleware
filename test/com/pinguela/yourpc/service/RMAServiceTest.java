@@ -3,6 +3,7 @@ package com.pinguela.yourpc.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ import com.pinguela.yourpc.util.DateUtils;
 public class RMAServiceTest {
 	
 	private static Logger logger = LogManager.getLogger(RMAServiceTest.class);
+	private static Locale locale = Locale.forLanguageTag("en-GB");
 	private RMAService rmaService = null;
 	private RMA testRma = null;
 	
@@ -39,21 +41,21 @@ public class RMAServiceTest {
 		
 		RMA r;
 
-		r = rmaService.findById(2l);
+		r = rmaService.findById(2l, locale);
 		if (r == null) {
 			logger.error("Devolución no encontrada.");
 		} else {
 			logger.debug("Devolución con ID 2 encontrado: {}", r);
 		}
 		
-		r = rmaService.findById(-1l);
+		r = rmaService.findById(-1l, locale);
 		if (r != null) {
 			logger.error("Se esperaba nulo, recibido: {}", r);
 		} else {
 			logger.debug("Devolución nula.");
 		}
 		
-		r = rmaService.findById(null);
+		r = rmaService.findById(null, locale);
 		if (r != null) {
 			logger.error("Se esperaba nulo, recibido: {}", r);
 		} else {
@@ -67,7 +69,7 @@ public class RMAServiceTest {
 		RMACriteria criteria = new RMACriteria();
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -82,7 +84,7 @@ public class RMAServiceTest {
 		criteria.setCustomerId(5);
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -97,7 +99,7 @@ public class RMAServiceTest {
 		criteria.setCustomerEmail("cant@see.me");
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -112,7 +114,7 @@ public class RMAServiceTest {
 		criteria.setOrderId(8l);
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -127,7 +129,7 @@ public class RMAServiceTest {
 		criteria.setTicketId(4l);
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -142,7 +144,7 @@ public class RMAServiceTest {
 		criteria.setMinDate(DateUtils.getDate(2023, Calendar.AUGUST, 15));
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -157,7 +159,7 @@ public class RMAServiceTest {
 		criteria.setMaxDate(DateUtils.getDate(2023, Calendar.AUGUST, 15));
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -172,7 +174,7 @@ public class RMAServiceTest {
 		criteria.setState("APP");
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -189,7 +191,7 @@ public class RMAServiceTest {
 		criteria.setCustomerId(5);
 		List<RMA> results = new ArrayList<RMA>();
 		
-		results = rmaService.findBy(criteria);
+		results = rmaService.findBy(criteria, locale);
 		if (results == null || results.isEmpty()) {
 			logger.error("Resultados no encontrados.");
 		} else {
@@ -202,7 +204,7 @@ public class RMAServiceTest {
 		
 		Long id = rmaService.create(testRma);
 		if (id == null
-				|| !testRma.getTrackingNumber().equals(rmaService.findById(testRma.getId()).getTrackingNumber())) {
+				|| !testRma.getTrackingNumber().equals(rmaService.findById(testRma.getId(), locale).getTrackingNumber())) {
 			logger.error("Error al crear devolucion {}", testRma);
 		} else {
 			logger.debug("Devolución creada correctamente.");
@@ -215,7 +217,7 @@ public class RMAServiceTest {
 		testRma.setTrackingNumber("TESTUPDATE" +System.currentTimeMillis());
 		
 		if (!rmaService.update(testRma)
-				|| !testRma.getTrackingNumber().equals(rmaService.findById(testRma.getId()).getTrackingNumber())) {
+				|| !testRma.getTrackingNumber().equals(rmaService.findById(testRma.getId(), locale).getTrackingNumber())) {
 			logger.error("Error al actualizar {}", testRma);
 		} else {
 			logger.debug("Devolución actualizada correctamente.");

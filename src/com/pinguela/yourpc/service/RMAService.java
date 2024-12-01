@@ -1,6 +1,7 @@
 package com.pinguela.yourpc.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
@@ -9,10 +10,10 @@ import com.pinguela.yourpc.model.RMACriteria;
 
 public interface RMAService {
 
-	public RMA findById(Long rmaId)
+	public RMA findById(Long rmaId, Locale locale)
 			throws ServiceException, DataException;
 	
-	public List<RMA> findBy(RMACriteria criteria)
+	public List<RMA> findBy(RMACriteria criteria, Locale locale)
 			throws ServiceException, DataException;
 	
 	public Long create(RMA rma)

@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,7 +72,7 @@ implements RMADAO {
 	private OrderLineDAO orderLineDAO = null;
 
 	@Override
-	public RMA findById(Connection conn, Long rmaId) 
+	public RMA findById(Connection conn, Long rmaId, Locale locale) 
 			throws DataException {
 	
 		if (rmaId == null) {
@@ -90,7 +91,7 @@ implements RMADAO {
 					);
 			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, rmaId);
 			rs = stmt.executeQuery();
-			if (rs.next()) r = loadNext(conn, rs);
+			if (rs.next()) r = loadNext(conn, rs, locale);
 			return r;
 
 		} catch (SQLException sqle) {
@@ -102,7 +103,7 @@ implements RMADAO {
 	}
 
 	@Override
-	public List<RMA> findBy(Connection conn, RMACriteria criteria) throws DataException {
+	public List<RMA> findBy(Connection conn, RMACriteria criteria, Locale locale) throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
 		if (criteria.getCustomerEmail() != null) query.append(JOIN_CUSTOMER);
@@ -123,7 +124,7 @@ implements RMADAO {
 
 			rs = stmt.executeQuery();
 			List<RMA> results = new ArrayList<RMA>();
-			while (rs.next()) results.add(loadNext(conn, rs));
+			while (rs.next()) results.add(loadNext(conn, rs, locale));
 			return results;
 		} catch (SQLException e) {
 			logger.error(e);
@@ -191,7 +192,7 @@ implements RMADAO {
 		return i;
 	}
 
-	private RMA loadNext(Connection conn, ResultSet rs) 
+	private RMA loadNext(Connection conn, ResultSet rs, Locale locale) 
 			throws SQLException, DataException {
 
 		RMA r = new RMA();
@@ -201,7 +202,7 @@ implements RMADAO {
 		r.setState(rs.getString(i++));
 		r.setCreationDate(rs.getTimestamp(i++));
 		r.setTrackingNumber(rs.getString(i++));
-		r.setOrderLines(orderLineDAO.findByRMA(conn, r.getId(), null));
+		r.setOrderLines(orderLineDAO.findByRMA(conn, r.getId(), locale));
 		return r;
 	}
 

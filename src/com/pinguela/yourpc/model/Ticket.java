@@ -14,6 +14,7 @@ extends AbstractValueObject {
 	private String state;
 	private String type;
 	private Long productId;
+	private String productName;
 	private String title;
 	private String description;
 	
@@ -66,6 +67,12 @@ extends AbstractValueObject {
 	}
 	public void setProductId(Long productId) {
 		this.productId = productId;
+	}
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
 	}
 	public List<TicketMessage> getMessageList() {
 		return messageList;

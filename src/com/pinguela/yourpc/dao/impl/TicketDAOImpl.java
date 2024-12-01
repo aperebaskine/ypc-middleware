@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,12 +37,16 @@ implements TicketDAO {
 					+ " t.TICKET_STATE_ID,"
 					+ " t.TICKET_TYPE_ID,"
 					+ " t.PRODUCT_ID,"
+					+ " pl.NAME,"
 					+ " t.TITLE,"
 					+ " t.DESCRIPTION";
 	private static final String FROM_TABLE =
 			" FROM TICKET t"
 			+ " INNER JOIN CUSTOMER c"
-			+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL";
+			+ " ON t.CUSTOMER_ID = c.ID AND c.DELETION_DATE IS NULL"
+			+ " LEFT JOIN PRODUCT_LOCALE pl"
+			+ " ON pl.PRODUCT_ID = t.PRODUCT_ID"
+			+ " AND pl.LOCALE_ID = ?";
 	private static final String ID_FILTER =
 			" WHERE t.ID = ?";
 
@@ -80,7 +85,7 @@ implements TicketDAO {
 	}
 
 	@Override
-	public Ticket findById(Connection conn, Long ticketId) 
+	public Ticket findById(Connection conn, Long ticketId, Locale locale) 
 			throws DataException {
 
 		if (ticketId == null) {
@@ -93,10 +98,14 @@ implements TicketDAO {
 
 		try {
 			stmt = conn.prepareStatement(FINDBYID_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			stmt.setLong(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, ticketId);
+			
+			int i = 1;
+			
+			stmt.setString(i++, locale.toLanguageTag());
+			stmt.setLong(i++, ticketId);
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				t = loadNext(conn, rs);
+				t = loadNext(conn, rs, locale);
 			}
 			return t;
 		} catch (SQLException sqle) {
@@ -109,7 +118,7 @@ implements TicketDAO {
 	}
 
 	@Override
-	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, int pos, int pageSize)
+	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, Locale locale, int pos, int pageSize)
 			throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY).append(buildWhereClause(criteria));
@@ -124,9 +133,9 @@ implements TicketDAO {
 					ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY
 					);
-			setSelectValues(stmt, criteria);
+			setSelectValues(stmt, criteria, locale);
 			rs = stmt.executeQuery();
-			results = loadResults(conn, rs, pos, pageSize);
+			results = loadResults(conn, rs, locale, pos, pageSize);
 			return results;
 
 		} catch (SQLException sqle) {
@@ -164,10 +173,12 @@ implements TicketDAO {
 		return SQLQueryUtils.buildWhereClause(conditions);
 	}
 
-	private static int setSelectValues(PreparedStatement stmt, TicketCriteria criteria) 
+	private static int setSelectValues(PreparedStatement stmt, TicketCriteria criteria, Locale locale) 
 			throws SQLException {
 
 		int i = 1;
+		
+		stmt.setString(i++, locale.toLanguageTag());
 
 		if (criteria.getCustomerId() != null) {
 			stmt.setLong(i++, criteria.getCustomerId());
@@ -275,7 +286,7 @@ implements TicketDAO {
 		}
 	}
 
-	private Results<Ticket> loadResults(Connection conn, ResultSet rs, int startPos, int pageSize)
+	private Results<Ticket> loadResults(Connection conn, ResultSet rs, Locale locale, int startPos, int pageSize)
 			throws SQLException, DataException {
 
 		Results<Ticket> results = new Results<Ticket>();
@@ -285,7 +296,7 @@ implements TicketDAO {
 			int count = 0;
 			rs.absolute(startPos);
 			do {
-				results.getPage().add(loadNext(conn, rs));
+				results.getPage().add(loadNext(conn, rs, locale));
 				count++;
 			} while (count<pageSize && rs.next());	
 		}
@@ -293,7 +304,7 @@ implements TicketDAO {
 		return results;
 	}
 
-	private Ticket loadNext(Connection conn, ResultSet rs) 
+	private Ticket loadNext(Connection conn, ResultSet rs, Locale locale) 
 			throws SQLException, DataException {
 
 		Ticket t = new Ticket();
@@ -306,10 +317,11 @@ implements TicketDAO {
 		t.setState(rs.getString(i++));
 		t.setType(rs.getString(i++));
 		t.setProductId(rs.getLong(i++));
+		t.setProductName(rs.getString(i++));
 		t.setTitle(rs.getString(i++));
 		t.setDescription(rs.getString(i++));
 		t.setMessageList(ticketMessageDAO.findByTicket(conn, t.getId()));
-		t.setOrderLines(orderLineDAO.findByTicket(conn, t.getId(), null));
+		t.setOrderLines(orderLineDAO.findByTicket(conn, t.getId(), locale));
 		return t;
 	}
 

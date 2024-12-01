@@ -2,6 +2,7 @@ package com.pinguela.yourpc.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,14 +28,14 @@ implements TicketService {
 	}
 
 	@Override
-	public Ticket findById(Long ticketId) 
+	public Ticket findById(Long ticketId, Locale locale) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return ticketDAO.findById(conn, ticketId);
+			return ticketDAO.findById(conn, ticketId, locale);
 		} catch (SQLException e) {
 			logger.fatal(e);
 			throw new ServiceException(e);
@@ -44,14 +45,14 @@ implements TicketService {
 	}
 
 	@Override
-	public Results<Ticket> findBy(TicketCriteria criteria, int pos, int pageSize) 
+	public Results<Ticket> findBy(TicketCriteria criteria, Locale locale, int pos, int pageSize) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return ticketDAO.findBy(conn, criteria, pos, pageSize);
+			return ticketDAO.findBy(conn, criteria, locale, pos, pageSize);
 		} catch (SQLException e) {
 			logger.fatal(e);
 			throw new ServiceException(e);

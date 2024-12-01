@@ -3,6 +3,7 @@ package com.pinguela.yourpc.service.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,13 +28,13 @@ implements RMAService {
 	}
 
 	@Override
-	public RMA findById(Long rmaId) throws ServiceException, DataException {
+	public RMA findById(Long rmaId, Locale locale) throws ServiceException, DataException {
 
 		Connection conn = null;
 		
 		try {
 			conn = JDBCUtils.getConnection();
-			return rmaDAO.findById(conn, rmaId);
+			return rmaDAO.findById(conn, rmaId, locale);
 		} catch (SQLException e) {
 			logger.fatal(e);
 			throw new ServiceException(e);
@@ -43,13 +44,13 @@ implements RMAService {
 	}
 
 	@Override
-	public List<RMA> findBy(RMACriteria criteria) throws ServiceException, DataException {
+	public List<RMA> findBy(RMACriteria criteria, Locale locale) throws ServiceException, DataException {
 
 		Connection conn = null;
 		
 		try {
 			conn = JDBCUtils.getConnection();
-			return rmaDAO.findBy(conn, criteria);
+			return rmaDAO.findBy(conn, criteria, locale);
 		} catch (SQLException e) {
 			logger.fatal(e);
 			throw new ServiceException(e);
