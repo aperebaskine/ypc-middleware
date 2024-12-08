@@ -20,8 +20,8 @@ extends AbstractValueObject {
 	private String province;
 	private String countryId;
 	private String country;
-	private Boolean isDefault;
-	private Boolean isBilling;
+	private Boolean isDefault = false;
+	private Boolean isBilling = false;
 	private Date creationDate;
 	
 	public Address() {
