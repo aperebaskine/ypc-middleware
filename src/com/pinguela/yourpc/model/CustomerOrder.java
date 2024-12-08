@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,7 @@ extends AbstractValueObject {
 	private List<OrderLine> orderLines;
 	
 	public CustomerOrder() {
+		orderLines = new ArrayList<OrderLine>();
 	}
 
 	public Long getId() {
