@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -25,6 +26,22 @@ implements ImageFileService {
 	private static final String IMAGE_DIRECTORY_PNAME = "service.image.directory";
 	private static final String IMAGE_DIRECTORY = ConfigManager.getParameter(IMAGE_DIRECTORY_PNAME);
 	private static final String EXTENSION = "png";
+	
+	@Override
+	public List<String> getFilePaths(String type, Serializable pk) throws ServiceException {
+		File[] files = getFileList(type, pk);
+		
+		if (files == null) {
+			return Collections.emptyList();
+		}
+		
+		List<String> filePaths = new ArrayList<String>();
+		for (File file : files) {
+			filePaths.add(file.getPath());
+		}
+		
+		return filePaths;
+	}
 
 	@Override
 	public List<ImageEntry> getFiles(String type, Serializable pk) throws ServiceException {
@@ -52,7 +69,8 @@ implements ImageFileService {
 		return add(type, pk, Arrays.asList(imageFile));
 	}
 
-	private Integer add(String type, Serializable pk, List<ImageEntry> imageFiles) throws ServiceException {
+	@Override
+	public Integer add(String type, Serializable pk, List<ImageEntry> imageFiles) throws ServiceException {
 
 		File directory = getDirectory(type, pk);
 		File[] storedFiles = directory.listFiles();
@@ -75,6 +93,11 @@ implements ImageFileService {
 			} 
 		}
 		return nextFileName;
+	}
+	
+	@Override
+	public Boolean update(String type, Serializable pk, ImageEntry imageFile) throws ServiceException {
+		return update(type, pk, Arrays.asList(imageFile));
 	}
 
 	@Override
