@@ -127,18 +127,23 @@ implements ImageFileService {
 
 	private File getDirectory(String type, Serializable pk) {
 
-		String path = new StringBuilder(IMAGE_DIRECTORY)
+		String typeDirectoryPath = new StringBuilder(IMAGE_DIRECTORY)
 				.append(File.separator)
 				.append(type)
-				.append(File.separator)
-				.append(pk)
 				.toString();
 		
-		File file = new File(path);
-		if (!file.exists()) {
-			file.mkdir();
+		File typeDirectory = new File(typeDirectoryPath);
+		if (!typeDirectory.exists()) {
+			typeDirectory.mkdir();
 		}
-		return file;
+		
+		File pkDirectory = new File(typeDirectory, 
+				new StringBuilder(File.separator).append(pk).toString());
+		if (!pkDirectory.exists()) {
+			pkDirectory.mkdir();
+		}
+		
+		return pkDirectory;
 	}
 
 	private File[] getFileList(String type, Serializable pk) {
