@@ -34,7 +34,7 @@ extends AbstractDTO<Integer> {
 		Map<Class<?>, Class<?>> subclassMap = new HashMap<>();
 		Map<String, Class<?>> typeParameterClassMap = new HashMap<>();
 
-		Reflections reflections = new Reflections(AttributeDTO.class.getPackageName());
+		Reflections reflections = new Reflections(AttributeDTO.class.getPackage().getName());
 		for (Class<?> subclass : reflections.getSubTypesOf(AttributeDTO.class)) {
 
 			if (!Modifier.isFinal(subclass.getModifiers())) {
