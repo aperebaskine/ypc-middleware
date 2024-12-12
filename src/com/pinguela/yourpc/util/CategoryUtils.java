@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pinguela.yourpc.config.ConfigManager;
 import com.pinguela.yourpc.model.dto.CategoryDTO;
 import com.pinguela.yourpc.service.CategoryService;
 import com.pinguela.yourpc.service.impl.CategoryServiceImpl;
@@ -25,7 +26,7 @@ public class CategoryUtils {
 	private static final Map<Short, CategoryDTO> initializeMap() {
 		try {
 			CategoryService categoryService = new CategoryServiceImpl();
-			return categoryService.findAll(Locale.getDefault());
+			return categoryService.findAll(Locale.forLanguageTag(ConfigManager.getParameter("locale.default")));
 		} catch (Exception e) {
 			logger.error(e);
 			return Collections.emptyMap();
