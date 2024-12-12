@@ -147,7 +147,12 @@ extends AbstractDTO<Integer> {
 		return values.get(index).getValue();
 	}
 
-	public abstract void addValue(Long id, String valueStr);
+	public void addValue(Long id, String valueStr) {
+		T parsed = valueStr == null ? null : parseValue(valueStr);
+		addValue(id, parsed);
+	}
+	
+	protected abstract T parseValue(String valueStr);
 
 	@SuppressWarnings("unchecked")
 	public void addValue(Long id, Object value) {

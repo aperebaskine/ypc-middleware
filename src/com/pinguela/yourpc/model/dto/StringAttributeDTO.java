@@ -11,8 +11,8 @@ extends AttributeDTO<String> {
 	}
 	
 	@Override
-	public void addValue(Long id, String valueStr) {
-		super.addValue(id, (Object) valueStr);
+	protected String parseValue(String valueStr) {
+		return valueStr;
 	}
 
 	@Override

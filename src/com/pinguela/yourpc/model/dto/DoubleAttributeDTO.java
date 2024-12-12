@@ -11,8 +11,8 @@ extends AttributeDTO<Double> {
 	}
 	
 	@Override
-	public void addValue(Long id, String valueStr) {
-		super.addValue(id, Double.valueOf(valueStr));
+	protected Double parseValue(String valueStr) {
+		return Double.valueOf(valueStr);
 	}
 	
 	@Override

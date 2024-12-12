@@ -11,8 +11,8 @@ extends AttributeDTO<Boolean> {
 	}
 	
 	@Override
-	public void addValue(Long id, String valueStr) {
-		super.addValue(id, Boolean.valueOf(valueStr));
+	protected Boolean parseValue(String valueStr) {
+		return Boolean.valueOf(valueStr);
 	}
 
 	@Override
