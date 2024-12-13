@@ -22,6 +22,7 @@ public class JDBCUtils {
 	private static final String DB_URL_PNAME = "db.url";
 	private static final String USER_PNAME = "db.user";
 	private static final String PASS_PNAME = "db.password";
+	private static final String MAX_IDLE_TIME_PNAME = "db.max_idle_time";
 	
 	public static final int GENERATED_KEY_INDEX = 1;
 	public static final int ID_CLAUSE_PARAMETER_INDEX = 1;
@@ -38,6 +39,7 @@ public class JDBCUtils {
 			cpds.setJdbcUrl(ConfigManager.getParameter(DB_URL_PNAME));
 			cpds.setUser(ConfigManager.getParameter(USER_PNAME));
 			cpds.setPassword(ConfigManager.getParameter(PASS_PNAME));
+			cpds.setMaxIdleTime(Integer.valueOf(ConfigManager.getParameter(MAX_IDLE_TIME_PNAME)));
 		} catch (PropertyVetoException e) {
 			logger.fatal(e);
 		}
