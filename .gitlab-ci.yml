@@ -16,7 +16,7 @@ stages:
   - publish
 
 configure:
-  stage: setup
+  stage: configure
   script:
     - mkdir -p .m2
     - echo '<settings>
