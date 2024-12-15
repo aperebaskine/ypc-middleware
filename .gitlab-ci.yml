@@ -10,9 +10,30 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
 stages:
+  - configure
   - build
   - test
   - publish
+
+configure:
+  stage: setup
+  script:
+    - mkdir -p .m2
+    - echo '<settings>
+          <servers>
+            <server>
+              <id>gitlab-maven</id>
+              <configuration>
+                <httpHeaders>
+                  <property>
+                    <name>Deploy-Token</name>
+                    <value>${DEPLOY_TOKEN_VALUE}</value>
+                  </property>
+                </httpHeaders>
+              </configuration>
+            </server>
+          </servers>
+        </settings>' > .m2/settings.xml
 
 build:
   stage: build
