@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+variables:
+  MAVEN_CLI_OPTS: "-B -DskipTests"
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying dependency to GitLab Package Registry"
+    - mvn $MAVEN_CLI_OPTS deploy -s settings.xml
+  only:
+    - main
