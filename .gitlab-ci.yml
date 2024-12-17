@@ -19,7 +19,7 @@ stages:
 setup:
   stage: setup
   script:
-    - echo "$MAVEN_SETTINGS" > .m2/settings.txt
+    - echo "$MAVEN_SETTINGS" | base64 -d > .m2/settings.txt
 
 build:
   stage: build
