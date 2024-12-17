@@ -19,7 +19,7 @@ stages:
 setup:
   stage: setup
   script:
-    - echo "$MAVEN_SETTINGS" > .m2/settings.txt
+    - echo "$MAVEN_SETTINGS" > .m2/settings.xml
 
 build:
   stage: build
