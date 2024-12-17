@@ -41,9 +41,13 @@
   </build>
   <distributionManagement>
   	<repository>
-  	 	<id>ypc_registry</id>
+  	 	<id>ypc-registry</id>
   	 	<url>https://gitlab.com/api/v4/projects/65487485/packages/maven</url>
 	</repository>
+	<snapshotRepository>
+  	 	<id>ypc-registry</id>
+  	 	<url>https://gitlab.com/api/v4/projects/65487485/packages/maven</url>
+	</snapshotRepository>
   </distributionManagement>
   <dependencies>
   <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
