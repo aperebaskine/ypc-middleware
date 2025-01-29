@@ -29,6 +29,22 @@ extends AbstractCriteria<Long, AbstractProductDTO> {
 		attributes = new ArrayList<AttributeDTO<?>>();
 	}
 	
+	public ProductCriteria(String name, Date launchDateMin, Date launchDateMax, Integer stockMin, Integer stockMax,
+			Double priceMin, Double priceMax, Short categoryId, List<AttributeDTO<?>> attributes) {
+		super();
+		this.name = name;
+		this.launchDateMin = launchDateMin;
+		this.launchDateMax = launchDateMax;
+		this.stockMin = stockMin;
+		this.stockMax = stockMax;
+		this.priceMin = priceMin;
+		this.priceMax = priceMax;
+		this.categoryId = categoryId;
+		this.attributes = attributes;
+	}
+
+
+
 	@Override
 	protected void setDefaultOrdering() {
 		setAscDesc(ASC);
