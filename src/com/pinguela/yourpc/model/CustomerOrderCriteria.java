@@ -17,6 +17,20 @@ extends AbstractCustomerOperationCriteria<Long, CustomerOrder> {
 	public CustomerOrderCriteria() {
 	}
 	
+	public CustomerOrderCriteria(Integer customerId, String customerEmail, Double minAmount,
+			Double maxAmount, Date minDate, Date maxDate, String state) {
+		super();
+		setCustomerId(customerId);
+		setCustomerEmail(customerEmail);
+		this.minAmount = minAmount;
+		this.maxAmount = maxAmount;
+		this.minDate = minDate;
+		this.maxDate = maxDate;
+		this.state = state;
+	}
+
+
+
 	@Override
 	protected void setDefaultOrdering() {
 		setOrderBy(ORDER_BY_DATE);
