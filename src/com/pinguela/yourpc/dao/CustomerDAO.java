@@ -15,7 +15,13 @@ public interface CustomerDAO {
 	public Customer findByEmail(Connection conn, String email)
 			throws DataException;
 	
+	public Customer findBySessionToken(Connection conn, String sessionToken)
+			throws DataException;
+	
 	public List<Customer> findBy(Connection conn, CustomerCriteria criteria)
+			throws DataException;
+	
+	public boolean exists(Connection conn, String email)
 			throws DataException;
 	
 	public Integer create(Connection conn, Customer c)
@@ -25,6 +31,9 @@ public interface CustomerDAO {
 			throws DataException;
 	
 	public Boolean updatePassword(Connection conn, Integer customerId, String password)
+			throws DataException;
+	
+	public Boolean updateSessionToken(Connection conn, Integer customerId, String sessionToken)
 			throws DataException;
 	
 	public Boolean delete(Connection conn, Integer customerId)

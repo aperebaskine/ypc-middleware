@@ -9,9 +9,18 @@ extends AbstractPerson
 implements Cloneable {
 	
 	private List<Address> addresses = null;
+	private String sessionToken;
 	
 	public Customer() {
 		addresses = new ArrayList<Address>();
+	}
+	
+	public String getSessionToken() {
+		return sessionToken;
+	}
+	
+	public void setSessionToken(String sessionToken) {
+		this.sessionToken = sessionToken;
 	}
 
 	public List<Address> getAddresses() {
@@ -27,6 +36,7 @@ implements Cloneable {
 		try {
 			Customer clone = (Customer) super.clone();
 			clone.setCreationDate(new Date(this.getCreationDate().getTime()));
+			clone.setSessionToken(this.sessionToken);
 			clone.setAddresses(new ArrayList<Address>(addresses));
 			return clone;
 		} catch (CloneNotSupportedException e) {

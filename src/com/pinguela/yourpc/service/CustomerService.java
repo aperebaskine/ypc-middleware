@@ -9,7 +9,7 @@ import com.pinguela.yourpc.model.CustomerCriteria;
 
 public interface CustomerService {
 	
-	public Customer login(String email, String password)
+	public String login(String email, String password)
 			throws ServiceException, DataException;
 
 	public Integer register(Customer c)
@@ -20,6 +20,12 @@ public interface CustomerService {
 	
 	public Customer findByEmail(String email)
 			throws ServiceException, DataException;
+	
+	public Customer findBySessionToken(String sessionToken)
+			throws ServiceException, DataException;
+	
+	public boolean exists(String email)
+			throws ServiceException, DataException;
 
 	public List<Customer> findBy(CustomerCriteria criteria)
 			throws ServiceException, DataException;
@@ -28,6 +34,9 @@ public interface CustomerService {
 			throws ServiceException, DataException;
 	
 	public Boolean updatePassword(Integer customerId, String password)
+			throws ServiceException, DataException;
+	
+	public Boolean updateSessionToken(Integer customerId, String sessionToken)
 			throws ServiceException, DataException;
 
 	public Boolean delete(Integer customerId)

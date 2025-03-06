@@ -1,14 +1,10 @@
 package com.pinguela.yourpc.service.impl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jasypt.util.password.StrongPasswordEncryptor;
@@ -16,7 +12,6 @@ import org.jasypt.util.password.StrongPasswordEncryptor;
 import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.InvalidLoginCredentialsException;
-import com.pinguela.MailException;
 import com.pinguela.ServiceException;
 import com.pinguela.yourpc.dao.CustomerDAO;
 import com.pinguela.yourpc.dao.impl.CustomerDAOImpl;
@@ -39,8 +34,29 @@ public class CustomerServiceImpl implements CustomerService {
 		mailService = new MailServiceImpl();
 	}
 
+	//	private static final String EMAIL_SUBJECT = "Registración en YourPC confirmada!";
+	//	private static final String REGISTRATION_MESSAGE;
+	//	
+	//	static {
+	//		InputStream inputStream = ClassLoader.getSystemResourceAsStream("email.html");
+	//		StringBuilder stringBuilder = new StringBuilder();
+	//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+	//            String line;
+	//            while ((line = reader.readLine()) != null) {
+	//                stringBuilder.append(line).append("\n");
+	//            }
+	//        } catch (IOException e) {
+	//        	logger.fatal(e.getMessage(), e);
+	//        	throw new ExceptionInInitializerError();
+	//        }
+	//        REGISTRATION_MESSAGE = stringBuilder.toString();
+	//	}
+
+	// TODO: Use customer email instead of temporary test email
+	private static final String TEST_EMAIL = "pereb_test@outlook.com";
+
 	@Override
-	public Customer login(String email, String password) 
+	public String login(String email, String password) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
@@ -48,15 +64,24 @@ public class CustomerServiceImpl implements CustomerService {
 		try {
 			conn = JDBCUtils.getConnection();
 			Customer c = customerDAO.findByEmail(conn, email);
-			if (c == null) throw new InvalidLoginCredentialsException();
+
+			if (c == null) {
+				throw new InvalidLoginCredentialsException();
+			}
 
 			if (!PASSWORD_ENCRYPTOR.checkPassword(password, c.getEncryptedPassword())) {
 				logger.warn("Error de autenticación del usuario {}.", c.getEmail());
 				throw new InvalidLoginCredentialsException();
 			}
 
-			logger.info("Usuario {} autenticado con éxito.", c.getEmail());
-			return c;
+			if (c.getSessionToken() == null) {
+				String sessionToken = generateSessionToken();
+				customerDAO.updateSessionToken(conn, c.getId(), sessionToken);
+				c.setSessionToken(sessionToken);
+			}
+
+			logger.info("Usuario {} (session token {}) autenticado con éxito.", c.getEmail(), c.getSessionToken());
+			return c.getSessionToken();
 
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
@@ -66,31 +91,10 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
-//	private static final String EMAIL_SUBJECT = "Registración en YourPC confirmada!";
-//	private static final String REGISTRATION_MESSAGE;
-//	
-//	static {
-//		InputStream inputStream = ClassLoader.getSystemResourceAsStream("email.html");
-//		StringBuilder stringBuilder = new StringBuilder();
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                stringBuilder.append(line).append("\n");
-//            }
-//        } catch (IOException e) {
-//        	logger.fatal(e.getMessage(), e);
-//        	throw new ExceptionInInitializerError();
-//        }
-//        REGISTRATION_MESSAGE = stringBuilder.toString();
-//	}
-
-	// TODO: Use customer email instead of temporary test email
-	private static final String TEST_EMAIL = "pereb_test@outlook.com";
-
 	@Override
 	public Integer register(Customer c) 
 			throws ServiceException, DataException {
-		
+
 		if (c == null) {
 			throw new IllegalArgumentException("Customer cannot be null.");
 		}
@@ -98,7 +102,7 @@ public class CustomerServiceImpl implements CustomerService {
 		if (c.getUnencryptedPassword() == null) {
 			c.setUnencryptedPassword(String.valueOf(System.currentTimeMillis()));
 		}
-		
+
 		c.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(c.getUnencryptedPassword()));
 		c.setEmail(c.getEmail().toLowerCase());
 
@@ -110,13 +114,13 @@ public class CustomerServiceImpl implements CustomerService {
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
 			Integer id = customerDAO.create(conn, c);
 			commit = (id != null);
-//			mailService.send(EMAIL_SUBJECT, String.format(REGISTRATION_MESSAGE, 
-//					c.getFirstName(), c.getEmail(), c.getUnencryptedPassword()), TEST_EMAIL);
+			//			mailService.send(EMAIL_SUBJECT, String.format(REGISTRATION_MESSAGE, 
+			//					c.getFirstName(), c.getEmail(), c.getUnencryptedPassword()), TEST_EMAIL);
 
 			return id;
-//		} catch (MailException me) {
-//			logger.error(me);
-//			throw new ServiceException(me);
+			//		} catch (MailException me) {
+			//			logger.error(me);
+			//			throw new ServiceException(me);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);
@@ -161,9 +165,25 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
+	public Customer findBySessionToken(String sessionToken) throws ServiceException, DataException {
+
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return customerDAO.findBySessionToken(conn, sessionToken);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+
+	@Override
 	public List<Customer> findBy(CustomerCriteria criteria) 
 			throws ServiceException, DataException {
-		
+
 		if (criteria == null) {
 			throw new IllegalArgumentException("Criteria cannot be null.");
 		}
@@ -181,6 +201,22 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
+	@Override
+	public boolean exists(String email) throws ServiceException, DataException {
+
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return customerDAO.exists(conn, email);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+	
 	@Override
 	public Boolean update(Customer c) 
 			throws ServiceException, DataException {
@@ -235,9 +271,32 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
+	public Boolean updateSessionToken(Integer customerId, String sessionToken) throws ServiceException, DataException {
+
+		Connection conn = null;
+		boolean commit = false;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
+			if (customerDAO.updateSessionToken(conn, customerId, sessionToken)) {
+				commit = true;
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn, commit);
+		}
+	}
+
+	@Override
 	public Boolean delete(Integer customerId) 
 			throws ServiceException, DataException {
-		
+
 		if (customerId == null) {
 			throw new ServiceException(ErrorCodes.NULL_REQUIRED_PARAMETER);
 		}
@@ -263,4 +322,7 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
+	private static String generateSessionToken() {
+		return RandomStringUtils.randomAlphanumeric(64);
+	}
 }
