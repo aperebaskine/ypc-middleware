@@ -68,6 +68,8 @@ public class AddressDAOImpl implements AddressDAO {
 			FINDBY_QUERY
 			+FINDBY_QUERY_CUSTOMER_ID_PARAMETER
 			+FINDBY_QUERY_UNDELETED_PARAMETER;
+	
+	public static final String MATCHES_CUSTOMER_QUERY = " SELECT a.ID from ADDRESS a WHERE a.ID = ? AND a.CUSTOMER_ID = ?";
 
 	private static final String CREATE_QUERY = 
 			" INSERT INTO ADDRESS(CUSTOMER_ID,"
@@ -206,6 +208,30 @@ public class AddressDAOImpl implements AddressDAO {
 				results.add(loadNext(rs));
 			}
 			return results;
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+	
+	@Override
+	public boolean matchesCustomer(Connection conn, Integer addressId, Integer customerId) throws DataException {
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(MATCHES_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			
+			int i = 1;
+			stmt.setInt(i++, addressId);
+			stmt.setInt(i++, customerId);
+
+			rs = stmt.executeQuery();
+			return rs.next();
 
 		} catch (SQLException sqle) {
 			logger.error(sqle);

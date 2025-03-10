@@ -52,6 +52,8 @@ implements TicketDAO {
 
 	private static final String FINDBY_QUERY = SELECT_COLUMNS +FROM_TABLE;
 	private static final String FINDBYID_QUERY = FINDBY_QUERY +ID_FILTER;
+	
+	public static final String MATCHES_CUSTOMER_QUERY = " SELECT t.ID from TICKET t WHERE t.ID = ? AND t.CUSTOMER_ID = ?";
 
 	private static final String CREATE_QUERY =
 			" INSERT INTO TICKET(CUSTOMER_ID,"
@@ -145,6 +147,30 @@ implements TicketDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 
+	}
+	
+	@Override
+	public boolean matchesCustomer(Connection conn, Integer ticketId, Integer customerId) throws DataException {
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(MATCHES_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			
+			int i = 1;
+			stmt.setInt(i++, ticketId);
+			stmt.setInt(i++, customerId);
+
+			rs = stmt.executeQuery();
+			return rs.next();
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
 	}
 
 	private static StringBuilder buildWhereClause(TicketCriteria criteria) {

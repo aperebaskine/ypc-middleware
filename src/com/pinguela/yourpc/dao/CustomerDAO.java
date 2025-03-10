@@ -21,7 +21,10 @@ public interface CustomerDAO {
 	public List<Customer> findBy(Connection conn, CustomerCriteria criteria)
 			throws DataException;
 	
-	public boolean exists(Connection conn, String email)
+	public boolean emailExists(Connection conn, String email)
+			throws DataException;
+	
+	public boolean phoneNumberExists(Connection conn, String phoneNumber)
 			throws DataException;
 	
 	public Integer create(Connection conn, Customer c)

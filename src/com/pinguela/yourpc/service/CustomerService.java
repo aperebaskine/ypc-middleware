@@ -24,7 +24,10 @@ public interface CustomerService {
 	public Customer findBySessionToken(String sessionToken)
 			throws ServiceException, DataException;
 	
-	public boolean exists(String email)
+	public boolean emailExists(String email)
+			throws ServiceException, DataException;
+	
+	public boolean phoneNumberExists(String phoneNumber)
 			throws ServiceException, DataException;
 
 	public List<Customer> findBy(CustomerCriteria criteria)

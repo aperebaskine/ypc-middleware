@@ -58,6 +58,21 @@ implements RMAService {
 			JDBCUtils.close(conn);
 		}
 	}
+	
+	@Override
+	public boolean matchesCustomer(Integer rmaId, Integer customerId) throws ServiceException, DataException {
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return rmaDAO.matchesCustomer(conn, rmaId, customerId);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
 
 	@Override
 	public Long create(RMA rma) throws ServiceException, DataException {

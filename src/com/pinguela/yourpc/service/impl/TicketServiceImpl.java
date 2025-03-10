@@ -60,6 +60,21 @@ implements TicketService {
 			JDBCUtils.close(conn);
 		}
 	}
+	
+	@Override
+	public boolean matchesCustomer(Integer ticketId, Integer customerId) throws ServiceException, DataException {
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return ticketDAO.matchesCustomer(conn, ticketId, customerId);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
 
 	@Override
 	public Long create(Ticket ticket)

@@ -56,6 +56,9 @@ public class CustomerDAOImpl implements CustomerDAO {
 	
 	public static final String EMAIL_EXISTS_QUERY =
 			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.EMAIL = ?";
+	
+	public static final String PHONE_NUMBER_EXISTS_QUERY =
+			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.PHONE_NUMBER = ?";
 
 	private static final String CREATE_QUERY =
 			"INSERT INTO CUSTOMER(FIRST_NAME,"
@@ -223,7 +226,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 	}
 	
 	@Override
-	public boolean exists(Connection conn, String email) throws DataException {
+	public boolean emailExists(Connection conn, String email) throws DataException {
 		
 		if (email == null) {
 			return false;
@@ -235,6 +238,31 @@ public class CustomerDAOImpl implements CustomerDAO {
 		try {
 			stmt = conn.prepareStatement(EMAIL_EXISTS_QUERY);
 			stmt.setString(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, email.toLowerCase());
+
+			rs = stmt.executeQuery();
+			return rs.next();
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
+		}
+	}
+	
+	@Override
+	public boolean phoneNumberExists(Connection conn, String phoneNumber) throws DataException {
+		
+		if (phoneNumber == null) {
+			return false;
+		}
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(PHONE_NUMBER_EXISTS_QUERY);
+			stmt.setString(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, phoneNumber.toLowerCase());
 
 			rs = stmt.executeQuery();
 			return rs.next();

@@ -17,6 +17,9 @@ public interface AddressService {
 	public List<Address> findByCustomer(Integer customerId)
 			throws ServiceException, DataException;
 	
+	public boolean matchesCustomer(Integer addressId, Integer customerId)
+			throws ServiceException, DataException;
+	
 	public Integer create(Address a)
 			throws ServiceException, DataException;
 	

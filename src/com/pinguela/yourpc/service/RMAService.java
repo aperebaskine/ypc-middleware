@@ -16,6 +16,9 @@ public interface RMAService {
 	public List<RMA> findBy(RMACriteria criteria, Locale locale)
 			throws ServiceException, DataException;
 	
+	public boolean matchesCustomer(Integer ticketId, Integer customerId)
+			throws ServiceException, DataException;
+	
 	public Long create(RMA rma)
 			throws ServiceException, DataException;
 	

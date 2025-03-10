@@ -202,13 +202,29 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public boolean exists(String email) throws ServiceException, DataException {
+	public boolean emailExists(String email) throws ServiceException, DataException {
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCUtils.getConnection();
-			return customerDAO.exists(conn, email);
+			return customerDAO.emailExists(conn, email);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+	
+	@Override
+	public boolean phoneNumberExists(String phoneNumber) throws ServiceException, DataException {
+
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return customerDAO.phoneNumberExists(conn, phoneNumber);
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
 			throw new ServiceException(sqle);

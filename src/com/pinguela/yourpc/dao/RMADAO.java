@@ -16,6 +16,9 @@ public interface RMADAO {
 	public List<RMA> findBy(Connection conn, RMACriteria criteria, Locale locale)
 			throws DataException;
 	
+	public boolean matchesCustomer(Connection conn, Integer ticketId, Integer customerId)
+			throws DataException;
+	
 	public Long create(Connection conn, RMA rma)
 			throws DataException;
 	

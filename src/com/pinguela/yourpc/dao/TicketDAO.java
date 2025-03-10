@@ -16,6 +16,9 @@ public interface TicketDAO {
 	public Results<Ticket> findBy(Connection conn, TicketCriteria criteria, Locale locale, int pos, int pageSize)
 			throws DataException;
 	
+	public boolean matchesCustomer(Connection conn, Integer ticketId, Integer customerId)
+			throws DataException;
+	
 	public Long create(Connection conn, Ticket ticket)
 			throws DataException;
 	

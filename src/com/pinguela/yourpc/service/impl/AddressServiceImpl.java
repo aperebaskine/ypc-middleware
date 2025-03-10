@@ -30,7 +30,7 @@ public class AddressServiceImpl implements AddressService {
 			throws ServiceException, DataException {
 
 		Connection conn = null;
-		
+
 		try {
 			conn = JDBCUtils.getConnection();
 			return addressDAO.findById(conn, id);
@@ -64,7 +64,7 @@ public class AddressServiceImpl implements AddressService {
 			throws ServiceException, DataException {
 
 		Connection conn = null;
-		
+
 		try {
 			conn = JDBCUtils.getConnection();
 			return addressDAO.findByCustomer(conn, customerId);
@@ -77,9 +77,24 @@ public class AddressServiceImpl implements AddressService {
 	}
 
 	@Override
+	public boolean matchesCustomer(Integer addressId, Integer customerId) throws ServiceException, DataException {
+		Connection conn = null;
+
+		try {
+			conn = JDBCUtils.getConnection();
+			return addressDAO.matchesCustomer(conn, addressId, customerId);
+		} catch (SQLException sqle) {
+			logger.fatal(sqle);
+			throw new ServiceException(sqle);
+		} finally {
+			JDBCUtils.close(conn);
+		}
+	}
+
+	@Override
 	public Integer create(Address a) 
 			throws ServiceException, DataException {
-		
+
 		if (a == null) {
 			throw new ServiceException(ErrorCodes.NULL_REQUIRED_PARAMETER);
 		}
@@ -91,7 +106,7 @@ public class AddressServiceImpl implements AddressService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			
+
 			id = addressDAO.create(conn, a);
 			commit = id != null;
 			return id;
@@ -106,7 +121,7 @@ public class AddressServiceImpl implements AddressService {
 	@Override
 	public Integer update(Address a) 
 			throws ServiceException, DataException {
-		
+
 		if (a == null) {
 			throw new ServiceException(ErrorCodes.NULL_REQUIRED_PARAMETER);
 		}
@@ -118,7 +133,7 @@ public class AddressServiceImpl implements AddressService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			
+
 			id = addressDAO.update(conn, a);
 			commit = id != null;
 			return id;
@@ -140,7 +155,7 @@ public class AddressServiceImpl implements AddressService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			
+
 			if (addressDAO.delete(conn, id)) {
 				commit = true;
 				return true;
@@ -165,7 +180,7 @@ public class AddressServiceImpl implements AddressService {
 		try {
 			conn = JDBCUtils.getConnection();
 			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			
+
 			if (addressDAO.deleteByCustomer(conn, customerId)) {
 				commit = true;
 				return true;

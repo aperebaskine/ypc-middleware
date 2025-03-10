@@ -17,6 +17,9 @@ public interface AddressDAO {
 	public List<Address> findByCustomer(Connection conn, Integer customerId)
 			throws DataException;
 	
+	public boolean matchesCustomer(Connection conn, Integer addressId, Integer customerId)
+			throws DataException;
+	
 	public Integer create(Connection conn, Address a)
 			throws DataException;
 	

@@ -16,6 +16,9 @@ public interface TicketService {
 	public Results<Ticket> findBy(TicketCriteria criteria, Locale locale, int pos, int pageSize)
 			throws ServiceException, DataException;
 	
+	public boolean matchesCustomer(Integer ticketId, Integer customerId)
+			throws ServiceException, DataException;
+	
 	public Long create(Ticket ticket)
 			throws ServiceException, DataException;
 	

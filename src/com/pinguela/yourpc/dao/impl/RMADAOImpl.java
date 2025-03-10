@@ -57,6 +57,8 @@ implements RMADAO {
 	private static final String FINDBYID_QUERY =
 			FINDBY_QUERY +WHERE_ID;
 	
+	public static final String MATCHES_CUSTOMER_QUERY = " SELECT r.ID from RMA r WHERE r.ID = ? AND r.CUSTOMER_ID = ?";
+	
 	private static final String CREATE_QUERY =
 			" INSERT INTO RMA(CUSTOMER_ID, RMA_STATE_ID, CREATION_DATE, TRACKING_NUMBER)"
 			+ " VALUES (?, ?, ?, ?)";
@@ -129,6 +131,30 @@ implements RMADAO {
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DataException(e);
+		}
+	}
+	
+	@Override
+	public boolean matchesCustomer(Connection conn, Integer rmaId, Integer customerId) throws DataException {
+
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		try {
+			stmt = conn.prepareStatement(MATCHES_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			
+			int i = 1;
+			stmt.setInt(i++, rmaId);
+			stmt.setInt(i++, customerId);
+
+			rs = stmt.executeQuery();
+			return rs.next();
+
+		} catch (SQLException sqle) {
+			logger.error(sqle);
+			throw new DataException(sqle);
+		} finally {
+			JDBCUtils.close(stmt, rs);
 		}
 	}
 
