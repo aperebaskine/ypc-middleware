@@ -58,7 +58,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.EMAIL = ?";
 	
 	public static final String PHONE_NUMBER_EXISTS_QUERY =
-			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.PHONE_NUMBER = ?";
+			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.PHONE = ?";
 
 	private static final String CREATE_QUERY =
 			"INSERT INTO CUSTOMER(FIRST_NAME,"
