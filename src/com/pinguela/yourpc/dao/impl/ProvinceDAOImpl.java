@@ -23,7 +23,8 @@ public class ProvinceDAOImpl implements ProvinceDAO {
 			" FROM PROVINCE pr";
 	private static final String FILTER_CONDITION =
 			" WHERE pr.COUNTRY_ID = ?";
-	private static final String FINDBYCOUNTRY_QUERY = SELECT_COLUMNS +FROM_TABLE +FILTER_CONDITION;
+	private static final String ORDER_BY = " ORDER BY pr.NAME";
+	private static final String FINDBYCOUNTRY_QUERY = SELECT_COLUMNS +FROM_TABLE +FILTER_CONDITION +ORDER_BY;
 	
 	private static Logger logger = LogManager.getLogger(ProvinceDAOImpl.class);
 

@@ -19,7 +19,8 @@ public class CountryDAOImpl implements CountryDAO {
 
 	private static final String FINDALL_QUERY = 
 			" SELECT c.ID, c.NAME"
-			+ " FROM COUNTRY c";
+			+ " FROM COUNTRY c"
+			+ " ORDER BY c.NAME";
 	
 	private static final Logger logger = LogManager.getLogger(CountryDAOImpl.class);
 	

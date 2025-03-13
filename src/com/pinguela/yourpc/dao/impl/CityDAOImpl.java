@@ -20,8 +20,9 @@ public class CityDAOImpl implements CityDAO {
 	private static final String SELECT_COLUMNS = " SELECT ci.ID, ci.NAME, ci.PROVINCE_ID";
 	private static final String FROM_TABLE = " FROM CITY ci";
 	private static final String WHERE_PROVINCE_ID = " WHERE ci.PROVINCE_ID = ?";
+	private static final String ORDER_BY = " ORDER BY ci.NAME";
 	
-	private static final String FIND_BY_PROVINCE_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_PROVINCE_ID;
+	private static final String FIND_BY_PROVINCE_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_PROVINCE_ID +ORDER_BY;
 	
 	private static final Logger logger = LogManager.getLogger(CityDAOImpl.class);
 
