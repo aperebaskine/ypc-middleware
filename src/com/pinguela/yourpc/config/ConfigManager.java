@@ -13,7 +13,7 @@ public class ConfigManager {
 	private static final String CONFIG_FILE = "yourpc-cfg.properties";
 	
 	private static final String CATALINA_BASE_PNAME = "catalina.base";
-	private static final String CATALINA_CONFIG_FILE_PATH = "conf/ypc/ypc.properties";
+	private static final String CATALINA_CONFIG_FILE_PATH = "conf/ypc.properties";
 	
 	private static Logger logger = LogManager.getLogger(ConfigManager.class);
 	private static Properties propertiesCfg;
