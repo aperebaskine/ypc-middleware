@@ -136,7 +136,7 @@ implements ImageFileService {
 
 		add(type, pk, imageFiles);
 
-		return null;
+		return true;
 	}
 
 	@Override
