@@ -1,5 +1,6 @@
 package com.pinguela.yourpc.service;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface ImageFileService {
 	
 	public List<ImageEntry> getFiles(String type, Serializable pk) throws ServiceException;
 	
+	public List<InputStream> getInputStreams(String type, Serializable pk) throws ServiceException;
+
 	public Integer add(String type, Serializable pk, ImageEntry imageFile) throws ServiceException;
 	
 	public Integer add(String type, Serializable pk, List<ImageEntry> imageFiles) throws ServiceException;

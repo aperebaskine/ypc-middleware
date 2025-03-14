@@ -1,7 +1,9 @@
 package com.pinguela.yourpc.service.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +57,28 @@ implements ImageFileService {
 		for (File file : imageFiles) {
 			try {
 				fileList.add(new ImageEntry(ImageIO.read(file), file.getPath()));
+			} catch (IOException e) {
+				logger.error(String.format("Failed to retrieve image file: %s", e.getMessage()), e);
+				throw new ServiceException(e.getMessage(), e);
+			}
+		}
+
+		return fileList;
+	}
+	
+	@Override
+	public List<InputStream> getInputStreams(String type, Serializable pk) throws ServiceException {
+		List<InputStream> fileList = new ArrayList<>();
+		File[] imageFiles = getFileList(type, pk);
+		
+		if (imageFiles == null) {
+			return fileList;
+		}
+		
+		for (File file : imageFiles) {
+			try {
+				InputStream is = new FileInputStream(file);
+				fileList.add(is);
 			} catch (IOException e) {
 				logger.error(String.format("Failed to retrieve image file: %s", e.getMessage()), e);
 				throw new ServiceException(e.getMessage(), e);
