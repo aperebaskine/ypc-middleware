@@ -25,6 +25,7 @@ public class ConfigManager {
 			InputStream inputStream = classLoader.getResourceAsStream(CONFIG_FILE);
 			
 			if (inputStream == null) {
+				logger.info("Loading config from Tomcat...");
 				String base = System.getProperty(CATALINA_BASE_PNAME);
 				File configFile = new File(base, CATALINA_CONFIG_FILE_PATH);
 				inputStream = new FileInputStream(configFile);
