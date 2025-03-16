@@ -69,6 +69,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	private static final String JOIN_PRODUCT_AND_CATEGORY_PLACEHOLDER = 
 			" INNER JOIN PRODUCT p"
 					+ " ON p.ID = pav.PRODUCT_ID"
+					+ " AND p.DISCONTINUATION_DATE IS NULL"
 					+ " INNER JOIN CATEGORY c"
 					+ " ON c.ID = p.CATEGORY_ID"
 					+ " AND c.ID";

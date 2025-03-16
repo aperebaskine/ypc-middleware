@@ -61,7 +61,7 @@ extends AbstractDTO<Integer> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final <E> AttributeDTO<E> getInstance(String name, E... values) {
+	public static final <E> AttributeDTO<E> getInstance(Integer id, String name, E... values) {
 
 		Class<E> typeParameter = (Class<E>) values.getClass().getComponentType();
 
@@ -70,6 +70,7 @@ extends AbstractDTO<Integer> {
 		}
 
 		AttributeDTO<E> dto = getInstance(typeParameter);
+		dto.setId(id);
 		dto.setName(name);
 
 		for (E value : values) {
