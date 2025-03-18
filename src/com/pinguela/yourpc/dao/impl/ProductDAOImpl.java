@@ -359,7 +359,7 @@ implements ProductDAO {
 			throws DataException {
 
 		StringBuilder query = new StringBuilder(SELECT_COLUMNS +FROM_TABLE +LOCALE_ID_JOIN_CONDITION +JOIN_CATEGORY_AND_PRODUCT);
-		query.append(buildQueryClauses(criteria));
+		query.append(buildQueryClauses(criteria, locale));
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 
@@ -387,7 +387,7 @@ implements ProductDAO {
 		ProductRanges ranges = new ProductRanges();
 
 		StringBuilder query = new StringBuilder(SELECT_RANGES +FROM_TABLE)
-				.append(buildQueryClauses(criteria));
+				.append(buildQueryClauses(criteria, locale));
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 
@@ -417,7 +417,7 @@ implements ProductDAO {
 		}
 	}
 
-	private static StringBuilder buildQueryClauses(ProductCriteria criteria) {
+	private static StringBuilder buildQueryClauses(ProductCriteria criteria, Locale locale) {
 
 		StringBuilder clauses = new StringBuilder();
 
@@ -427,7 +427,7 @@ implements ProductDAO {
 		}
 		List<String> conditions = new ArrayList<String>();
 
-		if (criteria.getName() != null) {
+		if (criteria.getName() != null && locale != null) {
 			conditions.add(" pl.NAME LIKE ?");
 		}
 		if (criteria.getLaunchDateMin() != null) {	
