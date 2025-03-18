@@ -395,7 +395,7 @@ implements ProductDAO {
 			stmt = conn.prepareStatement(query.toString(),
 					ResultSet.TYPE_SCROLL_INSENSITIVE, 
 					ResultSet.CONCUR_READ_ONLY);
-			setSelectValues(stmt, criteria, locale);
+			setSelectValues(stmt, criteria, null);
 
 			rs = stmt.executeQuery();
 			rs.next();
