@@ -484,7 +484,7 @@ implements ProductDAO {
 				stmt.setString(i++, locale.toLanguageTag());
 			}
 		}
-		if (criteria.getName() != null) {
+		if (criteria.getName() != null && locale != null) {
 			stmt.setString(i++, SQLQueryUtils.wrapLike(criteria.getName()));
 		}
 		if (criteria.getLaunchDateMin() != null) {
