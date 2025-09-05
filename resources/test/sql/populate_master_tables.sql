@@ -207,12 +207,12 @@ VALUES
     ('APP', 'Approved'),
     ('REJ', 'Rejected');
     
-INSERT INTO `DEPARTMENT` (`ID`, `NAME`)
+INSERT INTO `ROLE` (`ID`, `NAME`)
 VALUES
+	('ADM', 'Administrator'),
     ('SAL', 'Sales'),
     ('MKT', 'Marketing'),
     ('HRS', 'Human Resources'),
-    ('EXC', 'Executive'),
     ('FIN', 'Finance'),
     ('OPS', 'Operations'),
     ('SUP', 'Support');

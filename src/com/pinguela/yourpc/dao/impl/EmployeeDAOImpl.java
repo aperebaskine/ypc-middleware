@@ -16,9 +16,10 @@ import com.pinguela.DataException;
 import com.pinguela.ErrorCodes;
 import com.pinguela.yourpc.dao.AddressDAO;
 import com.pinguela.yourpc.dao.EmployeeDAO;
-import com.pinguela.yourpc.dao.EmployeeDepartmentDAO;
+import com.pinguela.yourpc.dao.EmployeeRoleDAO;
 import com.pinguela.yourpc.model.Employee;
 import com.pinguela.yourpc.model.EmployeeCriteria;
+import com.pinguela.yourpc.model.EmployeeRole;
 import com.pinguela.yourpc.util.JDBCUtils;
 import com.pinguela.yourpc.util.SQLQueryUtils;
 
@@ -34,10 +35,10 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 					+ "	ON e.DOCUMENT_TYPE_ID = dt.ID"
 					+ " LEFT JOIN EMPLOYEE f"
 					+ " ON e.SUPERVISOR_ID = f.ID";
-	private static final String JOIN_EMPLOYEE_DEPARTMENT =
-			" INNER JOIN EMPLOYEE_DEPARTMENT ed"
-			+ " ON ed.EMPLOYEE_ID = e.ID"
-			+ " AND ed.END_DATE IS NULL";
+	private static final String JOIN_EMPLOYEE_ROLE =
+			" INNER JOIN EMPLOYEE_ROLE er"
+			+ " ON er.EMPLOYEE_ID = e.ID"
+			+ " AND er.END_DATE IS NULL";
 
 	private static final String ID_FILTER =
 			" WHERE e.ID = ? AND e.TERMINATION_DATE IS NULL";
@@ -80,11 +81,11 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
 	private static Logger logger = LogManager.getLogger(EmployeeDAOImpl.class);
 	private AddressDAO addressDAO = null;
-	private EmployeeDepartmentDAO employeeDepartmentDAO = null;
+	private EmployeeRoleDAO employeeRoleDAO = null;
 	
 	public EmployeeDAOImpl() {
 		addressDAO = new AddressDAOImpl();
-		employeeDepartmentDAO = new EmployeeDepartmentDAOImpl();
+		employeeRoleDAO = new EmployeeRoleDAOImpl();
 	}
 
 	@Override
@@ -158,8 +159,8 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 			throws DataException {
 
 		StringBuilder query = new StringBuilder(FINDBY_QUERY);
-		if (criteria.getDepartmentId() != null) {
-			query.append(JOIN_EMPLOYEE_DEPARTMENT);
+		if (criteria.getRoleId() != null) {
+			query.append(JOIN_EMPLOYEE_ROLE);
 		}
 		query.append(buildWhereClause(criteria))
 			.append(SQLQueryUtils.buildOrderByClause(criteria));
@@ -212,8 +213,8 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		if (criteria.getUsername() != null) {
 			conditions.add(" e.USERNAME = ?");
 		}
-		if (criteria.getDepartmentId() != null) {
-			conditions.add(" ed.DEPARTMENT_ID = ?");
+		if (criteria.getRoleId() != null) {
+			conditions.add(" er.ROLE_ID = ?");
 		}
 		conditions.add(" e.TERMINATION_DATE IS NULL");
 		return SQLQueryUtils.buildWhereClause(conditions);
@@ -245,8 +246,8 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		if (criteria.getUsername() != null) {
 			stmt.setString(index++, criteria.getUsername().toLowerCase());
 		}
-		if (criteria.getDepartmentId() != null) {
-			stmt.setString(index++, criteria.getDepartmentId());
+		if (criteria.getRoleId() != null) {
+			stmt.setString(index++, criteria.getRoleId());
 		}
 	}
 
@@ -406,7 +407,14 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		e.setSupervisorLastName2(rs.getString(i++));
 		
 		e.setAddress(addressDAO.findByEmployee(conn, e.getId()));
-		e.setDepartmentHistory(employeeDepartmentDAO.findByEmployee(conn, e.getId()));
+		List<EmployeeRole> roleHistory = employeeRoleDAO.findByEmployee(conn, e.getId());
+		e.setRoleHistory(roleHistory);
+		
+		for (EmployeeRole role : roleHistory) {
+			if (role.getEndDate() == null) {
+				e.setCurrentRole(role.getRoleId());
+			}
+		}
 		
 		return e;
 	}

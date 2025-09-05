@@ -16,7 +16,7 @@ TRUNCATE TABLE `PRODUCT_LOCALE`;
 TRUNCATE TABLE `PRODUCT`;
 TRUNCATE TABLE `ADDRESS`;
 TRUNCATE TABLE `CUSTOMER`;
-TRUNCATE TABLE `EMPLOYEE_DEPARTMENT`;
+TRUNCATE TABLE `EMPLOYEE_ROLE`;
 TRUNCATE TABLE `EMPLOYEE`;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -31,9 +31,9 @@ VALUES
 	(NULL, 'Olivia', 'Gonzalez', 'Garcia', 'PPT', 'GH654321', 789012345, 'olivia@example.com', 'ogonzalez', 'qdRt6cveYJUI1WuToOd6Tq4XQcwKgdjLx3FCSY4xvjqQm0jw3iN7SqJwcrDuEr59', str_to_date('2023-01-16', '%Y-%m-%d'), 'ES6621000418407890123457', 'BANKMNO'), -- passwordmno
 	(1, 'Rick', 'Astley', NULL, 'FOR', 'X1234567V', 666666666, 'never@gonnagiveyou.up', 'rastley', '3OdSndWVT6E8AwiYNljnGX8Pne9jXTUfWQNutJqLy5cUS/AzpjRlehdHd7Up2lco', str_to_date('2023-03-16', '%Y-%m-%d'), 'ES11111111111111', 'BANKPQR'); -- passwordpqr
 
-INSERT INTO `EMPLOYEE_DEPARTMENT` (`EMPLOYEE_ID`, `DEPARTMENT_ID`, `START_DATE`, `END_DATE`)
+INSERT INTO `EMPLOYEE_ROLE` (`EMPLOYEE_ID`, `ROLE_ID`, `START_DATE`, `END_DATE`)
 VALUES
-    (1, 'EXC', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
+    (1, 'ADM', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
     (2, 'MKT', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
     (3, 'HRS', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
     (4, 'SAL', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),

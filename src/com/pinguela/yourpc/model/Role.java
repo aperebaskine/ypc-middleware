@@ -2,7 +2,7 @@ package com.pinguela.yourpc.model;
 
 import java.util.Objects;
 
-public class Department {
+public class Role {
 	
 	private String id;
 	private String name;
@@ -33,7 +33,7 @@ public class Department {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Department other = (Department) obj;
+		Role other = (Role) obj;
 		return Objects.equals(id, other.id);
 	}
 

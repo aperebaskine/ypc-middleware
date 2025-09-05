@@ -2,10 +2,10 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-public class EmployeeDepartment {
+public class EmployeeRole {
 	
 	private Integer employeeId;
-	private String departmentId;
+	private String roleId;
 	private Date startDate;
 	private Date endDate;
 	
@@ -15,11 +15,11 @@ public class EmployeeDepartment {
 	public void setEmployeeId(Integer employeeId) {
 		this.employeeId = employeeId;
 	}
-	public String getDepartmentId() {
-		return departmentId;
+	public String getRoleId() {
+		return roleId;
 	}
-	public void setDepartmentId(String departmentId) {
-		this.departmentId = departmentId;
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
 	}
 	public Date getStartDate() {
 		return startDate;

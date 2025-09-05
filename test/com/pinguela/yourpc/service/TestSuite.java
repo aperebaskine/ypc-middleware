@@ -58,10 +58,10 @@ public class TestSuite {
 		map.put("COUNTRY", 27);
 		map.put("CUSTOMER", 7);
 		map.put("CUSTOMER_ORDER", 23);
-		map.put("DEPARTMENT", 7);
+		map.put("ROLE", 7);
 		map.put("DOCUMENT_TYPE", 4);
 		map.put("EMPLOYEE", 7);
-		map.put("EMPLOYEE_DEPARTMENT", 9);
+		map.put("EMPLOYEE_ROLE", 9);
 		map.put("ORDER_LINE", 46);
 		map.put("ORDER_STATE", 5);
 		map.put("PRODUCT", 55);

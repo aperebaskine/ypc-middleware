@@ -11,7 +11,7 @@ extends AbstractPersonCriteria<Integer, Employee> {
 	public static final String ORDER_BY_USERNAME = " e.USERNAME";
 	
 	private String username;
-	private String departmentId;
+	private String roleId;
 	
 	public EmployeeCriteria() {
 	}
@@ -30,12 +30,12 @@ extends AbstractPersonCriteria<Integer, Employee> {
 		this.username = username;
 	}
 	
-	public String getDepartmentId() {
-		return departmentId;
+	public String getRoleId() {
+		return roleId;
 	}
 
-	public void setDepartmentId(String departmentId) {
-		this.departmentId = departmentId;
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
 	}
 
 }

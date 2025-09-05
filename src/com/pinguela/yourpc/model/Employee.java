@@ -17,7 +17,8 @@ extends AbstractPerson {
 	
 	private Address address;
 	
-	private List<EmployeeDepartment> departmentHistory;
+	private String currentRole;
+	private List<EmployeeRole> roleHistory;
 	
 	public Employee() {
 	}
@@ -93,13 +94,21 @@ extends AbstractPerson {
 	public void setAddress(Address address) {
 		this.address = address;
 	}
-
-	public List<EmployeeDepartment> getDepartmentHistory() {
-		return departmentHistory;
+	
+	public String getCurrentRole() {
+		return currentRole;
+	}
+	
+	public void setCurrentRole(String currentRole) {
+		this.currentRole = currentRole;
 	}
 
-	public void setDepartmentHistory(List<EmployeeDepartment> departmentHistory) {
-		this.departmentHistory = departmentHistory;
+	public List<EmployeeRole> getRoleHistory() {
+		return roleHistory;
+	}
+
+	public void setRoleHistory(List<EmployeeRole> roleHistory) {
+		this.roleHistory = roleHistory;
 	}
 	
 }

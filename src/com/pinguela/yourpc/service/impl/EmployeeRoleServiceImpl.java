@@ -8,30 +8,30 @@ import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
-import com.pinguela.yourpc.dao.EmployeeDepartmentDAO;
-import com.pinguela.yourpc.dao.impl.EmployeeDepartmentDAOImpl;
-import com.pinguela.yourpc.service.EmployeeDepartmentService;
+import com.pinguela.yourpc.dao.EmployeeRoleDAO;
+import com.pinguela.yourpc.dao.impl.EmployeeRoleDAOImpl;
+import com.pinguela.yourpc.service.EmployeeRoleService;
 import com.pinguela.yourpc.util.JDBCUtils;
 
-public class EmployeeDepartmentServiceImpl implements EmployeeDepartmentService {
+public class EmployeeRoleServiceImpl implements EmployeeRoleService {
 	
-	private static Logger logger = LogManager.getLogger(EmployeeDepartmentServiceImpl.class);
+	private static Logger logger = LogManager.getLogger(EmployeeRoleServiceImpl.class);
 	
-	private EmployeeDepartmentDAO employeeDepartmentDAO = null;
+	private EmployeeRoleDAO employeeRoleDAO = null;
 	
-	public EmployeeDepartmentServiceImpl() {
-		employeeDepartmentDAO = new EmployeeDepartmentDAOImpl();
+	public EmployeeRoleServiceImpl() {
+		employeeRoleDAO = new EmployeeRoleDAOImpl();
 	}
 
 	@Override
-	public Integer assignToEmployee(Integer employeeId, String departmentId) throws ServiceException, DataException {
+	public Integer assignToEmployee(Integer employeeId, String roleId) throws ServiceException, DataException {
 
 		Connection conn = null;
 		boolean commit = false;
 		
 		try {
 			conn = JDBCUtils.getConnection();
-			return employeeDepartmentDAO.assignToEmployee(conn, employeeId, departmentId);
+			return employeeRoleDAO.assignToEmployee(conn, employeeId, roleId);
 			
 		} catch (SQLException e) {
 			logger.fatal(e.getMessage(), e);
@@ -49,7 +49,7 @@ public class EmployeeDepartmentServiceImpl implements EmployeeDepartmentService 
 		
 		try {
 			conn = JDBCUtils.getConnection();
-			return employeeDepartmentDAO.unassign(conn, employeeId);
+			return employeeRoleDAO.unassign(conn, employeeId);
 			
 		} catch (SQLException e) {
 			logger.fatal(e.getMessage(), e);

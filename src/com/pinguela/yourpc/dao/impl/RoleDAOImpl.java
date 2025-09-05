@@ -11,21 +11,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.pinguela.DataException;
-import com.pinguela.yourpc.dao.DepartmentDAO;
-import com.pinguela.yourpc.model.Department;
+import com.pinguela.yourpc.dao.RoleDAO;
+import com.pinguela.yourpc.model.Role;
 import com.pinguela.yourpc.util.JDBCUtils;
 
-public class DepartmentDAOImpl 
-implements DepartmentDAO {
+public class RoleDAOImpl 
+implements RoleDAO {
 
-	private static Logger logger = LogManager.getLogger(DepartmentDAOImpl.class);
+	private static Logger logger = LogManager.getLogger(RoleDAOImpl.class);
 
 	private static final String QUERY =
-			" SELECT d.ID, d.NAME"
-					+ " FROM DEPARTMENT d";
+			" SELECT r.ID, r.NAME"
+					+ " FROM ROLE r";
 
 	@Override
-	public Map<String, Department> findAll(Connection conn) throws DataException {
+	public Map<String, Role> findAll(Connection conn) throws DataException {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -44,25 +44,25 @@ implements DepartmentDAO {
 		}
 	}
 
-	private Map<String, Department> loadResults(ResultSet rs) throws SQLException {
-		Map<String, Department> results = new HashMap<>();
+	private Map<String, Role> loadResults(ResultSet rs) throws SQLException {
+		Map<String, Role> results = new HashMap<>();
 
 		while (rs.next()) {
-			Department next = loadNext(rs);
+			Role next = loadNext(rs);
 			results.put(next.getId(), next);
 		}
 
 		return results;
 	}
 
-	private Department loadNext(ResultSet rs) throws SQLException {
-		Department department = new Department();
+	private Role loadNext(ResultSet rs) throws SQLException {
+		Role role = new Role();
 
 		int i = 1;
-		department.setId(rs.getString(i++));
-		department.setName(rs.getString(i++));
+		role.setId(rs.getString(i++));
+		role.setName(rs.getString(i++));
 
-		return department;
+		return role;
 	}
 
 }

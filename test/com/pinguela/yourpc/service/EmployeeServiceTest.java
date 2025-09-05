@@ -374,9 +374,9 @@ class EmployeeServiceTest {
 		}
 		
 		@Test
-		void testFindByDepartmentId() {
+		void testFindByRoleId() {
 			try {
-				criteria.setDepartmentId("FIN");
+				criteria.setRoleId("FIN");
 				List<Employee> employees = employeeService.findBy(criteria);
 				assertFalse(employees.isEmpty());
 			} catch (YPCException e) {
@@ -387,7 +387,7 @@ class EmployeeServiceTest {
 		@Test
 		void testFindByMultipleCriteria() {
 			try {
-				criteria.setDepartmentId("FIN");
+				criteria.setRoleId("FIN");
 				criteria.setPhoneNumber("666666666");
 				
 				List<Employee> employees = employeeService.findBy(criteria);

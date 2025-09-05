@@ -4,11 +4,11 @@ import java.util.Map;
 
 import com.pinguela.DataException;
 import com.pinguela.ServiceException;
-import com.pinguela.yourpc.model.Department;
+import com.pinguela.yourpc.model.Role;
 
-public interface DepartmentService {
+public interface RoleService {
 	
-	public Map<String, Department> findAll()
+	public Map<String, Role> findAll()
 			throws ServiceException, DataException;
 
 }
