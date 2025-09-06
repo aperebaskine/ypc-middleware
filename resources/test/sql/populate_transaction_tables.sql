@@ -33,15 +33,15 @@ VALUES
 
 INSERT INTO `EMPLOYEE_ROLE` (`EMPLOYEE_ID`, `ROLE_ID`, `START_DATE`, `END_DATE`)
 VALUES
-    (1, 'ADM', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
-    (2, 'MKT', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
-    (3, 'HRS', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
-    (4, 'SAL', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
-    (5, 'FIN', str_to_date('2023-01-16', '%Y-%m-%d'), NULL),
-    (6, 'OPS', str_to_date('2023-01-16', '%Y-%m-%d'), str_to_date('2024-01-15', '%Y-%m-%d')),
-    (6, 'SUP', str_to_date('2024-01-16', '%Y-%m-%d'), NULL),
-    (7, 'SUP', str_to_date('2023-03-16', '%Y-%m-%d'), str_to_date('2023-12-16', '%Y-%m-%d')),
-    (7, 'FIN', str_to_date('2023-12-17', '%Y-%m-%d'), NULL);
+    (1, 'admin', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
+    (2, 'marketing', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
+    (3, 'hr', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
+    (4, 'sales', str_to_date('2022-11-16', '%Y-%m-%d'), NULL),
+    (5, 'finance', str_to_date('2023-01-16', '%Y-%m-%d'), NULL),
+    (6, 'ops', str_to_date('2023-01-16', '%Y-%m-%d'), str_to_date('2024-01-15', '%Y-%m-%d')),
+    (6, 'support', str_to_date('2024-01-16', '%Y-%m-%d'), NULL),
+    (7, 'support', str_to_date('2023-03-16', '%Y-%m-%d'), str_to_date('2023-12-16', '%Y-%m-%d')),
+    (7, 'finance', str_to_date('2023-12-17', '%Y-%m-%d'), NULL);
 
 INSERT INTO `CUSTOMER` (`FIRST_NAME`, `LAST_NAME1`, `LAST_NAME2`, `DOCUMENT_TYPE_ID`, `DOCUMENT_NUMBER`, `PHONE`, `EMAIL`, `PASSWORD`, `CREATION_DATE`)
 VALUES

@@ -213,6 +213,6 @@ VALUES
     ('sales', 'Sales'),
     ('marketing', 'Marketing'),
     ('hr', 'Human Resources'),
-    ('fin', 'Finance'),
+    ('finance', 'Finance'),
     ('ops', 'Operations'),
     ('support', 'Support');
