@@ -209,10 +209,10 @@ VALUES
     
 INSERT INTO `ROLE` (`ID`, `NAME`)
 VALUES
-	('ADM', 'Administrator'),
-    ('SAL', 'Sales'),
-    ('MKT', 'Marketing'),
-    ('HRS', 'Human Resources'),
-    ('FIN', 'Finance'),
-    ('OPS', 'Operations'),
-    ('SUP', 'Support');
+	('admin', 'Administrator'),
+    ('sales', 'Sales'),
+    ('marketing', 'Marketing'),
+    ('hr', 'Human Resources'),
+    ('fin', 'Finance'),
+    ('ops', 'Operations'),
+    ('support', 'Support');
