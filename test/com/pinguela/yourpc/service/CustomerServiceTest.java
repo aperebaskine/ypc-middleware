@@ -53,8 +53,7 @@ class CustomerServiceTest {
 		void testWithValidCredentials() {
 
 			try {
-				String sessionToken = customerService.login("ethan@example.com", "abc123.");
-				Customer c = customerService.findBySessionToken(sessionToken);
+				Customer c = customerService.login("ethan@example.com", "abc123.");
 				assertEquals("ethan@example.com", c.getEmail());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);

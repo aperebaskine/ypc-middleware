@@ -15,9 +15,6 @@ public interface CustomerDAO {
 	public Customer findByEmail(Connection conn, String email)
 			throws DataException;
 	
-	public Customer findBySessionToken(Connection conn, String sessionToken)
-			throws DataException;
-	
 	public List<Customer> findBy(Connection conn, CustomerCriteria criteria)
 			throws DataException;
 	

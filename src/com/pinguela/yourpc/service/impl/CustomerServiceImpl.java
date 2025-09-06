@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jasypt.util.password.StrongPasswordEncryptor;
@@ -56,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
 	private static final String TEST_EMAIL = "pereb_test@outlook.com";
 
 	@Override
-	public String login(String email, String password) 
+	public Customer login(String email, String password) 
 			throws ServiceException, DataException {
 
 		Connection conn = null;
@@ -74,14 +73,8 @@ public class CustomerServiceImpl implements CustomerService {
 				throw new InvalidLoginCredentialsException();
 			}
 
-			if (c.getSessionToken() == null) {
-				String sessionToken = generateSessionToken();
-				customerDAO.updateSessionToken(conn, c.getId(), sessionToken);
-				c.setSessionToken(sessionToken);
-			}
-
-			logger.info("Usuario {} (session token {}) autenticado con éxito.", c.getEmail(), c.getSessionToken());
-			return c.getSessionToken();
+			logger.info("Usuario {} autenticado con éxito.", c.getEmail());
+			return c;
 
 		} catch (SQLException sqle) {
 			logger.fatal(sqle);
@@ -165,22 +158,6 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public Customer findBySessionToken(String sessionToken) throws ServiceException, DataException {
-
-		Connection conn = null;
-
-		try {
-			conn = JDBCUtils.getConnection();
-			return customerDAO.findBySessionToken(conn, sessionToken);
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn);
-		}
-	}
-
-	@Override
 	public List<Customer> findBy(CustomerCriteria criteria) 
 			throws ServiceException, DataException {
 
@@ -216,7 +193,7 @@ public class CustomerServiceImpl implements CustomerService {
 			JDBCUtils.close(conn);
 		}
 	}
-	
+
 	@Override
 	public boolean phoneNumberExists(String phoneNumber) throws ServiceException, DataException {
 
@@ -232,7 +209,7 @@ public class CustomerServiceImpl implements CustomerService {
 			JDBCUtils.close(conn);
 		}
 	}
-	
+
 	@Override
 	public Boolean update(Customer c) 
 			throws ServiceException, DataException {
@@ -337,8 +314,5 @@ public class CustomerServiceImpl implements CustomerService {
 			JDBCUtils.close(conn, commit);
 		}
 	}
-
-	private static String generateSessionToken() {
-		return RandomStringUtils.randomAlphanumeric(64);
-	}
+	
 }

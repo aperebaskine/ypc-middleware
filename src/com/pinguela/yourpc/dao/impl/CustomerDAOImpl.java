@@ -35,8 +35,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " cu.PHONE,"
 					+ " cu.EMAIL,"
 					+ " cu.PASSWORD,"
-					+ " cu.CREATION_DATE,"
-					+ " cu.SESSION_TOKEN";
+					+ " cu.CREATION_DATE";
 	private static final String FROM_TABLE =
 			" FROM CUSTOMER cu"
 					+ " INNER JOIN DOCUMENT_TYPE dt"
@@ -45,14 +44,11 @@ public class CustomerDAOImpl implements CustomerDAO {
 			" WHERE cu.ID = ?";
 	private static final String WHERE_EMAIL =
 			" WHERE cu.EMAIL = ?";
-	private static final String WHERE_SESSION_TOKEN =
-			" WHERE cu.SESSION_TOKEN = ?";
 	private static final String WHERE_DELETION_DATE =
 			" AND cu.DELETION_DATE IS NULL";
 
 	private static final String FINDBYID_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_ID +WHERE_DELETION_DATE;
 	private static final String FINDBYEMAIL_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_EMAIL +WHERE_DELETION_DATE;
-	private static final String FINDBYSESSIONTOKEN_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_SESSION_TOKEN +WHERE_DELETION_DATE;
 	
 	public static final String EMAIL_EXISTS_QUERY =
 			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.EMAIL = ?";
@@ -149,35 +145,6 @@ public class CustomerDAOImpl implements CustomerDAO {
 		try {
 			stmt = conn.prepareStatement(FINDBYEMAIL_QUERY);
 			stmt.setString(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, email.toLowerCase());
-
-			rs = stmt.executeQuery();
-			if (rs.next()) {
-				c = loadNext(conn, rs);
-			} 
-			return c;
-
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt, rs);
-		}
-	}
-	
-	@Override
-	public Customer findBySessionToken(Connection conn, String sessionToken) throws DataException {
-		
-		if (sessionToken == null) {
-			return null;
-		}
-
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		Customer c = null;
-
-		try {
-			stmt = conn.prepareStatement(FINDBYSESSIONTOKEN_QUERY);
-			stmt.setString(JDBCUtils.ID_CLAUSE_PARAMETER_INDEX, sessionToken);
 
 			rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -485,7 +452,6 @@ public class CustomerDAOImpl implements CustomerDAO {
 		cu.setEmail(rs.getString(i++));
 		cu.setEncryptedPassword(rs.getString(i++));
 		cu.setCreationDate(rs.getTimestamp(i++));
-		cu.setSessionToken(rs.getString(i++));
 		cu.setAddresses(addressDAO.findByCustomer(conn, cu.getId()));
 		return cu;
 	}
