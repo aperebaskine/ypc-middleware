@@ -53,18 +53,18 @@ VALUES
 	('Chloe', 'Anderson', NULL, 'NIF', 'QR765432', 456789012, 'chloe@example.com', '8d643b0613bd258518528c24e0a07d51ee89c26e1d57775df782b2e3107e470c', str_to_date('2023-04-16', '%Y-%m-%d')), -- passmno
 	('John', 'Cena', NULL, 'FOR', 'ST555555', 455555555, 'cant@see.me', 'dff1ad49ede4b12cd8bc9952c37b12a7557e5c33096a9e7e5b83db49a317da93', str_to_date('2023-04-16', '%Y-%m-%d')); -- passpqr
     
-INSERT INTO `ADDRESS` (`CUSTOMER_ID`, `CITY_ID`, `STREET_NAME`, `STREET_NUMBER`, `FLOOR`, `DOOR`, `ZIP_CODE`, `IS_DEFAULT`, `IS_BILLING`, `CREATION_DATE`)
+INSERT INTO `ADDRESS` (`NAME`, `CUSTOMER_ID`, `CITY_ID`, `STREET_NAME`, `STREET_NUMBER`, `FLOOR`, `DOOR`, `ZIP_CODE`, `IS_DEFAULT`, `IS_BILLING`, `CREATION_DATE`)
 VALUES
-	(1, 1, 'Calle Gran Vía', 1, 3, 'Apt 5', 28013, true, false, str_to_date('2022-11-16', '%Y-%m-%d')),
-	(2, 6, 'Avinguda Diagonal', 123, NULL, 'Apt 10', 08019, true, true, str_to_date('2022-11-16', '%Y-%m-%d')),
-	(3, 11, 'Carrer de la Pau', 45, 5, 'Apt 15', 46002, true, true, str_to_date('2022-11-16', '%Y-%m-%d')),
-	(4, 16, 'Calle Sierpes', 8, NULL, 'Apt 20', 41004, true, true, str_to_date('2023-01-16', '%Y-%m-%d')),
-	(5, 5, 'Carrer de les Flors', 27, 7, 'Apt 25', 08001, true, true, str_to_date('2023-01-16', '%Y-%m-%d')),
-	(6, 6, 'Passeig de Gràcia', 33, NULL, 'Apt 30', 08007, true, true, str_to_date('2023-04-16', '%Y-%m-%d')),
-	(7, 8, 'Calle León y Castillo', 271, 9, 'Apt 35', 35005, true, true, str_to_date('2023-04-16', '%Y-%m-%d')),
-    (1, 1, 'Calle Alcalá', 100, 4, 'Apt 6', 28009, false, true, str_to_date('2023-07-16', '%Y-%m-%d')),
-	(1, 1, 'Calle del Arenal', 67, 6, 'Apt 7', 28013, false, false, str_to_date('2023-08-16', '%Y-%m-%d')),
-	(2, 6, 'Rambla de Catalunya', 89, 2, 'Apt 12', 08008, false, false, str_to_date('2023-09-16', '%Y-%m-%d'));
+	('My Address 1', 1, 1, 'Calle Gran Vía', 1, 3, 'Apt 5', 28013, true, false, str_to_date('2022-11-16', '%Y-%m-%d')),
+	('My Address 2', 2, 6, 'Avinguda Diagonal', 123, NULL, 'Apt 10', 08019, true, true, str_to_date('2022-11-16', '%Y-%m-%d')),
+	('My Address 3', 3, 11, 'Carrer de la Pau', 45, 5, 'Apt 15', 46002, true, true, str_to_date('2022-11-16', '%Y-%m-%d')),
+	('My Address 4', 4, 16, 'Calle Sierpes', 8, NULL, 'Apt 20', 41004, true, true, str_to_date('2023-01-16', '%Y-%m-%d')),
+	('My Address 5', 5, 5, 'Carrer de les Flors', 27, 7, 'Apt 25', 08001, true, true, str_to_date('2023-01-16', '%Y-%m-%d')),
+	('My Address 6', 6, 6, 'Passeig de Gràcia', 33, NULL, 'Apt 30', 08007, true, true, str_to_date('2023-04-16', '%Y-%m-%d')),
+	('My Address 7', 7, 8, 'Calle León y Castillo', 271, 9, 'Apt 35', 35005, true, true, str_to_date('2023-04-16', '%Y-%m-%d')),
+    ('My Address 8', 1, 1, 'Calle Alcalá', 100, 4, 'Apt 6', 28009, false, true, str_to_date('2023-07-16', '%Y-%m-%d')),
+	('My Address 9', 1, 1, 'Calle del Arenal', 67, 6, 'Apt 7', 28013, false, false, str_to_date('2023-08-16', '%Y-%m-%d')),
+	('My Address 10', 2, 6, 'Rambla de Catalunya', 89, 2, 'Apt 12', 08008, false, false, str_to_date('2023-09-16', '%Y-%m-%d'));
 
     
 INSERT INTO `ADDRESS` (`EMPLOYEE_ID`, `CITY_ID`, `STREET_NAME`, `STREET_NUMBER`, `FLOOR`, `DOOR`, `ZIP_CODE`, `IS_DEFAULT`, `IS_BILLING`, `CREATION_DATE`)

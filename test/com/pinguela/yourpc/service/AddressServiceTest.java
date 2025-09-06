@@ -150,6 +150,7 @@ class AddressServiceTest {
 		void setUp() throws Exception {
 			a = new Address();
 
+			a.setName("Test address");
 			a.setStreetName("TEST" + System.currentTimeMillis());
 			a.setZipCode("1");
 			a.setCustomerId(1);

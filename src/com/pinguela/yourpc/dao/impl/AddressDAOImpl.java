@@ -25,6 +25,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 	private static final String SELECT_COLUMNS =
 			" SELECT a.ID,"
+					+ " a.NAME,"
 					+ " a.CUSTOMER_ID,"
 					+ " a.EMPLOYEE_ID,"
 					+ " a.STREET_NAME,"
@@ -72,7 +73,8 @@ public class AddressDAOImpl implements AddressDAO {
 	public static final String MATCHES_CUSTOMER_QUERY = " SELECT a.ID from ADDRESS a WHERE a.ID = ? AND a.CUSTOMER_ID = ?";
 
 	private static final String CREATE_QUERY = 
-			" INSERT INTO ADDRESS(CUSTOMER_ID,"
+			" INSERT INTO ADDRESS(NAME, "
+					+ " CUSTOMER_ID,"
 					+ " EMPLOYEE_ID,"
 					+ " STREET_NAME,"
 					+ " STREET_NUMBER,"
@@ -86,7 +88,8 @@ public class AddressDAOImpl implements AddressDAO {
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
-			" UPDATE ADDRESS SET CUSTOMER_ID = ?,"
+			" UPDATE ADDRESS SET NAME = ?,"
+					+ " CUSTOMER_ID = ?,"
 					+ " EMPLOYEE_ID = ?,"
 					+ " STREET_NAME = ?,"
 					+ " STREET_NUMBER = ?,"
@@ -394,6 +397,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 		int index = 1;
 
+		stmt.setString(index++, a.getName());
 		JDBCUtils.setNullable(stmt, a.getCustomerId(), index++);
 		JDBCUtils.setNullable(stmt, a.getEmployeeId(), index++);
 		stmt.setString(index++, a.getStreetName());
@@ -460,6 +464,7 @@ public class AddressDAOImpl implements AddressDAO {
 		int i = 1;
 
 		a.setId(rs.getInt(i++));
+		a.setName(rs.getString(i++));
 		a.setCustomerId(JDBCUtils.getNullableInt(rs, i++));
 		a.setEmployeeId(JDBCUtils.getNullableInt(rs, i++));
 		a.setStreetName(rs.getString(i++));
