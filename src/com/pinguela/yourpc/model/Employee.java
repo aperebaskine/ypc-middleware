@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Employee
-extends AbstractPerson {
+extends User {
 	
 	private String username;
 	private Date terminationDate;

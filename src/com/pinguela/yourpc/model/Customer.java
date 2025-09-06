@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Customer
-extends AbstractPerson
+extends User
 implements Cloneable {
 	
 	private List<Address> addresses = null;
@@ -13,7 +13,10 @@ implements Cloneable {
 	
 	public Customer() {
 		addresses = new ArrayList<Address>();
+		super.setRoleId("customer");
 	}
+	
+	public void setRoleId() {}
 	
 	public String getSessionToken() {
 		return sessionToken;

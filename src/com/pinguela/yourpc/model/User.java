@@ -2,10 +2,11 @@ package com.pinguela.yourpc.model;
 
 import java.util.Date;
 
-public abstract class AbstractPerson
+public abstract class User
 extends AbstractValueObject {
 
 	private Integer id;
+	private String roleId;
 	private String firstName;
 	private String lastName1;
 	private String lastName2;
@@ -18,11 +19,19 @@ extends AbstractValueObject {
 	private String unencryptedPassword;
 	private String encryptedPassword;
 
-	public AbstractPerson() {
+	public User() {
 	}
 
 	public Integer getId() {
 		return id;
+	}
+	
+	public String getRoleId() {
+		return roleId;
+	}
+	
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
 	}
 
 	public void setId(Integer id) {
