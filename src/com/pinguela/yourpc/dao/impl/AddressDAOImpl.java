@@ -85,7 +85,7 @@ public class AddressDAOImpl implements AddressDAO {
 					+ " IS_DEFAULT,"
 					+ " IS_BILLING,"
 					+ " CREATION_DATE)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
 			" UPDATE ADDRESS SET NAME = ?,"
