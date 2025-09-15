@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -294,10 +295,16 @@ class AddressServiceTest {
 				a.setStreetName("TESTUPDATE" +System.currentTimeMillis());
 
 				int newId = addressService.update(a);
-				assertNotEquals(1, newId);
-
 				Address b = addressService.findById(newId);
-				assertEquals(a.getStreetName(), b.getStreetName());				
+				
+				assertNotEquals(1, newId);
+				
+				assertEquals(a.getCustomerId(), b.getCustomerId());
+				assertEquals(a.getEmployeeId(), b.getEmployeeId());
+
+				assertEquals(a.getStreetName(), b.getStreetName());
+				
+				assertNotEquals(a.getCreationDate(), b.getCreationDate());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
 			}
@@ -313,7 +320,53 @@ class AddressServiceTest {
 				assertEquals(a.getId(), newId);
 
 				Address b = addressService.findById(a.getId());
+				
+				assertEquals(a.getId(), b.getId());
+				
+				assertEquals(a.getCustomerId(), b.getCustomerId());
+				assertEquals(a.getEmployeeId(), b.getEmployeeId());
+				
 				assertEquals(a.getStreetName(), b.getStreetName());
+				
+				assertEquals(a.getCreationDate(), b.getCreationDate());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
+
+		}
+		
+		@Test
+		void testImmutableAttributesAreIgnoredDuringUpdate() {
+			try {
+				Address a = addressService.findById(8);
+				
+				Date currentCreationDate = a.getCreationDate();
+				Integer currentCustomerId = a.getCustomerId();
+				Integer currentEmployeeId = a.getEmployeeId();
+				
+				a.setCreationDate(new Date(0));
+				a.setCustomerId(2);
+				a.setStreetName("TESTUPDATE" +System.currentTimeMillis());
+
+				int newId = addressService.update(a);
+				
+				Address b = addressService.findById(newId);
+				
+				assertEquals(a.getId(), b.getId());
+				
+				assertEquals(currentCreationDate, b.getCreationDate());
+				assertEquals(currentCustomerId, b.getCustomerId());
+				
+				a.setCustomerId(null);
+				a.setEmployeeId(1);
+
+				newId = addressService.update(a);
+				b = addressService.findById(newId);
+				
+				assertEquals(a.getId(), b.getId());
+				
+				assertEquals(currentCustomerId, a.getCustomerId());
+				assertEquals(currentEmployeeId, a.getEmployeeId());
 			} catch (YPCException e) {
 				fail(e.getMessage(), e);
 			}

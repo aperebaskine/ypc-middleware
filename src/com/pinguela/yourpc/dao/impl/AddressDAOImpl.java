@@ -69,11 +69,13 @@ public class AddressDAOImpl implements AddressDAO {
 			FINDBY_QUERY
 			+FINDBY_QUERY_CUSTOMER_ID_PARAMETER
 			+FINDBY_QUERY_UNDELETED_PARAMETER;
-	
+
 	public static final String MATCHES_CUSTOMER_QUERY = " SELECT a.ID from ADDRESS a WHERE a.ID = ? AND a.CUSTOMER_ID = ?";
 
 	private static final String CREATE_QUERY = 
-			" INSERT INTO ADDRESS(NAME, "
+			" INSERT INTO ADDRESS("
+					+ " NAME,"
+					+ " CREATION_DATE,"
 					+ " CUSTOMER_ID,"
 					+ " EMPLOYEE_ID,"
 					+ " STREET_NAME,"
@@ -83,14 +85,11 @@ public class AddressDAOImpl implements AddressDAO {
 					+ " ZIP_CODE,"
 					+ " CITY_ID,"
 					+ " IS_DEFAULT,"
-					+ " IS_BILLING,"
-					+ " CREATION_DATE)"
+					+ " IS_BILLING)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
 			" UPDATE ADDRESS SET NAME = ?,"
-					+ " CUSTOMER_ID = ?,"
-					+ " EMPLOYEE_ID = ?,"
 					+ " STREET_NAME = ?,"
 					+ " STREET_NUMBER = ?,"
 					+ " FLOOR = ?,"
@@ -98,8 +97,7 @@ public class AddressDAOImpl implements AddressDAO {
 					+ " ZIP_CODE = ?,"
 					+ " CITY_ID = ?,"
 					+ " IS_DEFAULT = ?,"
-					+ " IS_BILLING = ?,"
-					+ " CREATION_DATE = ?"
+					+ " IS_BILLING = ?"
 					+ " WHERE ID = ?";
 
 	private static final String IS_ORDER_ADDRESS_QUERY =
@@ -219,7 +217,7 @@ public class AddressDAOImpl implements AddressDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	@Override
 	public boolean matchesCustomer(Connection conn, Integer addressId, Integer customerId) throws DataException {
 
@@ -228,7 +226,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 		try {
 			stmt = conn.prepareStatement(MATCHES_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			
+
 			int i = 1;
 			stmt.setInt(i++, addressId);
 			stmt.setInt(i++, customerId);
@@ -261,7 +259,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
 			a.setCreationDate(new Date());
-			setInsertValues(stmt, a);
+			setInsertValues(stmt, a, true);
 
 			int affectedRows = stmt.executeUpdate();
 			if (affectedRows != 1) {
@@ -284,9 +282,15 @@ public class AddressDAOImpl implements AddressDAO {
 	@Override
 	public Integer update(Connection conn, Address a)
 			throws DataException {
+		
+		Address current = findById(conn, a.getId());
+		
+		// Copy immutable data from stored address
+		a.setCustomerId(current.getCustomerId());
+		a.setEmployeeId(current.getEmployeeId());
 
-		if (isOrderAddress(conn, a.getId())) { // Perform logical deletion on address linked to order(s)
-			if (!a.equals(findById(conn, a.getId()))) {
+		if (isOrderAddress(conn, a.getId())) { // Perform logical deletion on address linked to order(s)			
+			if (!a.equals(current)) {
 				delete(conn, a.getId());
 				return create(conn, a);
 			}
@@ -297,7 +301,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 		try {
 			stmt = conn.prepareStatement(UPDATE_QUERY);
-			int i = setInsertValues(stmt, a);
+			int i = setInsertValues(stmt, a, false);
 			stmt.setInt(i++, a.getId());
 
 			int affectedRows = stmt.executeUpdate();
@@ -314,7 +318,7 @@ public class AddressDAOImpl implements AddressDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	private void updateDefaultAndBilling(Connection conn, Address a) throws DataException {
 		if (a.getCustomerId() == null) {
 			return;
@@ -392,14 +396,19 @@ public class AddressDAOImpl implements AddressDAO {
 		}
 	}
 
-	private int setInsertValues(PreparedStatement stmt, Address a) 
+	private int setInsertValues(PreparedStatement stmt, Address a, boolean isNewAddress) 
 			throws SQLException {
 
 		int index = 1;
 
 		stmt.setString(index++, a.getName());
-		JDBCUtils.setNullable(stmt, a.getCustomerId(), index++);
-		JDBCUtils.setNullable(stmt, a.getEmployeeId(), index++);
+		
+		if (isNewAddress) {
+			stmt.setTimestamp(index++, new java.sql.Timestamp(a.getCreationDate().getTime()));
+			JDBCUtils.setNullable(stmt, a.getCustomerId(), index++);
+			JDBCUtils.setNullable(stmt, a.getEmployeeId(), index++);
+		}
+		
 		stmt.setString(index++, a.getStreetName());
 		JDBCUtils.setNullable(stmt, a.getStreetNumber(), index++);
 		JDBCUtils.setNullable(stmt, a.getFloor(), index++);
@@ -408,14 +417,14 @@ public class AddressDAOImpl implements AddressDAO {
 		stmt.setInt(index++, a.getCityId());
 		JDBCUtils.setNullable(stmt, a.isDefault(), index++);
 		JDBCUtils.setNullable(stmt, a.isBilling(), index++);
-		stmt.setTimestamp(index++, new java.sql.Timestamp(a.getCreationDate().getTime()));
+		
 		return index;
 	}
 
 	@Override
 	public Boolean delete(Connection conn, Integer id)
 			throws DataException {
-		
+
 		if (id == null) {
 			return false;
 		}
@@ -437,7 +446,7 @@ public class AddressDAOImpl implements AddressDAO {
 
 	public Boolean deleteByCustomer(Connection conn, Integer customerId)
 			throws DataException {
-		
+
 		if (customerId == null) {
 			return false;
 		}
