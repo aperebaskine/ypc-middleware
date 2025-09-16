@@ -84,11 +84,6 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " SET PASSWORD = ?"
 					+ " WHERE ID = ?";
 
-	private static final String UPDATE_SESSION_TOKEN_QUERY =
-			" UPDATE CUSTOMER"
-					+ " SET SESSION_TOKEN = ?"
-					+ " WHERE ID = ?";
-
 	private static final String DELETE_QUERY =
 			" UPDATE CUSTOMER SET DELETION_DATE = ? WHERE ID = ?";
 
@@ -355,32 +350,6 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 			int i = 1;
 			stmt.setString(i++, password);
-			stmt.setInt(i++, customerId);
-
-			int affectedRows = stmt.executeUpdate();
-			if (affectedRows != 1) {
-				throw new DataException(ErrorCodes.UPDATE_FAILED);
-			} else {
-				return true;
-			}
-		} catch (SQLException sqle) {
-			logger.error(sqle);
-			throw new DataException(sqle);
-		} finally {
-			JDBCUtils.close(stmt);
-		}
-	}
-
-	@Override
-	public Boolean updateSessionToken(Connection conn, Integer customerId, String sessionToken) throws DataException {
-
-		PreparedStatement stmt = null;
-
-		try {
-			stmt = conn.prepareStatement(UPDATE_SESSION_TOKEN_QUERY);
-
-			int i = 1;
-			stmt.setString(i++, sessionToken);
 			stmt.setInt(i++, customerId);
 
 			int affectedRows = stmt.executeUpdate();

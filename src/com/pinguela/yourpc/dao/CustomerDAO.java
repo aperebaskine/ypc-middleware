@@ -33,9 +33,6 @@ public interface CustomerDAO {
 	public Boolean updatePassword(Connection conn, Integer customerId, String password)
 			throws DataException;
 	
-	public Boolean updateSessionToken(Connection conn, Integer customerId, String sessionToken)
-			throws DataException;
-	
 	public Boolean delete(Connection conn, Integer customerId)
 			throws DataException;
 	

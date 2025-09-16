@@ -35,9 +35,6 @@ public interface CustomerService {
 	
 	public Boolean updatePassword(Integer customerId, String password)
 			throws ServiceException, DataException;
-	
-	public Boolean updateSessionToken(Integer customerId, String sessionToken)
-			throws ServiceException, DataException;
 
 	public Boolean delete(Integer customerId)
 			throws ServiceException, DataException;

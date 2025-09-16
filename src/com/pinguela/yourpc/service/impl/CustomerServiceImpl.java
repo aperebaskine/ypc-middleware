@@ -264,29 +264,6 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Override
-	public Boolean updateSessionToken(Integer customerId, String sessionToken) throws ServiceException, DataException {
-
-		Connection conn = null;
-		boolean commit = false;
-
-		try {
-			conn = JDBCUtils.getConnection();
-			conn.setAutoCommit(JDBCUtils.NO_AUTO_COMMIT);
-			if (customerDAO.updateSessionToken(conn, customerId, sessionToken)) {
-				commit = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (SQLException sqle) {
-			logger.fatal(sqle);
-			throw new ServiceException(sqle);
-		} finally {
-			JDBCUtils.close(conn, commit);
-		}
-	}
-
-	@Override
 	public Boolean delete(Integer customerId) 
 			throws ServiceException, DataException {
 
