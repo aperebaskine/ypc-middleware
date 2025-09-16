@@ -77,8 +77,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " DOCUMENT_NUMBER = ?,"
 					+ " PHONE = ?,"
 					+ " EMAIL = ?,"
-					+ " PASSWORD = ?,"
-					+ " CREATION_DATE = ?"
+					+ " PASSWORD = ?"
 					+ " WHERE ID = ?";
 
 	private static final String UPDATE_PASSWORD_QUERY =
@@ -302,7 +301,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 		try {
 			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
 			c.setCreationDate(new Date());
-			setInsertValues(stmt, c);
+			setInsertValues(stmt, c, true);
 
 			int affectedRows = stmt.executeUpdate();
 			if (affectedRows != 1) {
@@ -330,7 +329,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 		try {
 			stmt = conn.prepareStatement(UPDATE_QUERY);
 
-			int index = setInsertValues(stmt, c);
+			int index = setInsertValues(stmt, c, true);
 			stmt.setInt(index++, c.getId());
 
 			int affectedRows = stmt.executeUpdate();
@@ -399,7 +398,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 		}
 	}
 
-	private static int setInsertValues(PreparedStatement stmt, Customer c) 
+	private static int setInsertValues(PreparedStatement stmt, Customer c, boolean isNew) 
 			throws SQLException {
 
 		int index = 1;
@@ -411,7 +410,10 @@ public class CustomerDAOImpl implements CustomerDAO {
 		stmt.setString(index++, c.getPhoneNumber());
 		stmt.setString(index++, c.getEmail());
 		stmt.setString(index++, c.getEncryptedPassword());
-		stmt.setTimestamp(index++, new java.sql.Timestamp(c.getCreationDate().getTime()));
+		
+		if (isNew) {
+			stmt.setTimestamp(index++, new java.sql.Timestamp(c.getCreationDate().getTime()));
+		}
 
 		return index;
 	}
