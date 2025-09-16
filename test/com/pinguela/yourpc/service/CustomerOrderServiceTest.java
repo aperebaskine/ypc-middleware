@@ -383,18 +383,6 @@ class CustomerOrderServiceTest {
 		}
 
 		@Test
-		void testWithInvalidState() {
-			o.setState("ABC");
-			assertThrows(DataException.class, () -> customerOrderService.create(o));
-		}
-
-		@Test
-		void testWithNullState() {
-			o.setState(null);
-			assertThrows(DataException.class, () -> customerOrderService.create(o));
-		}
-
-		@Test
 		void testWithInvalidCustomerId() {
 			o.setCustomerId(0);
 			assertThrows(DataException.class, () -> customerOrderService.create(o));

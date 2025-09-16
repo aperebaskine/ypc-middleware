@@ -56,7 +56,6 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 			" UPDATE CUSTOMER_ORDER"
 					+ " SET ORDER_STATE_ID = ?,"
 					+ " CUSTOMER_ID = ?,"
-					+ " ORDER_DATE = ?,"
 					+ " TRACKING_NUMBER = ?,"
 					+ " BILLING_ADDRESS_ID = ?,"
 					+ " SHIPPING_ADDRESS_ID = ?,"
@@ -77,8 +76,9 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		try {
 			
 			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
+			co.setState("PND");
 			co.setOrderDate(new Date());
-			setInsertValues(stmt, co);
+			setInsertValues(stmt, co, true);
 
 			long insertedRows = stmt.executeUpdate();
 			
@@ -127,7 +127,7 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 			stmt = conn.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS);
 
 			int index = 1;
-			index = setInsertValues(stmt, co);
+			index = setInsertValues(stmt, co, false);
 			stmt.setLong(index, co.getId());
 
 			int updatedRows = stmt.executeUpdate();
@@ -145,12 +145,16 @@ public class CustomerOrderDAOImpl implements CustomerOrderDAO {
 		}
 	}
 
-	private int setInsertValues(PreparedStatement stmt, CustomerOrder co) throws SQLException {
+	private int setInsertValues(PreparedStatement stmt, CustomerOrder co, boolean isNew) throws SQLException {
 
 		int index = 1;
 		stmt.setString(index++, co.getState());
 		stmt.setLong(index++, co.getCustomerId());
-		stmt.setTimestamp(index++, new java.sql.Timestamp(co.getOrderDate().getTime()));
+		
+		if (isNew) {
+				stmt.setTimestamp(index++, new java.sql.Timestamp(co.getOrderDate().getTime()));
+		}
+		
 		stmt.setString(index++, co.getTrackingNumber());
 		stmt.setInt(index++, co.getBillingAddressId());
 		stmt.setInt(index++, co.getShippingAddressId());
