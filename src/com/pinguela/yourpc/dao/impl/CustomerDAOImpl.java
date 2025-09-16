@@ -49,10 +49,10 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 	private static final String FINDBYID_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_ID +WHERE_DELETION_DATE;
 	private static final String FINDBYEMAIL_QUERY = SELECT_COLUMNS +FROM_TABLE +WHERE_EMAIL +WHERE_DELETION_DATE;
-	
+
 	public static final String EMAIL_EXISTS_QUERY =
 			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.EMAIL = ?";
-	
+
 	public static final String PHONE_NUMBER_EXISTS_QUERY =
 			" SELECT cu.ID FROM CUSTOMER cu WHERE cu.PHONE = ?";
 
@@ -63,9 +63,9 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " DOCUMENT_TYPE_ID,"
 					+ " DOCUMENT_NUMBER,"
 					+ " PHONE,"
+					+ " CREATION_DATE,"
 					+ " EMAIL,"
-					+ " PASSWORD,"
-					+ " CREATION_DATE)"
+					+ " PASSWORD)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
@@ -76,7 +76,6 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " DOCUMENT_TYPE_ID = ?,"
 					+ " DOCUMENT_NUMBER = ?,"
 					+ " PHONE = ?,"
-					+ " EMAIL = ?,"
 					+ " PASSWORD = ?"
 					+ " WHERE ID = ?";
 
@@ -84,7 +83,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 			" UPDATE CUSTOMER"
 					+ " SET PASSWORD = ?"
 					+ " WHERE ID = ?";
-	
+
 	private static final String UPDATE_SESSION_TOKEN_QUERY =
 			" UPDATE CUSTOMER"
 					+ " SET SESSION_TOKEN = ?"
@@ -190,10 +189,10 @@ public class CustomerDAOImpl implements CustomerDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	@Override
 	public boolean emailExists(Connection conn, String email) throws DataException {
-		
+
 		if (email == null) {
 			return false;
 		}
@@ -215,10 +214,10 @@ public class CustomerDAOImpl implements CustomerDAO {
 			JDBCUtils.close(stmt, rs);
 		}
 	}
-	
+
 	@Override
 	public boolean phoneNumberExists(Connection conn, String phoneNumber) throws DataException {
-		
+
 		if (phoneNumber == null) {
 			return false;
 		}
@@ -329,7 +328,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 		try {
 			stmt = conn.prepareStatement(UPDATE_QUERY);
 
-			int index = setInsertValues(stmt, c, true);
+			int index = setInsertValues(stmt, c, false);
 			stmt.setInt(index++, c.getId());
 
 			int affectedRows = stmt.executeUpdate();
@@ -371,10 +370,10 @@ public class CustomerDAOImpl implements CustomerDAO {
 			JDBCUtils.close(stmt);
 		}
 	}
-	
+
 	@Override
 	public Boolean updateSessionToken(Connection conn, Integer customerId, String sessionToken) throws DataException {
-		
+
 		PreparedStatement stmt = null;
 
 		try {
@@ -408,12 +407,13 @@ public class CustomerDAOImpl implements CustomerDAO {
 		stmt.setString(index++, c.getDocumentTypeId());
 		stmt.setString(index++, c.getDocumentNumber());
 		stmt.setString(index++, c.getPhoneNumber());
-		stmt.setString(index++, c.getEmail());
-		stmt.setString(index++, c.getEncryptedPassword());
-		
+
 		if (isNew) {
 			stmt.setTimestamp(index++, new java.sql.Timestamp(c.getCreationDate().getTime()));
+			stmt.setString(index++, c.getEmail());
 		}
+
+		stmt.setString(index++, c.getEncryptedPassword());
 
 		return index;
 	}
