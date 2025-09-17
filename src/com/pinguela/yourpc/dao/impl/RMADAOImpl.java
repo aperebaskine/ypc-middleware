@@ -56,27 +56,29 @@ implements RMADAO {
 			SELECT_COLUMNS +FROM_TABLE;
 	private static final String FINDBYID_QUERY =
 			FINDBY_QUERY +WHERE_ID;
-	
+
 	public static final String MATCHES_CUSTOMER_QUERY = " SELECT r.ID from RMA r WHERE r.ID = ? AND r.CUSTOMER_ID = ?";
-	
+
 	private static final String CREATE_QUERY =
-			" INSERT INTO RMA(CUSTOMER_ID, RMA_STATE_ID, CREATION_DATE, TRACKING_NUMBER)"
-			+ " VALUES (?, ?, ?, ?)";
+			" INSERT INTO RMA("
+					+ " CUSTOMER_ID,"
+					+ " CREATION_DATE,"
+					+ " RMA_STATE_ID,"
+					+ " TRACKING_NUMBER)"
+					+ " VALUES (?, ?, ?, ?)";
 	private static final String UPDATE_QUERY = 
-			" UPDATE RMA "
-			+ "SET CUSTOMER_ID = ?,"
-			+ " RMA_STATE_ID = ?,"
-			+ " CREATION_DATE = ?,"
-			+ " TRACKING_NUMBER = ?"
-			+ " WHERE ID = ?";
-	
+			" UPDATE RMA SET"
+					+ " RMA_STATE_ID = ?,"
+					+ " TRACKING_NUMBER = ?"
+					+ " WHERE ID = ?";
+
 	private static Logger logger = LogManager.getLogger(RMADAOImpl.class);
 	private OrderLineDAO orderLineDAO = null;
 
 	@Override
 	public RMA findById(Connection conn, Long rmaId, Locale locale) 
 			throws DataException {
-	
+
 		if (rmaId == null) {
 			return null;
 		}
@@ -133,7 +135,7 @@ implements RMADAO {
 			throw new DataException(e);
 		}
 	}
-	
+
 	@Override
 	public boolean matchesCustomer(Connection conn, Integer rmaId, Integer customerId) throws DataException {
 
@@ -142,7 +144,7 @@ implements RMADAO {
 
 		try {
 			stmt = conn.prepareStatement(MATCHES_CUSTOMER_QUERY, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-			
+
 			int i = 1;
 			stmt.setInt(i++, rmaId);
 			stmt.setInt(i++, customerId);
@@ -237,12 +239,12 @@ implements RMADAO {
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		
+
 		try {
 			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
 			rma.setCreationDate(new Date());
-			setInsertValues(stmt, rma);
-			
+			setInsertValues(stmt, rma, true);
+
 			int affectedRows = stmt.executeUpdate();
 			if (affectedRows != 1) {
 				throw new DataException(ErrorCodes.INSERT_FAILED);
@@ -260,14 +262,14 @@ implements RMADAO {
 
 	@Override
 	public Boolean update(Connection conn, RMA rma) throws DataException {
-		
+
 		PreparedStatement stmt = null;
-		
+
 		try {
 			stmt = conn.prepareStatement(UPDATE_QUERY);
-			int i = setInsertValues(stmt, rma);
+			int i = setInsertValues(stmt, rma, false);
 			stmt.setLong(i++, rma.getId());
-			
+
 			int affectedRows = stmt.executeUpdate();
 			if (affectedRows != 1) {
 				throw new DataException(ErrorCodes.UPDATE_FAILED);
@@ -283,15 +285,18 @@ implements RMADAO {
 			throw new DataException(e);
 		}
 	}
-	
-	private int setInsertValues(PreparedStatement stmt, RMA rma) 
+
+	private int setInsertValues(PreparedStatement stmt, RMA rma, boolean isNew) 
 			throws SQLException {
-		
+
 		int i = 1;
-		
-		stmt.setInt(i++, rma.getCustomerId());
+
+		if (isNew) {
+			stmt.setInt(i++, rma.getCustomerId());
+			stmt.setTimestamp(i++, new java.sql.Timestamp(rma.getCreationDate().getTime()));
+		}
+
 		stmt.setString(i++, rma.getState());
-		stmt.setTimestamp(i++, new java.sql.Timestamp(rma.getCreationDate().getTime()));
 		stmt.setString(i++, rma.getTrackingNumber());
 		return i;
 	}
