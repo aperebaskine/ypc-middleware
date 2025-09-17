@@ -64,9 +64,6 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 					+ " DOCUMENT_NUMBER = ?,"
 					+ " PHONE = ?,"
 					+ " EMAIL = ?,"
-					+ " USERNAME = ?,"
-					+ " PASSWORD = ?,"
-					+ " CREATION_DATE = ?,"
 					+ " IBAN = ?,"
 					+ " BIC = ?"
 					+ " WHERE ID = ?";
@@ -261,7 +258,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		try {
 			stmt = conn.prepareStatement(CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
 			e.setCreationDate(new Date());
-			setInsertValues(stmt, e);
+			setInsertValues(stmt, e, true);
 
 			int affectedRows = stmt.executeUpdate();
 
@@ -293,7 +290,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		try {
 			stmt = conn.prepareStatement(UPDATE_QUERY);
 
-			int index = setInsertValues(stmt, e);
+			int index = setInsertValues(stmt, e, false);
 			stmt.setInt(index++, e.getId());
 
 			int affectedRows = stmt.executeUpdate();
@@ -337,7 +334,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		}
 	}
 
-	private static int setInsertValues(PreparedStatement stmt, Employee e) 
+	private static int setInsertValues(PreparedStatement stmt, Employee e, boolean isNew) 
 			throws SQLException {
 
 		int index = 1;
@@ -350,9 +347,13 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 		stmt.setString(index++, e.getDocumentNumber());
 		stmt.setString(index++, e.getPhoneNumber());
 		stmt.setString(index++, e.getEmail());
-		stmt.setString(index++, e.getUsername());
-		stmt.setString(index++, e.getEncryptedPassword());
-		stmt.setTimestamp(index++, new java.sql.Timestamp(e.getCreationDate().getTime()));
+		
+		if (isNew) {
+			stmt.setString(index++, e.getUsername());
+			stmt.setString(index++, e.getEncryptedPassword());
+			stmt.setTimestamp(index++, new java.sql.Timestamp(e.getCreationDate().getTime()));
+		}
+		
 		stmt.setString(index++, e.getIban());
 		stmt.setString(index++, e.getBic());
 		return index;
