@@ -42,6 +42,8 @@ public class ConfigManager {
 	
 	public static final String DELIMITER = getParameter("delimiter");
 	
+	public static final boolean DEBUG_MODE = Boolean.valueOf(getParameter("debug"));
+	
 	private ConfigManager() {
 	}
 
@@ -51,6 +53,10 @@ public class ConfigManager {
 	
 	public static final String[] getParameters(String parameterName) {
 		return propertiesCfg.getProperty(parameterName).split(DELIMITER);
+	}
+	
+	public static final boolean isDebug() {
+		return DEBUG_MODE;
 	}
 
 }
