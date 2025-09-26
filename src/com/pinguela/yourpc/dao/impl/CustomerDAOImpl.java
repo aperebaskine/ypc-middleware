@@ -371,18 +371,18 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 		int index = 1;
 		stmt.setString(index++, c.getFirstName());
-		stmt.setString(index++, c.getLastName1());
+		JDBCUtils.setNullable(stmt, c.getLastName1(), index++);
 		JDBCUtils.setNullable(stmt, c.getLastName2(), index++);
-		stmt.setString(index++, c.getDocumentTypeId());
-		stmt.setString(index++, c.getDocumentNumber());
-		stmt.setString(index++, c.getPhoneNumber());
+		JDBCUtils.setNullable(stmt, c.getDocumentTypeId(), index++);
+		JDBCUtils.setNullable(stmt, c.getDocumentNumber(), index++);
+		JDBCUtils.setNullable(stmt, c.getPhoneNumber(), index++);
 
 		if (isNew) {
 			stmt.setTimestamp(index++, new java.sql.Timestamp(c.getCreationDate().getTime()));
 			stmt.setString(index++, c.getEmail());
 		}
 
-		stmt.setString(index++, c.getEncryptedPassword());
+		JDBCUtils.setNullable(stmt, c.getEncryptedPassword(), index++);
 
 		return index;
 	}
