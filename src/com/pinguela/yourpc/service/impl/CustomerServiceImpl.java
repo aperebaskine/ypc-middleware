@@ -237,6 +237,10 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public Boolean updatePassword(Integer customerId, String password) 
 			throws ServiceException, DataException {
+		
+		if (customerId == null || password == null) {
+			throw new ServiceException("One or more required fields is missing.");
+		}
 
 		Connection conn = null;
 		boolean commit = false;

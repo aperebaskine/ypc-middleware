@@ -395,7 +395,7 @@ class CustomerServiceTest {
 
 		@Test
 		void testWithInvalidPassword() {
-			assertThrows(DataException.class, () -> customerService.updatePassword(1, null));
+			assertThrows(ServiceException.class, () -> customerService.updatePassword(1, null));
 		}
 	}
 
