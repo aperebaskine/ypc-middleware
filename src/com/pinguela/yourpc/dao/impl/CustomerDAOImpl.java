@@ -75,8 +75,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " LAST_NAME2 = ?,"
 					+ " DOCUMENT_TYPE_ID = ?,"
 					+ " DOCUMENT_NUMBER = ?,"
-					+ " PHONE = ?,"
-					+ " PASSWORD = ?"
+					+ " PHONE = ?"
 					+ " WHERE ID = ?";
 
 	private static final String UPDATE_PASSWORD_QUERY =
@@ -380,9 +379,8 @@ public class CustomerDAOImpl implements CustomerDAO {
 		if (isNew) {
 			stmt.setTimestamp(index++, new java.sql.Timestamp(c.getCreationDate().getTime()));
 			stmt.setString(index++, c.getEmail());
+			JDBCUtils.setNullable(stmt, c.getEncryptedPassword(), index++);
 		}
-
-		JDBCUtils.setNullable(stmt, c.getEncryptedPassword(), index++);
 
 		return index;
 	}

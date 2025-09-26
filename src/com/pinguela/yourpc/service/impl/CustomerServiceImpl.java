@@ -214,11 +214,6 @@ public class CustomerServiceImpl implements CustomerService {
 	public Boolean update(Customer c) 
 			throws ServiceException, DataException {
 
-		if (c.getUnencryptedPassword() != null) {
-			c.setEncryptedPassword(PASSWORD_ENCRYPTOR.encryptPassword(c.getUnencryptedPassword()));
-			c.setUnencryptedPassword(null);
-		}
-
 		Connection conn = null;
 		boolean commit = false;
 
