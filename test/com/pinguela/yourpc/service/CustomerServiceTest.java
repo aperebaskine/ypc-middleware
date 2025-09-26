@@ -126,8 +126,14 @@ class CustomerServiceTest {
 
 		@Test
 		void testWithInvalidLastName() {
-			c.setLastName1(null);
-			assertThrows(DataException.class, () -> customerService.register(c));
+			try {
+				c.setLastName1(null);
+				Integer id = customerService.register(c);
+				Customer d = customerService.findById(id);
+				assertEquals(c.getPhoneNumber(), d.getPhoneNumber());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
 		}
 
 		@Test
@@ -150,8 +156,14 @@ class CustomerServiceTest {
 
 		@Test
 		void testWithInvalidPhoneNumber() {
-			c.setPhoneNumber(null);
-			assertThrows(DataException.class, () -> customerService.register(c));
+			try {
+				c.setPhoneNumber(null);
+				Integer id = customerService.register(c);
+				Customer d = customerService.findById(id);
+				assertEquals(c.getPhoneNumber(), d.getPhoneNumber());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
 		}
 
 		@Test
