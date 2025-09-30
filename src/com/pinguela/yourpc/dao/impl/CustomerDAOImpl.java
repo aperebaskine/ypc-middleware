@@ -38,7 +38,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 					+ " cu.CREATION_DATE";
 	private static final String FROM_TABLE =
 			" FROM CUSTOMER cu"
-					+ " INNER JOIN DOCUMENT_TYPE dt"
+					+ " LEFT JOIN DOCUMENT_TYPE dt"
 					+ " ON dt.ID = cu.DOCUMENT_TYPE_ID";
 	private static final String WHERE_ID =
 			" WHERE cu.ID = ?";
