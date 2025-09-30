@@ -119,13 +119,19 @@ class CustomerServiceTest {
 		}
 
 		@Test
-		void testWithInvalidFirstName() {
-			c.setFirstName(null);
-			assertThrows(DataException.class, () -> customerService.register(c));
+		void testWithNullFirstName() {
+			try {
+				c.setFirstName(null);
+				Integer id = customerService.register(c);
+				Customer d = customerService.findById(id);
+				assertEquals(c.getPhoneNumber(), d.getPhoneNumber());
+			} catch (YPCException e) {
+				fail(e.getMessage(), e);
+			}
 		}
 
 		@Test
-		void testWithInvalidLastName() {
+		void testWithNullLastName() {
 			try {
 				c.setLastName1(null);
 				Integer id = customerService.register(c);
@@ -149,13 +155,13 @@ class CustomerServiceTest {
 		}
 
 		@Test
-		void testWithInvalidDocumentNumber() {
+		void testWithNullDocumentNumber() {
 			c.setDocumentNumber(null);
 			assertThrows(DataException.class, () -> customerService.register(c));
 		}
 
 		@Test
-		void testWithInvalidPhoneNumber() {
+		void testWithNullPhoneNumber() {
 			try {
 				c.setPhoneNumber(null);
 				Integer id = customerService.register(c);

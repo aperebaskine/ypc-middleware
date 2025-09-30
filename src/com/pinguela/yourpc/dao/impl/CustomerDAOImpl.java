@@ -369,7 +369,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 			throws SQLException {
 
 		int index = 1;
-		stmt.setString(index++, c.getFirstName());
+		JDBCUtils.setNullable(stmt, c.getFirstName(), index++);
 		JDBCUtils.setNullable(stmt, c.getLastName1(), index++);
 		JDBCUtils.setNullable(stmt, c.getLastName2(), index++);
 		JDBCUtils.setNullable(stmt, c.getDocumentTypeId(), index++);
